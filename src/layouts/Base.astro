@@ -24,6 +24,7 @@ const anchor = (id: string) => (onHome ? `#${id}` : url(`/${lang}/#${id}`));
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title ?? ui.siteTitle}</title>
+    <link rel="icon" type="image/svg+xml" href={url('/favicon.svg')} />
     <meta name="description" content={description ?? ui.siteDescription} />
     <link rel="alternate" hreflang="en" href={url(path.replace(`/${lang}/`, '/en/'))} />
     <link rel="alternate" hreflang="es" href={url(path.replace(`/${lang}/`, '/es/'))} />
