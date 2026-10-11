@@ -43,7 +43,7 @@ const parseLine = (l: string) => {
   if (lab) return { kind: 'label', key: lab[1], text: lab[2] };
   return { kind: 'plain', key: '', text: l };
 };
-const mobilePos = [{ x: 64, y: 56, side: 'a' }, { x: 296, y: 160, side: 'l' }, { x: 64, y: 272, side: 'r' }, { x: 296, y: 382, side: 'l' }];
+const mobilePos = [{ x: 64, y: 74, side: 'a' }, { x: 296, y: 160, side: 'l' }, { x: 64, y: 272, side: 'r' }, { x: 296, y: 382, side: 'l' }];
 const stops = [
   { x: 90, y: 170, code: 'LPA', when: '2021 – 2023' },
   { x: 380, y: 70, code: 'MUC', when: lang === 'es' ? 'jul – sep 2023' : 'Jul – Sep 2023' },
@@ -75,7 +75,7 @@ const stops = [
           ))}
         </svg>
         <svg class="a-map-m" viewBox="0 0 360 430" role="img" aria-label="Las Palmas, Munich, Berlin, Las Palmas">
-          <path class="a-arc" pathLength="1" d="M64 56 C 200 56, 296 76, 296 160" />
+          <path class="a-arc" pathLength="1" d="M64 74 C 200 74, 296 90, 296 160" />
           <path class="a-arc a-d2" pathLength="1" d="M296 160 C 296 224, 64 214, 64 272" />
           <path class="a-arc a-d3" pathLength="1" d="M64 272 C 64 340, 296 332, 296 382" />
           {stops.map((st, i) => {
@@ -83,7 +83,7 @@ const stops = [
             const above = q.side === 'a';
             const dx = above ? -11 : q.side === 'r' ? 24 : -24;
             const anchor = q.side === 'l' ? 'end' : 'start';
-            const dy = above ? -30 : -2;
+            const dy = above ? -42 : -2;
             return (
               <g>
                 <circle class="a-st" cx={q.x} cy={q.y} r="11" />
@@ -452,6 +452,7 @@ const stops = [
   .a-packet { position: absolute; z-index: 0; top: 34px; left: 10%; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 16px 4px color-mix(in srgb, var(--accent) 60%, transparent); animation: a-flow 5s linear infinite; }
   .a-packet:nth-of-type(2) { animation-delay: -1.7s; }
   .a-packet:nth-of-type(3) { animation-delay: -3.4s; }
+  @keyframes a-flow-v { from { top: 22px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } to { top: calc(100% - 28px); opacity: 0; } }
   @keyframes a-flow { from { left: 10%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } to { left: 90%; opacity: 0; } }
   .a-node { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: 0; color: var(--ink); font: inherit; cursor: pointer; padding: 0 4px 8px; min-height: 44px; }
   .a-dot { width: 20px; height: 20px; border-radius: 50%; background: var(--bg); border: 2px solid var(--accent); transition: transform 150ms, background 150ms; }
@@ -575,7 +576,7 @@ const stops = [
   @media (max-width: 640px) {
     .a-pipe { grid-template-columns: 1fr; gap: 4px; padding: 4px 0 0; }
     .a-pipe::before { left: 11px; right: auto; top: 22px; bottom: 22px; width: 2px; height: auto; background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 25%, transparent)); }
-    .a-packet { display: none; }
+    .a-packet { left: 7px; top: 22px; animation: a-flow-v 4.5s linear infinite; }
     .a-node { display: grid; grid-template-columns: 24px 1fr; grid-template-areas: 'dot head' '. text'; column-gap: 16px; align-items: center; text-align: left; padding: 8px 0 12px; }
     .a-dot { grid-area: dot; justify-self: center; }
     .a-node .a-num { display: none; }
