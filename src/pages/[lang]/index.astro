@@ -227,6 +227,7 @@ const stops = [
             <a class="a-btn" href={`/${lang}/cv/`}>{ui.cv.fullPage}</a>
           </div>
           <CvDocument lang={lang} />
+          <div class="cv-close-row"><button type="button" class="a-btn unf-close">{ui.cv.close} ↑</button></div>
         </div></div></div>
       </div>
     </section>
@@ -265,6 +266,18 @@ const stops = [
           var l = b.querySelector('.unf-label');
           if (l) l.textContent = open ? b.dataset.openLabel : b.dataset.closeLabel;
           if (!open && box.classList.contains('a-card')) setTimeout(function () { box.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest' }); }, 250);
+        });
+      });
+      document.querySelectorAll('.unf-close').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var box = b.closest('.unf');
+          var head = box.querySelector(':scope > .unf-btn');
+          if (head) { head.click(); head.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' }); }
+          else if (box.id === 'a-more') {
+            box.dataset.open = 'false';
+            box.querySelectorAll('.a-more-pill').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+            box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
         });
       });
       var more = document.getElementById('a-more');
@@ -401,6 +414,10 @@ const stops = [
   .t-why { margin: 20px 0 0; padding: 12px 14px; border-left: 3px solid var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg)); font-size: 0.9375rem; }
   .t-why span { display: block; font-family: var(--mono); font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 2px; }
   .t-nav { display: flex; justify-content: space-between; gap: 8px; margin-top: 20px; }
+  .a-card.unf[data-open='true'] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 24px 48px -28px color-mix(in srgb, var(--accent) 55%, transparent); }
+  .a-more[data-open='true'] .a-more-bar { padding-bottom: 8px; }
+  .a-more-panel { margin-top: 12px; }
+  .cv-close-row { display: flex; justify-content: flex-end; margin-top: 16px; }
   .a-card.unf[data-open='true'] { grid-column: 1 / -1; }
   .a-card .unf-btn { margin-top: 12px; }
   .a-featured { grid-column: 1 / -1; border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 12%, var(--bg)), color-mix(in srgb, var(--ink) 3%, var(--bg))); padding: 32px; }

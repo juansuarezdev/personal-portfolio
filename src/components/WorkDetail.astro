@@ -13,8 +13,12 @@ const { w, lang, page = false } = Astro.props;
 const ui = t(lang);
 ---
 
-<div class="wd">
-  {w.draft && !page && <p class="wd-draft"><span class="a-chip a-wip">{ui.work.draft}</span></p>}
+<div class:list={['wd', { 'wd-page': page }]}>
+  <div class="wd-bar">
+    <span class="wd-tag">{ui.work.about}</span>
+    {w.draft && !page && <span class="a-chip a-wip">{ui.work.draft}</span>}
+    <span class="wd-line"></span>
+  </div>
   {w.body && (
     <div class="wd-body">
       {w.body.map((b, i) => (
@@ -27,30 +31,46 @@ const ui = t(lang);
     </div>
   )}
   {w.demo && (
-    <div class="wd-demo">
-      <p class="label">{ui.work.demo}</p>
-      {w.demo === 'planner' && <Planner lang={lang} />}
-      {w.demo === 'automation' && <Automation lang={lang} />}
-      {w.demo === 'nonsleep' && <NonSleep lang={lang} />}
-      {w.demo === 'beast' && <Beast lang={lang} />}
-      {w.demo === 'hevy' && <Hevy lang={lang} />}
-      {w.demo === 'portal' && <Portal lang={lang} />}
-    </div>
+    <>
+      <div class="wd-bar wd-bar-demo">
+        <span class="wd-tag wd-tag-demo">▶ {ui.work.demo}</span>
+        <span class="wd-line"></span>
+      </div>
+      <div class="wd-demo">
+        {w.demo === 'planner' && <Planner lang={lang} />}
+        {w.demo === 'automation' && <Automation lang={lang} />}
+        {w.demo === 'nonsleep' && <NonSleep lang={lang} />}
+        {w.demo === 'beast' && <Beast lang={lang} />}
+        {w.demo === 'hevy' && <Hevy lang={lang} />}
+        {w.demo === 'portal' && <Portal lang={lang} />}
+      </div>
+    </>
   )}
-  <p class="wd-links">
+  <div class="wd-bar wd-end">
+    <span class="wd-line"></span>
     {w.github && <a class="a-btn" href={w.github}>{ui.work.github} ↗</a>}
     {!page && <a class="a-btn" href={`/${lang}/work/${w.slug}/`}>{ui.work.fullPage}</a>}
-  </p>
+    {!page && <button type="button" class="a-btn unf-close">{ui.work.close} ↑</button>}
+  </div>
 </div>
 
 <style is:global>
-  .wd { padding-top: 8px; }
-  .wd-draft { margin: 0 0 12px; }
-  .wd-body { display: grid; gap: 4px; }
-  .wd-sec { padding: 16px 0; border-top: 1px solid var(--line); }
+  .wd { margin-top: 20px; padding: 20px; border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); border-left-width: 4px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 5%, var(--bg)); }
+  .wd-page { margin-top: 8px; }
+  .wd-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .wd-line { flex: 1 1 40px; height: 1px; background: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+  .wd-tag { font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); }
+  .wd-tag-demo { padding: 4px 10px; border-radius: 999px; background: var(--accent); color: var(--bg); }
+  .wd-body { display: grid; gap: 0; margin-bottom: 8px; }
+  .wd-sec { padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .wd-sec:last-child { border-bottom: 0; }
   .wd-sec h3 { font-size: 1.125rem; margin: 0 0 6px; }
-  .wd-demo { padding: 16px 0 8px; border-top: 1px solid var(--line); }
-  .wd-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .wd-bar-demo { margin-top: 16px; }
+  .wd-demo { margin-top: 12px; }
+  .wd .demo { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 8%, transparent); }
+  .wd .demo-bar { background: color-mix(in srgb, var(--accent) 10%, var(--bg)); }
+  .wd-end { margin-top: 20px; padding-top: 4px; justify-content: flex-end; }
+  .wd-end .wd-line { flex: 1 1 24px; order: -1; }
   .a-chip { font-family: var(--mono); font-size: 0.75rem; padding: 2px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
   .a-chip.a-wip { color: var(--wip); border-color: var(--wip); }
 </style>
