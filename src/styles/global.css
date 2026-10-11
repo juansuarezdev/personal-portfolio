@@ -142,10 +142,8 @@ html {
 }
 .mark {
   display: block;
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
-  box-shadow: 0 0 0 1px var(--line);
+  width: 48px;
+  height: auto;
 }
 .nav ul {
   display: flex;
