@@ -25,33 +25,50 @@
   .cv-langs { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
   .cv-langs li { display: flex; justify-content: space-between; gap: 8px; font-size: 0.9375rem; }
 
+  /* Print: one linear column, plain text, standard headings (readable by people and by screening software) */
   @media print {
-    @page { size: A4; margin: 14mm; }
+    @page { size: A4; margin: 14mm 15mm; }
     :root, :root[data-theme], :root:not([data-theme='light']) {
-      --bg: #ffffff !important; --ink: #111111 !important; --muted: #555555 !important;
-      --line: #cccccc !important; --accent: #4b1fb8 !important; color-scheme: light;
+      --bg: #ffffff !important; --ink: #000000 !important; --muted: #333333 !important;
+      --line: #999999 !important; --accent: #000000 !important; color-scheme: light;
     }
     html { scroll-padding-top: 0; }
-    body { font-size: 10pt; background: #fff; }
-    .site-header, .site-footer, .skip, .cv-actions { display: none !important; }
+    body { background: #fff; color: #000; font-family: Arial, Helvetica, sans-serif; font-size: 10pt; line-height: 1.4; }
+    .site-header, .site-footer, .skip, .cv-actions, .cv-actions-inline, .cv-close-row { display: none !important; }
     .wrap { max-width: none; padding: 0; }
     .cv-wrap { padding: 0; }
-    .cv { border: 0; padding: 0; max-width: none; background: none; }
-    .cv-cols { grid-template-columns: 1fr 55mm; gap: 8mm; }
+    .cv { border: 0; border-radius: 0; padding: 0; max-width: none; background: none; font-family: inherit; }
+    .cv * { font-family: inherit !important; }
     .cv a { color: inherit; text-decoration: none; }
-    .cv-sec, .cv-item { break-inside: avoid; }
-  }
 
-  .cv-actions-inline { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
-  @media print {
-    body[data-print-cv] .a-hero,
-    body[data-print-cv] .wrap > section:not(#cv),
-    body[data-print-cv] .cvx-cover,
-    body[data-print-cv] .cvx::before, body[data-print-cv] .cvx::after,
-    body[data-print-cv] .cv-actions-inline,
-    body[data-print-cv] #cv > .a-eyebrow,
-    body[data-print-cv] #cv > h2 { display: none !important; }
-    body[data-print-cv] .cvx > .unf-doc { display: block !important; opacity: 1 !important; visibility: visible !important; transform: none !important; grid-template-rows: 1fr !important; }
-    body[data-print-cv] .cvx > .unf-doc > div { overflow: visible !important; }
-    body[data-print-cv] .wrap > section#cv { padding: 0 !important; border: 0 !important; }
+    .cv-head { padding: 0 0 6pt; margin: 0 0 8pt; border-bottom: 1pt solid #000; }
+    .cv-head h1 { font-size: 20pt; letter-spacing: 0; margin: 0; }
+    .cv-role { color: #000; font-size: 11pt; margin: 1pt 0 3pt; }
+    .cv-contact { display: block; font-size: 9pt; color: #000; margin: 0; padding: 0; }
+    .cv-contact li { display: inline; white-space: nowrap; }
+    .cv-contact li:not(:last-child)::after { content: ' | '; }
+
+    .cv-cols { display: block; }
+    .cv-main, .cv-side { display: block; }
+
+    .cv-sec { margin: 0 0 8pt; break-inside: auto; }
+    .cv-sec h2 { font-size: 11pt; font-weight: 700; text-transform: none; letter-spacing: 0; color: #000; border-bottom: 0.5pt solid #000; padding-bottom: 1pt; margin: 0 0 4pt; break-after: avoid; }
+    .cv-item { break-inside: avoid; margin-bottom: 6pt; }
+    .cv h3 { font-size: 10pt; }
+    .cv-date { font-size: 9pt; color: #000; }
+    .cv-place { font-size: 9pt; color: #333; margin: 0 0 2pt; }
+    .cv p { font-size: 10pt; margin-bottom: 2pt; max-width: none; }
+    .cv-hl { margin: 2pt 0 0; padding-left: 12pt; }
+    .cv-hl li { font-size: 10pt; margin-bottom: 1pt; }
+
+    .cv-skill { margin: 0 0 2pt; }
+    .cv-skill h3 { display: inline; font-size: 10pt; font-weight: 700; color: #000; margin: 0; }
+    .cv-skill h3::after { content: ': '; }
+    .cv-chips { display: inline; margin: 0; padding: 0; }
+    .cv-chips li { display: inline; border: 0; border-radius: 0; padding: 0; font-size: 10pt; }
+    .cv-chips li:not(:last-child)::after { content: ', '; }
+    .cv-langs { display: block; }
+    .cv-langs li { display: block; font-size: 10pt; }
+    .cv-langs li span { display: inline; font-size: 10pt; color: #000; }
+    .cv-langs li span:first-child::after { content: ': '; }
   }

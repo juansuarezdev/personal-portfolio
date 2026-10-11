@@ -100,6 +100,11 @@ const anchor = (id: string) => (onHome ? `#${id}` : `/${lang}/#${id}`);
           apply(cur);
         });
 
+        var hdr = document.querySelector('.site-header');
+        function onScrollHdr() { hdr.classList.toggle('scrolled', window.scrollY > 8); }
+        addEventListener('scroll', onScrollHdr, { passive: true });
+        onScrollHdr();
+
         var links = document.querySelectorAll('.nav a[href^="#"]');
         if (links.length && 'IntersectionObserver' in window) {
           var map = {};

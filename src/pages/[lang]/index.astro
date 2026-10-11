@@ -343,10 +343,18 @@ const stops = [
       var pr = document.getElementById('cvx-print');
       if (pr) {
         pr.addEventListener('click', function () {
-          document.body.dataset.printCv = '1';
-          window.print();
+          var f = document.getElementById('cv-frame');
+          function go() { f.contentWindow.focus(); f.contentWindow.print(); }
+          if (f) { go(); return; }
+          f = document.createElement('iframe');
+          f.id = 'cv-frame';
+          f.setAttribute('aria-hidden', 'true');
+          f.tabIndex = -1;
+          f.style.cssText = 'position:fixed;width:0;height:0;border:0;opacity:0;pointer-events:none';
+          f.addEventListener('load', go);
+          f.src = '/' + document.documentElement.lang + '/cv/';
+          document.body.appendChild(f);
         });
-        addEventListener('afterprint', function () { delete document.body.dataset.printCv; });
       }
       var doc = document.getElementById('a-doc');
       var tabs = doc.querySelectorAll('.a-tab');
@@ -403,19 +411,7 @@ const stops = [
 </Base>
 
 <style is:global>
-  .a-hero { position: relative; isolation: isolate; padding: 72px 0 72px; }
-  .a-hero::before {
-    content: '';
-    position: absolute;
-    z-index: -1;
-    inset: 0 0 -520px 0;
-    pointer-events: none;
-    background:
-      radial-gradient(60% 55% at 15% 12%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%),
-      radial-gradient(48% 62% at 100% 46%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 72%);
-    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
-  }
+  .a-hero { padding: 72px 0 72px; }
   .a-kicker { font-family: var(--mono); font-size: 0.8125rem; color: var(--accent); margin: 0 0 16px; }
   .a-title { font-size: clamp(2.25rem, 1rem + 6vw, 5rem); line-height: 1.02; letter-spacing: -0.03em; max-width: 16ch; margin: 0 0 16px; }
   .a-sub { font-size: 1.25rem; color: var(--muted); max-width: 46ch; margin-bottom: 48px; }

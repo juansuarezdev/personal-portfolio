@@ -51,6 +51,8 @@ html {
 }
 
 body {
+  position: relative;
+  isolation: isolate;
   margin: 0;
   background: var(--bg);
   color: var(--ink);
@@ -89,6 +91,22 @@ button:focus-visible {
   z-index: 10;
 }
 
+/* page-level gradient: sits behind the navbar and the hero and fades out */
+body::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 auto 0;
+  height: 1400px;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 42% at 15% 8%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%),
+    radial-gradient(48% 48% at 100% 34%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 72%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+}
+@media print { body::before { display: none; } }
+
 /* header */
 html {
   scroll-padding-top: 88px;
@@ -97,8 +115,13 @@ html {
   position: sticky;
   top: 0;
   z-index: 20;
-  border-bottom: 1px solid var(--line);
-  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  transition: background 250ms, border-color 250ms, backdrop-filter 250ms;
+}
+.site-header.scrolled {
+  border-bottom-color: var(--line);
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
   -webkit-backdrop-filter: saturate(1.4) blur(14px);
   backdrop-filter: saturate(1.4) blur(14px);
 }

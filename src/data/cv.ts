@@ -39,11 +39,11 @@ export const projects: { name: string; href: string; text: Text }[] = [
   {
     name: 'Beast',
     href: 'github.com/juansuarezdev/beast',
-    text: { en: 'Self-hosted gym tracker with Apple Health sync and iOS Live Activities. Fork of openGym (AGPL-3.0).', es: 'Tracker de gimnasio autoalojado con sincronización de Apple Health y Live Activities de iOS. Fork de openGym (AGPL-3.0).' },
+    text: { en: 'Fork of openGym (AGPL-3.0). Self-hosted gym tracker with Apple Health sync and iOS Live Activities.', es: 'Fork de openGym (AGPL-3.0). Tracker de gimnasio autoalojado con sincronización de Apple Health y Live Activities de iOS.' },
   },
   {
     name: 'hevy.routines',
     href: 'github.com/juansuarezdev/hevy.routines',
-    text: { en: 'Python script that updates training routines in the Hevy app through its API.', es: 'Script en Python que actualiza rutinas de entrenamiento en la app Hevy mediante su API.' },
+    text: { en: 'Python script that creates training routines in the Hevy app from YAML files, through its REST API.', es: 'Script en Python que crea rutinas de entrenamiento en la app Hevy a partir de archivos YAML, mediante su API REST.' },
   },
 ];

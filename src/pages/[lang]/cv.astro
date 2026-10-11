@@ -11,7 +11,7 @@ const lang = Astro.params.lang as Lang;
 const ui = t(lang);
 ---
 
-<Base lang={lang} title={`${ui.cv.title} — Juan Suárez`} description={summary[lang]}>
+<Base lang={lang} title={`Juan Suárez - ${ui.cv.title}`} description={summary[lang]}>
   <div class="wrap cv-wrap">
     <div class="cv-actions">
       <a class="a-btn" href={`/${lang}/`}>← {ui.cv.back}</a>
