@@ -1,0 +1,151 @@
+---
+import Base from '../../layouts/Base.astro';
+import { t, locales, type Lang } from '../../i18n/ui';
+import { career } from '../../data/career';
+import { contact, role, summary, skills, languages, projects } from '../../data/cv';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+const lang = Astro.params.lang as Lang;
+const ui = t(lang);
+const work = [...career].filter((c) => c.kind !== 'education').reverse();
+const education = career.filter((c) => c.kind === 'education');
+---
+
+<Base lang={lang} title={`${ui.cv.title} — Juan Suárez`} description={summary[lang]}>
+  <div class="wrap cv-wrap">
+    <div class="cv-actions">
+      <a class="a-btn" href={`/${lang}/`}>← {ui.cv.back}</a>
+      <button type="button" class="a-btn cv-print" id="cv-print">{ui.cv.savePdf}</button>
+    </div>
+
+    <article class="cv" aria-label={ui.cv.title}>
+      <header class="cv-head">
+        <h1>Juan Suárez</h1>
+        <p class="cv-role">{role[lang]}</p>
+        <ul class="cv-contact">
+          <li>{contact.location[lang]}</li>
+          <li><a href={`mailto:${contact.email}`}>{contact.email}</a></li>
+          <li><a href={contact.github}>github.com/juansuarezdev</a></li>
+          <li><a href={contact.linkedin}>linkedin.com/in/juansuarez-sanchez</a></li>
+        </ul>
+      </header>
+
+      <div class="cv-cols">
+        <div class="cv-main">
+          <section class="cv-sec">
+            <h2>{ui.cv.summary}</h2>
+            <p>{summary[lang]}</p>
+          </section>
+
+          <section class="cv-sec">
+            <h2>{ui.cv.experience}</h2>
+            {work.map((c) => (
+              <div class="cv-item">
+                <div class="cv-item-head">
+                  <h3>{c.title[lang]} · {c.org}</h3>
+                  <span class="cv-date">{c.period[lang]}</span>
+                </div>
+                <p class="cv-place">{c.place}</p>
+                {c.summary && <p>{c.summary[lang]}</p>}
+              </div>
+            ))}
+          </section>
+
+          <section class="cv-sec">
+            <h2>{ui.cv.projects}</h2>
+            {projects.map((p) => (
+              <div class="cv-item">
+                <div class="cv-item-head">
+                  <h3><a href={`https://${p.href}`}>{p.name}</a></h3>
+                  <span class="cv-date">{p.href}</span>
+                </div>
+                <p>{p.text[lang]}</p>
+              </div>
+            ))}
+          </section>
+        </div>
+
+        <aside class="cv-side">
+          <section class="cv-sec">
+            <h2>{ui.cv.education}</h2>
+            {education.map((c) => (
+              <div class="cv-item">
+                <h3>{c.title[lang]}</h3>
+                <p class="cv-place">{c.org} · {c.period[lang]}</p>
+              </div>
+            ))}
+          </section>
+
+          <section class="cv-sec">
+            <h2>{ui.cv.skills}</h2>
+            {skills.map((g) => (
+              <div class="cv-skill">
+                <h3>{g.group[lang]}</h3>
+                <ul class="cv-chips">{g.items.map((i) => <li>{i}</li>)}</ul>
+              </div>
+            ))}
+          </section>
+
+          <section class="cv-sec">
+            <h2>{ui.cv.languages}</h2>
+            <ul class="cv-langs">
+              {languages.map((l) => (
+                <li><span>{l.name[lang]}</span><span class="cv-place">{l.level[lang]}</span></li>
+              ))}
+            </ul>
+          </section>
+        </aside>
+      </div>
+    </article>
+  </div>
+
+  <script is:inline>
+    document.getElementById('cv-print').addEventListener('click', function () { window.print(); });
+  </script>
+</Base>
+
+<style is:global>
+  .cv-wrap { padding-top: 32px; padding-bottom: 64px; }
+  .cv-actions { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin-bottom: 24px; }
+  .cv { max-width: 880px; margin: 0 auto; padding: 40px; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--ink) 2%, var(--bg)); }
+  @media (max-width: 640px) { .cv { padding: 20px; } }
+  .cv-head { padding-bottom: 20px; border-bottom: 2px solid var(--ink); margin-bottom: 24px; }
+  .cv-head h1 { font-size: clamp(2rem, 1.2rem + 3vw, 2.75rem); letter-spacing: -0.03em; margin: 0; }
+  .cv-role { font-size: 1.125rem; color: var(--accent); margin: 4px 0 12px; }
+  .cv-contact { display: flex; flex-wrap: wrap; gap: 4px 20px; list-style: none; margin: 0; padding: 0; font-family: var(--mono); font-size: 0.8125rem; color: var(--muted); }
+  .cv-cols { display: grid; gap: 32px; grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .cv-cols { grid-template-columns: 1fr 260px; } }
+  .cv-sec { margin-bottom: 28px; }
+  .cv-sec h2 { font-family: var(--mono); font-size: 0.75rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); padding-bottom: 6px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+  .cv-item { margin-bottom: 16px; break-inside: avoid; }
+  .cv-item-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; }
+  .cv h3 { font-size: 1rem; margin: 0; }
+  .cv-date { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+  .cv-place { font-size: 0.875rem; color: var(--muted); margin: 0 0 4px; }
+  .cv p { font-size: 0.9375rem; margin-bottom: 6px; }
+  .cv-skill { margin-bottom: 12px; }
+  .cv-skill h3 { font-size: 0.8125rem; color: var(--muted); font-weight: 500; margin-bottom: 4px; }
+  .cv-chips { display: flex; flex-wrap: wrap; gap: 4px; list-style: none; margin: 0; padding: 0; }
+  .cv-chips li { font-size: 0.75rem; padding: 2px 8px; border: 1px solid var(--line); border-radius: 999px; }
+  .cv-langs { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  .cv-langs li { display: flex; justify-content: space-between; gap: 8px; font-size: 0.9375rem; }
+
+  @media print {
+    @page { size: A4; margin: 14mm; }
+    :root, :root[data-theme], :root:not([data-theme='light']) {
+      --bg: #ffffff !important; --ink: #111111 !important; --muted: #555555 !important;
+      --line: #cccccc !important; --accent: #4b1fb8 !important; color-scheme: light;
+    }
+    html { scroll-padding-top: 0; }
+    body { font-size: 10pt; background: #fff; }
+    .site-header, .site-footer, .skip, .cv-actions { display: none !important; }
+    .wrap { max-width: none; padding: 0; }
+    .cv-wrap { padding: 0; }
+    .cv { border: 0; padding: 0; max-width: none; background: none; }
+    .cv-cols { grid-template-columns: 1fr 55mm; gap: 8mm; }
+    .cv a { color: inherit; text-decoration: none; }
+    .cv-sec, .cv-item { break-inside: avoid; }
+  }
+</style>
