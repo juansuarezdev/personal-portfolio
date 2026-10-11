@@ -15,6 +15,23 @@ const lang = Astro.params.lang as Lang;
 const ui = t(lang);
 const steps = ui.method.steps;
 const templates = allTemplates[lang];
+const gridItems: { type: 'card' | 'drawer'; w: (typeof work)[number]; i: number }[] = [];
+{
+  let group: { w: (typeof work)[number]; i: number }[] = [];
+  const flush = () => {
+    group.forEach((g) => gridItems.push({ type: 'card', ...g }));
+    group.filter((g) => hasPage(g.w)).forEach((g) => gridItems.push({ type: 'drawer', ...g }));
+    group = [];
+  };
+  work.forEach((w, i) => {
+    if (w.featured) {
+      flush();
+      gridItems.push({ type: 'card', w, i });
+      if (hasPage(w)) gridItems.push({ type: 'drawer', w, i });
+    } else group.push({ w, i });
+  });
+  flush();
+}
 const bars = [[92, 64], [78, 52], [86, 40], [70, 58], [90, 46], [66, 72], [82, 50], [74, 60]];
 const parseLine = (l: string) => {
   const mark = l.match(/^(✓|✗)\s+(.*)$/);
@@ -146,7 +163,7 @@ const stops = [
       <p class="a-eyebrow">03</p>
       <h2 id="h-work">{ui.work.heading}</h2>
       <ul class="a-cards">
-        {work.map((w, i) => (
+        {gridItems.map(({ type, w, i }) => type === 'card' ? (
           <li class={`a-card unf${w.featured ? ' a-featured' : ''}`} data-open="false" id={`w-${w.slug}`}>
             <span class="a-idx" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
             <div class="a-chips">
@@ -156,13 +173,14 @@ const stops = [
             <p>{w.summary[lang]}</p>
             <p class="a-stack">{w.stack.join(' · ')}</p>
             {hasPage(w) && (
-              <button type="button" class="a-btn unf-btn" aria-expanded="false" aria-controls={`wd-${w.slug}`} data-open-label={ui.work.open} data-close-label={ui.work.close}>
+              <button type="button" class="a-btn unf-btn" data-drawer={`wd-${w.slug}`} aria-expanded="false" aria-controls={`wd-${w.slug}`} data-open-label={ui.work.open} data-close-label={ui.work.close}>
                 <span class="unf-label">{ui.work.open}</span><span class="unf-chev" aria-hidden="true"></span>
               </button>
             )}
-            {hasPage(w) && (
-              <div class="unf-doc" id={`wd-${w.slug}`}><div><div class="unf-in"><WorkDetail w={w} lang={lang} /></div></div></div>
-            )}
+          </li>
+        ) : (
+          <li class="a-drawer unf" data-open="false" id={`wd-${w.slug}`} data-for={`w-${w.slug}`}>
+            <div class="unf-doc"><div><div class="unf-in"><WorkDetail w={w} lang={lang} /></div></div></div>
           </li>
         ))}
       </ul>
@@ -258,7 +276,7 @@ const stops = [
         n.addEventListener('click', pick);
         n.addEventListener('mouseenter', pick);
       });
-      document.querySelectorAll('.unf-btn').forEach(function (b) {
+      document.querySelectorAll('.unf-btn:not([data-drawer])').forEach(function (b) {
         b.addEventListener('click', function () {
           var box = b.closest('.unf');
           var open = box.dataset.open === 'true';
@@ -269,11 +287,41 @@ const stops = [
           if (!open && box.classList.contains('a-card')) setTimeout(function () { box.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest' }); }, 250);
         });
       });
+      var instant = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      function setCard(card, open) {
+        card.dataset.open = open ? 'true' : 'false';
+        var b = card.querySelector('.unf-btn');
+        b.setAttribute('aria-expanded', open ? 'true' : 'false');
+        b.querySelector('.unf-label').textContent = open ? b.dataset.closeLabel : b.dataset.openLabel;
+      }
+      function closeAllCards() {
+        document.querySelectorAll('.a-card[data-open="true"]').forEach(function (c) { setCard(c, false); });
+        document.querySelectorAll('.a-drawer[data-open="true"]').forEach(function (d) { d.dataset.open = 'false'; });
+      }
+      document.querySelectorAll('.unf-btn[data-drawer]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var card = b.closest('.a-card');
+          var drawer = document.getElementById(b.dataset.drawer);
+          var wasOpen = card.dataset.open === 'true';
+          closeAllCards();
+          if (wasOpen) return;
+          setCard(card, true);
+          drawer.dataset.open = 'true';
+          setTimeout(function () {
+            var top = drawer.getBoundingClientRect().top + window.scrollY - 140;
+            window.scrollTo({ top: top, behavior: instant ? 'auto' : 'smooth' });
+          }, 200);
+        });
+      });
       document.querySelectorAll('.unf-close').forEach(function (b) {
         b.addEventListener('click', function () {
           var box = b.closest('.unf');
           var head = box.querySelector(':scope > .unf-btn');
-          if (head) { head.click(); head.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' }); }
+          if (box.classList.contains('a-drawer')) {
+            var card = document.getElementById(box.dataset.for);
+            card.querySelector('.unf-btn').click();
+            card.scrollIntoView({ behavior: instant ? 'auto' : 'smooth', block: 'center' });
+          } else if (head) { head.click(); head.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' }); }
           else if (box.id === 'a-more') {
             box.dataset.open = 'false';
             box.querySelectorAll('.a-more-pill').forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
@@ -425,7 +473,8 @@ const stops = [
   .a-more[data-open='true'] .a-more-bar { padding-bottom: 8px; }
   .a-more-panel { margin-top: 12px; }
   .cv-close-row { display: flex; justify-content: flex-end; margin-top: 16px; }
-  .a-card.unf[data-open='true'] { grid-column: 1 / -1; }
+  .a-drawer { grid-column: 1 / -1; list-style: none; margin-top: -16px; transition: margin-top 650ms cubic-bezier(.2,.8,.2,1); }
+  .a-drawer[data-open='true'] { margin-top: 0; }
   .a-card .unf-btn { margin-top: 12px; }
   .a-featured { grid-column: 1 / -1; border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 12%, var(--bg)), color-mix(in srgb, var(--ink) 3%, var(--bg))); padding: 32px; }
   .a-featured h3 { font-size: clamp(1.375rem, 1rem + 1.2vw, 1.875rem); max-width: 28ch; letter-spacing: -0.02em; }
