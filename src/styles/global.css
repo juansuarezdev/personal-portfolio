@@ -220,30 +220,66 @@ html {
 #theme-toggle[data-mode='dark'] .i-dark {
   display: block;
 }
+.menu-btn {
+  display: none;
+}
+.menu-btn .i-close {
+  display: none;
+}
+.menu-btn[aria-expanded='true'] .i-open {
+  display: none;
+}
+.menu-btn[aria-expanded='true'] .i-close {
+  display: block;
+}
 @media (max-width: 860px) {
   .bar {
-    flex-wrap: wrap;
-    padding-top: 8px;
-    padding-bottom: 8px;
-  }
-  .nav {
-    order: 3;
-    width: 100%;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -webkit-mask-image: linear-gradient(to right, #000 88%, transparent);
-    mask-image: linear-gradient(to right, #000 88%, transparent);
-  }
-  .nav ul { padding-right: 28px; }
-  .nav ul {
-    width: max-content;
-  }
-  .brand-name {
-    display: none;
+    position: relative;
   }
   .controls {
     margin-left: auto;
   }
+  .menu-btn {
+    display: inline-flex;
+  }
+  /* without JS the links stay visible as a wrapped row */
+  .nav ul {
+    flex-wrap: wrap;
+    border-radius: 16px;
+  }
+  .js .nav {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 16px;
+    right: 16px;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: opacity 180ms, transform 180ms, visibility 0s 180ms;
+  }
+  .js .nav[data-open='true'] {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+    transition: opacity 180ms, transform 180ms;
+  }
+  .js .nav ul {
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px;
+    border-radius: 16px;
+    background: var(--bg);
+    box-shadow: 0 16px 40px -12px color-mix(in srgb, var(--ink) 30%, transparent);
+  }
+  .js .nav a {
+    min-height: 48px;
+    padding: 0 16px;
+    font-size: 1.0625rem;
+    border-radius: 10px;
+  }
+}
+@media (max-width: 860px) and (prefers-reduced-motion: reduce) {
+  .js .nav, .js .nav[data-open='true'] { transition: none; }
 }
 
 /* buttons */

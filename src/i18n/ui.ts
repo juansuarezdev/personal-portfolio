@@ -7,6 +7,7 @@ export const ui = {
     siteDescription:
       'Full-stack developer. I turn a business need into a specified, tested, running system.',
     skip: 'Skip to content',
+    menu: 'Menu',
     nav: { method: 'Method', templates: 'Templates', work: 'Work', journey: 'Journey', cv: 'CV', contact: 'Contact' },
     theme: { label: 'Theme', system: 'System', light: 'Light', dark: 'Dark' },
     lang: { label: 'Language' },
@@ -76,6 +77,7 @@ export const ui = {
     siteDescription:
       'Desarrollador full-stack. Convierto una necesidad de negocio en un sistema especificado, probado y en producción.',
     skip: 'Saltar al contenido',
+    menu: 'Menú',
     nav: { method: 'Método', templates: 'Plantillas', work: 'Trabajo', journey: 'Trayectoria', cv: 'CV', contact: 'Contacto' },
     theme: { label: 'Tema', system: 'Sistema', light: 'Claro', dark: 'Oscuro' },
     lang: { label: 'Idioma' },
