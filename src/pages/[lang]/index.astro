@@ -4,6 +4,9 @@ import { t, locales, type Lang } from '../../i18n/ui';
 import { work, moreWork, hasPage } from '../../data/work';
 import { career } from '../../data/career';
 import { templates as allTemplates } from '../../data/templates';
+import WorkDetail from '../../components/WorkDetail.astro';
+import CvDocument from '../../components/CvDocument.astro';
+import { role } from '../../data/cv';
 
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang } }));
@@ -144,20 +147,46 @@ const stops = [
       <h2 id="h-work">{ui.work.heading}</h2>
       <ul class="a-cards">
         {work.map((w, i) => (
-          <li class="a-card">
+          <li class={`a-card unf${w.featured ? ' a-featured' : ''}`} data-open="false" id={`w-${w.slug}`}>
             <span class="a-idx" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
             <div class="a-chips">
               <span class={`a-chip a-${w.status}`}>{ui.work.status[w.status]}</span>
             </div>
-            <h3>{hasPage(w) ? <a href={`/${lang}/work/${w.slug}/`}>{w.title[lang]}</a> : w.title[lang]}</h3>
+            <h3>{w.title[lang]}</h3>
             <p>{w.summary[lang]}</p>
             <p class="a-stack">{w.stack.join(' · ')}</p>
+            {hasPage(w) && (
+              <button type="button" class="a-btn unf-btn" aria-expanded="false" aria-controls={`wd-${w.slug}`} data-open-label={ui.work.open} data-close-label={ui.work.close}>
+                <span class="unf-label">{ui.work.open}</span><span class="unf-chev" aria-hidden="true"></span>
+              </button>
+            )}
+            {hasPage(w) && (
+              <div class="unf-doc" id={`wd-${w.slug}`}><div><div class="unf-in"><WorkDetail w={w} lang={lang} /></div></div></div>
+            )}
           </li>
         ))}
       </ul>
-      <p class="more"><span class="label">{ui.work.more}</span>
-        {moreWork.map((m) => <a class="a-pill" href={`/${lang}/work/${m.slug}/`}>{m.title[lang]}</a>)}
-      </p>
+
+      <div class="a-more unf" id="a-more" data-open="false">
+        <div class="a-more-bar">
+          <span class="label">{ui.work.more}</span>
+          <div class="d-seg" role="group" aria-label={ui.work.more}>
+            {moreWork.map((m) => (
+              <button type="button" class="a-more-pill" data-slug={m.slug} aria-pressed="false" aria-controls="a-more-doc">{m.title[lang]}</button>
+            ))}
+          </div>
+        </div>
+        <div class="unf-doc" id="a-more-doc"><div><div class="unf-in">
+          {moreWork.map((m) => (
+            <div class="a-more-panel" data-slug={m.slug} hidden>
+              <h3 class="a-more-title">{m.title[lang]}</h3>
+              <p class="lede">{m.summary[lang]}</p>
+              <p class="a-stack">{m.stack.join(' · ')}</p>
+              <WorkDetail w={m} lang={lang} />
+            </div>
+          ))}
+        </div></div></div>
+      </div>
     </section>
 
     <section id="journey" aria-labelledby="h-journey">
@@ -178,8 +207,32 @@ const stops = [
       </ol>
     </section>
 
-    <section id="contact" aria-labelledby="h-contact">
+    <section id="cv" aria-labelledby="h-cv">
       <p class="a-eyebrow">05</p>
+      <h2 id="h-cv">CV</h2>
+      <div class="cvx unf" data-open="false" id="cvx">
+        <button type="button" class="cvx-cover unf-btn" aria-expanded="false" aria-controls="cvx-doc" data-open-label={ui.cv.open} data-close-label={ui.cv.close}>
+          <span class="cvx-mono" aria-hidden="true">CV</span>
+          <span class="cvx-text">
+            <span class="cvx-kicker">{ui.cv.coverKicker}</span>
+            <span class="cvx-name">Juan Suárez</span>
+            <span class="cvx-role">{role[lang]}</span>
+            <span class="cvx-note">{ui.cv.coverNote}</span>
+          </span>
+          <span class="cvx-open"><span class="unf-label">{ui.cv.open}</span><span class="unf-chev" aria-hidden="true"></span></span>
+        </button>
+        <div class="unf-doc" id="cvx-doc"><div><div class="unf-in">
+          <div class="cv-actions-inline">
+            <button type="button" class="a-btn" id="cvx-print">{ui.cv.savePdf}</button>
+            <a class="a-btn" href={`/${lang}/cv/`}>{ui.cv.fullPage}</a>
+          </div>
+          <CvDocument lang={lang} />
+        </div></div></div>
+      </div>
+    </section>
+
+    <section id="contact" aria-labelledby="h-contact">
+      <p class="a-eyebrow">06</p>
       <h2 id="h-contact">{ui.contact.heading}</h2>
       <div class="a-contact">
         <a class="a-big" href="mailto:juansuarezdev@gmail.com">juansuarezdev@gmail.com</a>
@@ -203,6 +256,36 @@ const stops = [
         n.addEventListener('click', pick);
         n.addEventListener('mouseenter', pick);
       });
+      document.querySelectorAll('.unf-btn').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var box = b.closest('.unf');
+          var open = box.dataset.open === 'true';
+          box.dataset.open = open ? 'false' : 'true';
+          b.setAttribute('aria-expanded', open ? 'false' : 'true');
+          var l = b.querySelector('.unf-label');
+          if (l) l.textContent = open ? b.dataset.openLabel : b.dataset.closeLabel;
+          if (!open && box.classList.contains('a-card')) setTimeout(function () { box.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest' }); }, 250);
+        });
+      });
+      var more = document.getElementById('a-more');
+      var pills = more.querySelectorAll('.a-more-pill');
+      var panels = more.querySelectorAll('.a-more-panel');
+      pills.forEach(function (p) {
+        p.addEventListener('click', function () {
+          var same = p.getAttribute('aria-pressed') === 'true' && more.dataset.open === 'true';
+          pills.forEach(function (x) { x.setAttribute('aria-pressed', !same && x === p ? 'true' : 'false'); });
+          panels.forEach(function (pn) { pn.hidden = pn.dataset.slug !== p.dataset.slug; });
+          more.dataset.open = same ? 'false' : 'true';
+        });
+      });
+      var pr = document.getElementById('cvx-print');
+      if (pr) {
+        pr.addEventListener('click', function () {
+          document.body.dataset.printCv = '1';
+          window.print();
+        });
+        addEventListener('afterprint', function () { delete document.body.dataset.printCv; });
+      }
       var doc = document.getElementById('a-doc');
       var tabs = doc.querySelectorAll('.a-tab');
       function selectTab(tab) {
@@ -318,6 +401,36 @@ const stops = [
   .t-why { margin: 20px 0 0; padding: 12px 14px; border-left: 3px solid var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg)); font-size: 0.9375rem; }
   .t-why span { display: block; font-family: var(--mono); font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 2px; }
   .t-nav { display: flex; justify-content: space-between; gap: 8px; margin-top: 20px; }
+  .a-card.unf[data-open='true'] { grid-column: 1 / -1; }
+  .a-card .unf-btn { margin-top: 12px; }
+  .a-featured { grid-column: 1 / -1; border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 12%, var(--bg)), color-mix(in srgb, var(--ink) 3%, var(--bg))); padding: 32px; }
+  .a-featured h3 { font-size: clamp(1.375rem, 1rem + 1.2vw, 1.875rem); max-width: 28ch; letter-spacing: -0.02em; }
+  .a-featured > p:not(.a-stack) { font-size: 1.0625rem; max-width: 60ch; }
+  .a-more { margin-top: 24px; }
+  .a-more-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+  .a-more-title { font-size: 1.375rem; margin: 16px 0 4px; }
+  .a-more-panel[hidden] { display: none; }
+  .a-more > .unf-doc .unf-in { padding-top: 8px; }
+  .cvx { position: relative; margin-bottom: 8px; }
+  .cvx::before, .cvx::after { content: ''; position: absolute; left: 14px; right: 14px; top: 0; height: 100%; border: 1px solid var(--line); border-radius: 16px; background: var(--bg); transition: transform 600ms cubic-bezier(.2,.8,.2,1), opacity 400ms; z-index: 0; pointer-events: none; }
+  .cvx::before { transform: translateY(9px) rotate(-1.4deg); }
+  .cvx::after { transform: translateY(17px) rotate(1.4deg); }
+  .cvx[data-open='true']::before, .cvx[data-open='true']::after { transform: translateY(0) rotate(0); opacity: 0; }
+  .cvx[data-open='false'] { margin-bottom: 28px; }
+  .cvx-cover { position: relative; z-index: 1; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 20px; width: 100%; padding: 28px; border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); border-radius: 16px; background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 16%, var(--bg)), var(--bg)); color: var(--ink); text-align: left; font: inherit; cursor: pointer; transition: padding 500ms cubic-bezier(.2,.8,.2,1), box-shadow 500ms, transform 500ms; box-shadow: 0 18px 40px -22px color-mix(in srgb, var(--accent) 60%, transparent); }
+  .cvx-cover:hover { transform: translateY(-2px); }
+  .cvx-mono { display: grid; place-items: center; width: 72px; height: 72px; border-radius: 16px; background: var(--accent); color: var(--bg); font-family: var(--mono); font-size: 1.5rem; font-weight: 500; transition: width 500ms, height 500ms, font-size 500ms; }
+  .cvx-text { display: grid; gap: 2px; }
+  .cvx-kicker { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+  .cvx-name { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; }
+  .cvx-role { color: var(--muted); }
+  .cvx-note { color: var(--muted); font-size: 0.875rem; max-height: 2em; overflow: hidden; transition: max-height 500ms, opacity 400ms; }
+  .cvx-open { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 0.8125rem; color: var(--accent); }
+  .cvx[data-open='true'] .cvx-cover { padding: 14px 20px; box-shadow: none; }
+  .cvx[data-open='true'] .cvx-mono { width: 44px; height: 44px; font-size: 1rem; }
+  .cvx[data-open='true'] .cvx-note { max-height: 0; opacity: 0; }
+  .cvx > .unf-doc .unf-in { padding-top: 16px; }
+  @media (max-width: 640px) { .cvx-cover { grid-template-columns: auto 1fr; } .cvx-open { grid-column: 1 / -1; } }
   .a-cards { list-style: none; padding: 0; margin: 32px 0 0; display: grid; gap: 16px; grid-template-columns: 1fr; }
   @media (min-width: 800px) { .a-cards { grid-template-columns: 1fr 1fr; } }
   .a-card { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; padding: 24px; background: color-mix(in srgb, var(--ink) 3%, var(--bg)); transition: border-color 150ms, transform 150ms; }

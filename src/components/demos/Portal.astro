@@ -1,0 +1,131 @@
+---
+import './demo.css';
+import type { Lang } from '../../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = {
+  en: {
+    bar: 'Interactive demo · simulated data, no real documents', pub: 'Public portal', adm: 'Admin panel', year: 'Year',
+    sections: ['Institutional information', 'Organisation', 'Economic and financial'],
+    docs: ['Annual overview', 'Organisation chart', 'Annual accounts'],
+    na: 'Not applicable', naText: 'This section does not apply to the organisation this year.', none: 'No documents published yet',
+    hide: 'Hide', publish: 'Publish', hidden: 'Hidden', missing: 'Missing format', upload: 'Upload', markNa: 'Mark as not applicable', unmark: 'Undo not applicable',
+    newYear: 'Create new year', pending: 'Pending', pendingNone: 'Nothing pending', history: 'Change history', updated: 'Last update',
+    logs: { year: 'Created year', pub: 'Published', hide: 'Hid', up: 'Uploaded', na: 'Marked not applicable:', un: 'Reverted not applicable:' },
+  },
+  es: {
+    bar: 'Demo interactiva · datos simulados, sin documentos reales', pub: 'Portal público', adm: 'Panel de administración', year: 'Ejercicio',
+    sections: ['Información institucional', 'Organización', 'Económico-financiera'],
+    docs: ['Resumen anual', 'Organigrama', 'Cuentas anuales'],
+    na: 'No aplica', naText: 'Este apartado no aplica a la organización este año.', none: 'Aún no hay documentos publicados',
+    hide: 'Ocultar', publish: 'Publicar', hidden: 'Oculto', missing: 'Falta formato', upload: 'Subir', markNa: 'Marcar como «No aplica»', unmark: 'Deshacer «No aplica»',
+    newYear: 'Crear ejercicio nuevo', pending: 'Pendientes', pendingNone: 'Nada pendiente', history: 'Historial de cambios', updated: 'Última actualización',
+    logs: { year: 'Creado el ejercicio', pub: 'Publicado', hide: 'Ocultado', up: 'Subido', na: 'Marcado «No aplica»:', un: 'Revertido «No aplica»:' },
+  },
+}[lang];
+---
+
+<div class="demo" id="pt" data-t={JSON.stringify(T)}>
+  <div class="demo-bar"><span><b>●</b> {T.bar}</span></div>
+  <div class="demo-body">
+    <div class="d-row" style="justify-content:space-between">
+      <div class="d-seg" role="group">
+        <button type="button" data-mode="pub" aria-pressed="true">{T.pub}</button>
+        <button type="button" data-mode="adm" aria-pressed="false">{T.adm}</button>
+      </div>
+      <div class="d-row">
+        <label class="d-muted">{T.year} <select id="pt-year" class="d-input"></select></label>
+        <button type="button" class="d-btn" id="pt-new" hidden>{T.newYear}</button>
+      </div>
+    </div>
+    <div class="pt-list" id="pt-list"></div>
+    <div class="pt-admin" id="pt-admin" hidden>
+      <div><h4>{T.pending}</h4><ul id="pt-pend"></ul></div>
+      <div><h4>{T.history}</h4><pre class="d-log" id="pt-log"></pre></div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var root = document.getElementById('pt');
+    var T = JSON.parse(root.dataset.t);
+    var $ = function (s) { return root.querySelector(s); };
+    var fmts = ['PDF', 'Word', 'ODT'];
+    var years = [2026, 2025];
+    function mk(formats) { return { formats: formats.slice(), published: true, na: false }; }
+    var data;
+    function init() {
+      data = { 2026: [mk(['PDF', 'Word', 'ODT']), mk(['PDF', 'Word']), null], 2025: [mk(['PDF', 'Word', 'ODT']), mk(['PDF', 'Word', 'ODT']), mk(['PDF', 'Word', 'ODT'])] };
+      years = [2026, 2025];
+    }
+    init();
+    var mode = 'pub', year = 2026, log = [];
+    function say(t) { log.unshift(new Date().toTimeString().slice(0, 5) + '  ' + t); }
+    function yearSel() {
+      $('#pt-year').innerHTML = years.map(function (y) { return '<option' + (y === year ? ' selected' : '') + '>' + y + '</option>'; }).join('');
+    }
+    function chips(d, admin) {
+      return fmts.map(function (f) {
+        var has = d.formats.indexOf(f) > -1;
+        if (has) return '<span class="pt-chip">' + f + '</span>';
+        return admin ? '<button type="button" class="pt-chip pt-miss" data-up="' + f + '">' + T.missing + ': ' + f + ' · ' + T.upload + '</button>' : '';
+      }).join('');
+    }
+    function draw() {
+      var admin = mode === 'adm', rows = data[year], html = '', pend = [];
+      T.sections.forEach(function (sec, i) {
+        var d = rows[i];
+        html += '<section class="pt-sec"><h4>' + (i + 1) + '. ' + sec + '</h4>';
+        if (d && d.na) {
+          html += '<p class="d-muted">' + T.naText + '</p>';
+          if (admin) html += '<button type="button" class="d-btn" data-un="' + i + '">' + T.unmark + '</button>';
+        } else if (!d) {
+          html += '<p class="d-muted">' + T.none + '</p>';
+          if (admin) { pend.push(sec); html += '<button type="button" class="d-btn" data-na="' + i + '">' + T.markNa + '</button> <button type="button" class="d-btn" data-add="' + i + '">' + T.upload + ' ' + T.docs[i] + '</button>'; }
+        } else if (d.published || admin) {
+          html += '<div class="pt-doc' + (d.published ? '' : ' pt-off') + '"><strong>' + T.docs[i] + '</strong>' + chips(d, admin) +
+            (admin ? '<button type="button" class="d-btn" data-tog="' + i + '">' + (d.published ? T.hide : T.publish) + '</button>' : '') + '</div>';
+          if (admin && d.formats.length < 3) pend.push(sec + ' · ' + T.missing);
+          if (!d.published && !admin) html += '';
+        } else { html += '<p class="d-muted">' + T.none + '</p>'; }
+        html += '</section>';
+      });
+      html += '<p class="d-muted d-mono">' + T.updated + ': ' + new Date().toISOString().slice(0, 10) + '</p>';
+      $('#pt-list').innerHTML = html;
+      $('#pt-admin').hidden = !admin; $('#pt-new').hidden = !admin;
+      $('#pt-pend').innerHTML = pend.length ? pend.map(function (x) { return '<li>' + x + '</li>'; }).join('') : '<li class="d-muted">' + T.pendingNone + '</li>';
+      $('#pt-log').textContent = log.join('\n');
+      root.querySelectorAll('[data-tog]').forEach(function (b) { b.addEventListener('click', function () { var d = rows[+b.dataset.tog]; d.published = !d.published; say((d.published ? T.logs.pub : T.logs.hide) + ' ' + T.docs[+b.dataset.tog] + ' ' + year); draw(); }); });
+      root.querySelectorAll('[data-up]').forEach(function (b) { b.addEventListener('click', function () {
+        var i = [].indexOf.call(root.querySelectorAll('.pt-doc'), b.closest('.pt-doc')); var idx = 0, n = -1;
+        for (var k = 0; k < 3; k++) { if (rows[k] && !rows[k].na) { n++; if (n === i) { idx = k; break; } } }
+        rows[idx].formats.push(b.dataset.up); say(T.logs.up + ' ' + b.dataset.up + ' · ' + T.docs[idx] + ' ' + year); draw(); }); });
+      root.querySelectorAll('[data-na]').forEach(function (b) { b.addEventListener('click', function () { rows[+b.dataset.na] = { formats: [], published: true, na: true }; say(T.logs.na + ' ' + T.sections[+b.dataset.na] + ' ' + year); draw(); }); });
+      root.querySelectorAll('[data-un]').forEach(function (b) { b.addEventListener('click', function () { rows[+b.dataset.un] = null; say(T.logs.un + ' ' + T.sections[+b.dataset.un] + ' ' + year); draw(); }); });
+      root.querySelectorAll('[data-add]').forEach(function (b) { b.addEventListener('click', function () { rows[+b.dataset.add] = mk(['PDF']); say(T.logs.up + ' PDF · ' + T.docs[+b.dataset.add] + ' ' + year); draw(); }); });
+    }
+    root.querySelectorAll('.d-seg button').forEach(function (b) { b.addEventListener('click', function () {
+      mode = b.dataset.mode; root.querySelectorAll('.d-seg button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); }); draw(); }); });
+    $('#pt-year').addEventListener('change', function (e) { year = +e.target.value; draw(); });
+    $('#pt-new').addEventListener('click', function () {
+      var ny = years[0] + 1; years.unshift(ny); data[ny] = [null, null, null]; year = ny; say(T.logs.year + ' ' + ny); yearSel(); draw();
+    });
+    yearSel(); draw();
+  })();
+</script>
+
+<style is:global>
+  .pt-list { margin-top: 16px; display: grid; gap: 12px; }
+  .pt-sec { padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+  .pt-sec h4 { margin: 0 0 8px; font-size: 0.9375rem; }
+  .pt-doc { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .pt-doc.pt-off strong { color: var(--muted); text-decoration: line-through; }
+  .pt-chip { font-family: var(--mono); font-size: 0.75rem; padding: 2px 10px; border: 1px solid var(--accent); border-radius: 999px; color: var(--accent); background: none; }
+  .pt-miss { border-style: dashed; border-color: var(--wip); color: var(--wip); cursor: pointer; min-height: 32px; }
+  .pt-admin { margin-top: 16px; display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .pt-admin { grid-template-columns: 1fr 1fr; } }
+  .pt-admin h4 { margin: 0 0 6px; font-size: 0.875rem; }
+  .pt-admin ul { margin: 0; padding-left: 1.2em; }
+  .pt-admin[hidden] { display: none; }
+</style>

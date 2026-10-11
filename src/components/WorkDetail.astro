@@ -1,0 +1,56 @@
+---
+import { t, type Lang } from '../i18n/ui';
+import type { WorkItem } from '../data/work';
+import Planner from './demos/Planner.astro';
+import Automation from './demos/Automation.astro';
+import NonSleep from './demos/NonSleep.astro';
+import Beast from './demos/Beast.astro';
+import Hevy from './demos/Hevy.astro';
+import Portal from './demos/Portal.astro';
+
+interface Props { w: WorkItem; lang: Lang; page?: boolean }
+const { w, lang, page = false } = Astro.props;
+const ui = t(lang);
+---
+
+<div class="wd">
+  {w.draft && !page && <p class="wd-draft"><span class="a-chip a-wip">{ui.work.draft}</span></p>}
+  {w.body && (
+    <div class="wd-body">
+      {w.body.map((b, i) => (
+        <section class="wd-sec">
+          <p class="a-eyebrow">{String(i + 1).padStart(2, '0')}</p>
+          <h3>{b.h[lang]}</h3>
+          <p>{b.text[lang]}</p>
+        </section>
+      ))}
+    </div>
+  )}
+  {w.demo && (
+    <div class="wd-demo">
+      <p class="label">{ui.work.demo}</p>
+      {w.demo === 'planner' && <Planner lang={lang} />}
+      {w.demo === 'automation' && <Automation lang={lang} />}
+      {w.demo === 'nonsleep' && <NonSleep lang={lang} />}
+      {w.demo === 'beast' && <Beast lang={lang} />}
+      {w.demo === 'hevy' && <Hevy lang={lang} />}
+      {w.demo === 'portal' && <Portal lang={lang} />}
+    </div>
+  )}
+  <p class="wd-links">
+    {w.github && <a class="a-btn" href={w.github}>{ui.work.github} ↗</a>}
+    {!page && <a class="a-btn" href={`/${lang}/work/${w.slug}/`}>{ui.work.fullPage}</a>}
+  </p>
+</div>
+
+<style is:global>
+  .wd { padding-top: 8px; }
+  .wd-draft { margin: 0 0 12px; }
+  .wd-body { display: grid; gap: 4px; }
+  .wd-sec { padding: 16px 0; border-top: 1px solid var(--line); }
+  .wd-sec h3 { font-size: 1.125rem; margin: 0 0 6px; }
+  .wd-demo { padding: 16px 0 8px; border-top: 1px solid var(--line); }
+  .wd-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .a-chip { font-family: var(--mono); font-size: 0.75rem; padding: 2px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
+  .a-chip.a-wip { color: var(--wip); border-color: var(--wip); }
+</style>

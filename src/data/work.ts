@@ -1,7 +1,7 @@
 import type { Lang } from '../i18n/ui';
 
 export type Status = 'case' | 'shipped' | 'wip';
-export type DemoKey = 'planner' | 'automation' | 'nonsleep' | 'beast' | 'hevy';
+export type DemoKey = 'planner' | 'automation' | 'nonsleep' | 'beast' | 'hevy' | 'portal';
 type Text = Record<Lang, string>;
 
 export interface WorkItem {
@@ -13,11 +13,58 @@ export interface WorkItem {
   demo?: DemoKey;
   /** Text still waiting for the author's review. */
   draft?: boolean;
+  featured?: boolean;
   github?: string;
   body?: { h: Text; text: Text }[];
 }
 
 export const work: WorkItem[] = [
+  {
+    slug: 'supported-employment-portal',
+    status: 'wip',
+    draft: true,
+    featured: true,
+    demo: 'portal',
+    title: {
+      en: 'Web and transparency portal for a supported-employment company',
+      es: 'Web y portal de transparencia para una empresa de empleo protegido',
+    },
+    summary: {
+      en: 'Replacing a slow, hard-to-maintain website with a fast public site and a portal that non-technical staff can extend every year. In progress.',
+      es: 'Sustituir una web lenta y difícil de mantener por un sitio público rápido y un portal que el personal no técnico puede ampliar cada año. En curso.',
+    },
+    stack: ['Laravel', 'SQLite / MySQL'],
+    body: [
+      {
+        h: { en: 'Need', es: 'Necesidad' },
+        text: {
+          en: 'The company’s website was hard to maintain and slow. Its transparency portal has nine fixed sections that must gain new documents every year, added by staff who are not developers.',
+          es: 'La web de la empresa era lenta y difícil de mantener. Su portal de transparencia tiene nueve secciones fijas que deben recibir documentos nuevos cada año, añadidos por personal que no es desarrollador.',
+        },
+      },
+      {
+        h: { en: 'Analysis', es: 'Análisis' },
+        text: {
+          en: 'Two options were compared: a static site edited through a Git-based CMS, or an application with its own login. The trade-off was security and free history against a simpler screen for the staff. The client chose the application with its own login.',
+          es: 'Se compararon dos opciones: un sitio estático editado con un CMS sobre Git, o una aplicación con login propio. El equilibrio era seguridad e historial gratis frente a una pantalla más sencilla para el personal. El cliente eligió la aplicación con login propio.',
+        },
+      },
+      {
+        h: { en: 'Solution', es: 'Solución' },
+        text: {
+          en: 'A Laravel application with a public site, the transparency portal and an admin panel. Every document is published as PDF, Word and ODT, old URLs redirect to the new ones, and the panel can create a new year in one click, flag missing formats, mark a section as not applicable and keep a change history. The security of the application was audited and hardened.',
+          es: 'Una aplicación Laravel con web pública, portal de transparencia y panel de administración. Cada documento se publica en PDF, Word y ODT, las URL antiguas redirigen a las nuevas, y el panel permite crear un año nuevo con un clic, avisar de formatos que faltan, marcar un apartado como «No aplica» y guardar un historial de cambios. La seguridad de la aplicación se auditó y se reforzó.',
+        },
+      },
+      {
+        h: { en: 'Status', es: 'Estado' },
+        text: {
+          en: 'Built and tested locally. Deployment is pending.',
+          es: 'Construida y probada en local. Falta desplegarla.',
+        },
+      },
+    ],
+  },
   {
     slug: 'workshop-planning',
     status: 'case',
@@ -112,6 +159,9 @@ export const work: WorkItem[] = [
       },
     ],
   },
+];
+
+export const moreWork: WorkItem[] = [
   {
     slug: 'non-sleep',
     status: 'shipped',
@@ -140,22 +190,6 @@ export const work: WorkItem[] = [
       },
     ],
   },
-  {
-    slug: 'supported-employment-portal',
-    status: 'wip',
-    title: {
-      en: 'Web and transparency portal for a supported-employment company',
-      es: 'Web y portal de transparencia para una empresa de empleo protegido',
-    },
-    summary: {
-      en: 'Public site, document portal and admin panel.',
-      es: 'Web pública, portal de documentos y panel de administración.',
-    },
-    stack: ['Laravel', 'SQLite'],
-  },
-];
-
-export const moreWork: WorkItem[] = [
   {
     slug: 'beast',
     status: 'shipped',
@@ -201,4 +235,4 @@ export const moreWork: WorkItem[] = [
 ];
 
 export const allWork: WorkItem[] = [...work, ...moreWork];
-export const hasPage = (w: WorkItem) => w.status !== 'wip';
+export const hasPage = (w: WorkItem) => Boolean(w.body || w.demo);

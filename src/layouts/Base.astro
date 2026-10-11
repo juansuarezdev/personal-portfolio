@@ -27,6 +27,7 @@ const anchor = (id: string) => (onHome ? `#${id}` : `/${lang}/#${id}`);
     <link rel="alternate" hreflang="en" href={path.replace(`/${lang}/`, '/en/')} />
     <link rel="alternate" hreflang="es" href={path.replace(`/${lang}/`, '/es/')} />
     <script is:inline>
+      document.documentElement.classList.add('js');
       try {
         var th = localStorage.getItem('theme');
         if (th === 'light' || th === 'dark') document.documentElement.dataset.theme = th;
@@ -47,7 +48,7 @@ const anchor = (id: string) => (onHome ? `#${id}` : `/${lang}/#${id}`);
             <li><a href={anchor('templates')}>{ui.nav.templates}</a></li>
             <li><a href={anchor('work')}>{ui.nav.work}</a></li>
             <li><a href={anchor('journey')}>{ui.nav.journey}</a></li>
-            <li><a href={`/${lang}/cv/`} aria-current={path.startsWith(`/${lang}/cv`) ? 'page' : undefined}>{ui.nav.cv}</a></li>
+            <li><a href={onHome ? '#cv' : `/${lang}/cv/`} aria-current={path.startsWith(`/${lang}/cv`) ? 'page' : undefined}>{ui.nav.cv}</a></li>
             <li><a href={anchor('contact')}>{ui.nav.contact}</a></li>
           </ul>
         </nav>

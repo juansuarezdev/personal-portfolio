@@ -244,6 +244,32 @@ html {
   cursor: default;
 }
 
+/* unfold (shared by cards, project details and the CV) */
+.unf-btn { cursor: pointer; }
+.unf-chev { width: 8px; height: 8px; margin-left: 10px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform 400ms cubic-bezier(.2, .8, .2, 1); }
+.unf-btn:not(.cvx-cover) { gap: 0; }
+.unf[data-open='true'] .unf-chev { transform: rotate(-135deg) translateY(-2px); }
+.cvx-open .unf-chev { margin-left: 0; }
+.js .unf > .unf-doc {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  transition: grid-template-rows 650ms cubic-bezier(.2, .8, .2, 1), opacity 450ms ease, visibility 0s linear 650ms;
+}
+.js .unf[data-open='true'] > .unf-doc {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+.unf-doc > div { min-height: 0; overflow: hidden; }
+.unf-in { transform: translateY(-14px); transition: transform 650ms cubic-bezier(.2, .8, .2, 1); }
+.unf[data-open='true'] > .unf-doc .unf-in { transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .js .unf > .unf-doc, .unf-in, .unf-chev { transition: none !important; }
+}
+
 /* sections: all share one weight */
 main > section,
 .intro {

@@ -2,11 +2,7 @@
 import Base from '../../../layouts/Base.astro';
 import { t, locales, type Lang } from '../../../i18n/ui';
 import { allWork, hasPage } from '../../../data/work';
-import Planner from '../../../components/demos/Planner.astro';
-import Automation from '../../../components/demos/Automation.astro';
-import NonSleep from '../../../components/demos/NonSleep.astro';
-import Beast from '../../../components/demos/Beast.astro';
-import Hevy from '../../../components/demos/Hevy.astro';
+import WorkDetail from '../../../components/WorkDetail.astro';
 
 export function getStaticPaths() {
   return locales.flatMap((lang) =>
@@ -31,30 +27,7 @@ const ui = t(lang);
       <p class="case-stack"><span class="label">{ui.work.stack}</span> {w.stack.join(' · ')}</p>
     </header>
 
-    {w.body && (
-      <div class="case-body">
-        {w.body.map((b, i) => (
-          <section class="case-sec">
-            <p class="a-eyebrow">{String(i + 1).padStart(2, '0')}</p>
-            <h2>{b.h[lang]}</h2>
-            <p>{b.text[lang]}</p>
-          </section>
-        ))}
-      </div>
-    )}
-
-    {w.demo && (
-      <section class="case-demo" aria-labelledby="h-demo">
-        <h2 id="h-demo">{ui.work.demo}</h2>
-        {w.demo === 'planner' && <Planner lang={lang} />}
-        {w.demo === 'automation' && <Automation lang={lang} />}
-        {w.demo === 'nonsleep' && <NonSleep lang={lang} />}
-        {w.demo === 'beast' && <Beast lang={lang} />}
-        {w.demo === 'hevy' && <Hevy lang={lang} />}
-      </section>
-    )}
-
-    {w.github && <p class="case-links"><a class="a-btn" href={w.github}>{ui.work.github} ↗</a></p>}
+    <WorkDetail w={w} lang={lang} page={true} />
   </div>
 </Base>
 
