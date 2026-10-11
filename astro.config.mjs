@@ -4,6 +4,7 @@ export default defineConfig({
   site: 'https://juansuarezdev.github.io',
   base: '/personal-portfolio',
   output: 'static',
+  build: { inlineStylesheets: 'always' },
   i18n: {
     defaultLocale: 'en',
     locales: ['en', 'es'],

@@ -101,7 +101,7 @@ const T = {
       var html = '';
       T.stages.forEach(function (st, si) {
         var list = cars.filter(function (c) { return c.stage === si; });
-        html += '<div class="pl-col"><h4>' + st + ' <span class="d-mono d-muted">' + list.length + '</span></h4>';
+        html += '<div class="pl-col"><h3>' + st + ' <span class="d-mono d-muted">' + list.length + '</span></h3>';
         list.forEach(function (c) {
           html += '<div class="pl-card"><strong>' + T.cars[c.n] + '</strong><span class="d-mono d-muted">' + c.h + ' h ' + T.clocked + '</span>' +
             '<div class="pl-bar"><i style="width:' + Math.min(100, c.h * 10) + '%"></i></div><div class="d-row">' +
@@ -158,7 +158,7 @@ const T = {
   .pl-board { display: grid; gap: 12px; grid-template-columns: 1fr; }
   @media (min-width: 760px) { .pl-board { grid-template-columns: repeat(4, 1fr); } }
   .pl-col { padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); min-height: 120px; }
-  .pl-col h4 { font-size: 0.875rem; margin: 0 0 8px; }
+  .pl-col h3 { font-size: 0.875rem; margin: 0 0 8px; }
   .pl-card { display: grid; gap: 4px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 8px; background: color-mix(in srgb, var(--ink) 3%, var(--bg)); }
   .pl-bar { height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--ink) 12%, transparent); }
   .pl-bar i { display: block; height: 100%; border-radius: 3px; background: var(--accent); }

@@ -40,8 +40,8 @@ const T = {
     </div>
     <div class="pt-list" id="pt-list"></div>
     <div class="pt-admin" id="pt-admin" hidden>
-      <div><h4>{T.pending}</h4><ul id="pt-pend"></ul></div>
-      <div><h4>{T.history}</h4><pre class="d-log" id="pt-log"></pre></div>
+      <div><h3>{T.pending}</h3><ul id="pt-pend"></ul></div>
+      <div><h3>{T.history}</h3><pre class="d-log" id="pt-log"></pre></div>
     </div>
   </div>
 </div>
@@ -76,7 +76,7 @@ const T = {
       var admin = mode === 'adm', rows = data[year], html = '', pend = [];
       T.sections.forEach(function (sec, i) {
         var d = rows[i];
-        html += '<section class="pt-sec"><h4>' + (i + 1) + '. ' + sec + '</h4>';
+        html += '<section class="pt-sec"><h3>' + (i + 1) + '. ' + sec + '</h3>';
         if (d && d.na) {
           html += '<p class="d-muted">' + T.naText + '</p>';
           if (admin) html += '<button type="button" class="d-btn" data-un="' + i + '">' + T.unmark + '</button>';
@@ -118,14 +118,14 @@ const T = {
 <style is:global>
   .pt-list { margin-top: 16px; display: grid; gap: 12px; }
   .pt-sec { padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
-  .pt-sec h4 { margin: 0 0 8px; font-size: 0.9375rem; }
+  .pt-sec h3 { margin: 0 0 8px; font-size: 0.9375rem; }
   .pt-doc { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   .pt-doc.pt-off strong { color: var(--muted); text-decoration: line-through; }
   .pt-chip { font-family: var(--mono); font-size: 0.75rem; padding: 2px 10px; border: 1px solid var(--accent); border-radius: 999px; color: var(--accent); background: none; }
   .pt-miss { border-style: dashed; border-color: var(--wip); color: var(--wip); cursor: pointer; min-height: 32px; }
   .pt-admin { margin-top: 16px; display: grid; gap: 16px; grid-template-columns: 1fr; }
   @media (min-width: 760px) { .pt-admin { grid-template-columns: 1fr 1fr; } }
-  .pt-admin h4 { margin: 0 0 6px; font-size: 0.875rem; }
+  .pt-admin h3 { margin: 0 0 6px; font-size: 0.875rem; }
   .pt-admin ul { margin: 0; padding-left: 1.2em; }
   .pt-admin[hidden] { display: none; }
 </style>

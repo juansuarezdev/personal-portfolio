@@ -12,6 +12,7 @@ import Portal from './demos/Portal.astro';
 interface Props { w: WorkItem; lang: Lang; page?: boolean }
 const { w, lang, page = false } = Astro.props;
 const ui = t(lang);
+const Sec = page ? 'h2' : 'h3';
 ---
 
 <div class:list={['wd', { 'wd-page': page }]}>
@@ -25,7 +26,7 @@ const ui = t(lang);
       {w.body.map((b, i) => (
         <section class="wd-sec">
           <p class="a-eyebrow">{String(i + 1).padStart(2, '0')}</p>
-          <h3>{b.h[lang]}</h3>
+          <Sec>{b.h[lang]}</Sec>
           <p>{b.text[lang]}</p>
         </section>
       ))}
@@ -66,7 +67,7 @@ const ui = t(lang);
   .wd-body { display: grid; gap: 0; margin-bottom: 8px; }
   .wd-sec { padding: 14px 0; border-bottom: 1px solid var(--line); }
   .wd-sec:last-child { border-bottom: 0; }
-  .wd-sec h3 { font-size: 1.125rem; margin: 0 0 6px; }
+  .wd-sec h2, .wd-sec h3 { font-size: 1.125rem; margin: 0 0 6px; }
   .wd-bar-demo { margin-top: 16px; }
   .wd-demo { margin-top: 12px; }
   .wd .demo { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 8%, transparent); }

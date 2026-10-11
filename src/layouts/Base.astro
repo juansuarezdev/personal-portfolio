@@ -14,6 +14,7 @@ const ui = t(lang);
 const other = locales.find((l) => l !== lang)!;
 const path = unbase(Astro.url.pathname);
 const otherPath = path.replace(`/${lang}/`, `/${other}/`);
+const abs = (p: string) => new URL(url(p), Astro.site).href;
 const onHome = /^\/(en|es)\/?$/.test(path);
 const anchor = (id: string) => (onHome ? `#${id}` : url(`/${lang}/#${id}`));
 ---
@@ -26,8 +27,10 @@ const anchor = (id: string) => (onHome ? `#${id}` : url(`/${lang}/#${id}`));
     <title>{title ?? ui.siteTitle}</title>
     <link rel="icon" type="image/svg+xml" href={url('/favicon.svg')} />
     <meta name="description" content={description ?? ui.siteDescription} />
-    <link rel="alternate" hreflang="en" href={url(path.replace(`/${lang}/`, '/en/'))} />
-    <link rel="alternate" hreflang="es" href={url(path.replace(`/${lang}/`, '/es/'))} />
+    <link rel="canonical" href={abs(path)} />
+    <link rel="alternate" hreflang="en" href={abs(path.replace(`/${lang}/`, '/en/'))} />
+    <link rel="alternate" hreflang="es" href={abs(path.replace(`/${lang}/`, '/es/'))} />
+    <link rel="alternate" hreflang="x-default" href={abs(path.replace(`/${lang}/`, '/en/'))} />
     <script is:inline>
       document.documentElement.classList.add('js');
       try {
@@ -40,7 +43,7 @@ const anchor = (id: string) => (onHome ? `#${id}` : url(`/${lang}/#${id}`));
     <a class="skip" href="#main">{ui.skip}</a>
     <header class="site-header">
       <div class="wrap bar">
-        <a class="brand" href={url(`/${lang}/`)} aria-label="Juan Suárez">
+        <a class="brand" href={url(`/${lang}/`)}>
           <span class="mark" aria-hidden="true">JS</span>
           <span class="brand-name">Juan Suárez</span>
         </a>

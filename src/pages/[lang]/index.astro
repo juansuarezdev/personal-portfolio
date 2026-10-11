@@ -139,7 +139,7 @@ const stops = [
                   <span>{tp.meta}</span>
                 </div>
                 {tp.sections.map((sec, n) => (
-                  <button type="button" class="t-block" data-n={n} aria-label={`${n + 1}. ${sec.h}`} aria-current={n === 0 ? 'true' : 'false'}>
+                  <button type="button" class="t-block" data-n={n} aria-current={n === 0 ? 'true' : 'false'}>
                     <span class="t-bn">{String(n + 1).padStart(2, '0')}</span>
                     <span class="t-bh">{sec.h}</span>
                     <span class="t-bars" aria-hidden="true">
@@ -153,7 +153,7 @@ const stops = [
                 {tp.sections.map((sec, n) => (
                   <article class="t-ins" data-n={n} hidden={n !== 0}>
                     <p class="t-step">{String(n + 1).padStart(2, '0')} {ui.templates.of} {String(tp.sections.length).padStart(2, '0')}</p>
-                    <h4>{sec.h}</h4>
+                    <h3>{sec.h}</h3>
                     <p class="t-tag">{ui.templates.hintTag}</p>
                     <p class="t-hint">{sec.hint}</p>
                     <p class="t-tag">{ui.templates.exampleTag}</p>
@@ -494,7 +494,7 @@ const stops = [
   .t-inspector { border: 1px solid var(--accent); border-radius: 12px; padding: 24px; background: var(--bg); box-shadow: 0 0 40px -12px color-mix(in srgb, var(--accent) 45%, transparent); }
   .t-ins[hidden] { display: none; }
   .t-step { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); margin: 0 0 4px; }
-  .t-ins h4 { font-size: 1.5rem; letter-spacing: -0.01em; margin: 0 0 16px; }
+  .t-ins h3 { font-size: 1.5rem; letter-spacing: -0.01em; margin: 0 0 16px; }
   .t-tag { font-family: var(--mono); font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin: 16px 0 6px; }
   .t-hint { font-size: 1.0625rem; margin: 0; }
   .t-example { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
