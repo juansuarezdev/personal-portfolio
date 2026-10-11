@@ -1,0 +1,82 @@
+---
+import './demo.css';
+import type { Lang } from '../../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = {
+  en: {
+    bar: 'Interactive demo · simulated API, no request is sent', src: 'Routine (simplified input)', out: 'Request the script would send', dry: 'Dry run', send: 'Send (simulated)',
+    hint: 'One exercise per line: Name | sets x reps @ kg. Names are matched against the exercise library, with close-match suggestions.',
+    nomatch: 'No exact match for', closest: 'closest', sent: 'POST /v1/routines → 201 Created (simulated)', empty: 'Add a title and at least one exercise.',
+  },
+  es: {
+    bar: 'Demo interactiva · API simulada, no se envía nada', src: 'Rutina (entrada simplificada)', out: 'Petición que enviaría el script', dry: 'Dry run', send: 'Enviar (simulado)',
+    hint: 'Un ejercicio por línea: Nombre | series x reps @ kg. Los nombres se buscan en la biblioteca de ejercicios, con sugerencias cercanas.',
+    nomatch: 'Sin coincidencia exacta para', closest: 'más cercano', sent: 'POST /v1/routines → 201 Created (simulado)', empty: 'Añade un título y al menos un ejercicio.',
+  },
+}[lang];
+const sample = 'title: Push Day\nBench Press (Barbell) | 3 x 8 @ 80\nOverhead Press (Barbell) | 2 x 8 @ 50\nTriceps Pushdown | 3 x 12 @ 25';
+---
+
+<div class="demo" id="hv" data-t={JSON.stringify(T)}>
+  <div class="demo-bar"><span><b>●</b> {T.bar}</span></div>
+  <div class="demo-body hv-wrap">
+    <div>
+      <label class="d-muted" for="hv-src">{T.src}</label>
+      <textarea id="hv-src" class="d-input hv-src" spellcheck="false" rows="7">{sample}</textarea>
+      <p class="d-muted">{T.hint}</p>
+      <div class="d-row"><button type="button" class="d-btn" id="hv-dry">{T.dry}</button><button type="button" class="d-btn d-solid" id="hv-send">{T.send}</button></div>
+    </div>
+    <div>
+      <span class="d-muted">{T.out}</span>
+      <pre class="d-log hv-out" id="hv-out" aria-live="polite"></pre>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var root = document.getElementById('hv');
+    var T = JSON.parse(root.dataset.t);
+    var $ = function (s) { return root.querySelector(s); };
+    var lib = { 'Bench Press (Barbell)': '79D0BB3A', 'Overhead Press (Barbell)': '7B8D84E8', 'Triceps Pushdown': 'F9E7A21C', 'Squat (Barbell)': 'D04AC944', 'Deadlift (Barbell)': 'C6272236', 'Lat Pulldown (Cable)': '6A6C31A5', 'Seated Row (Cable)': 'F1E57334' };
+    var names = Object.keys(lib);
+    function closest(n) {
+      var w = n.toLowerCase().split(/\W+/).filter(Boolean), best = '', sc = 0;
+      names.forEach(function (c) { var s = w.filter(function (x) { return c.toLowerCase().indexOf(x) > -1; }).length; if (s > sc) { sc = s; best = c; } });
+      return best;
+    }
+    function build() {
+      var lines = $('#hv-src').value.split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
+      var title = '', ex = [], warn = [];
+      lines.forEach(function (l) {
+        if (/^title:/i.test(l)) { title = l.replace(/^title:\s*/i, ''); return; }
+        var m = l.match(/^(.+?)\s*\|\s*(\d+)\s*x\s*(\d+)\s*@\s*([\d.]+)/i);
+        if (!m) return;
+        var id = lib[m[1].trim()];
+        if (!id) { var c = closest(m[1]); warn.push(T.nomatch + ' "' + m[1].trim() + '"' + (c ? ' (' + T.closest + ': ' + c + ')' : '')); return; }
+        var sets = []; for (var i = 0; i < +m[2]; i++) sets.push({ type: 'normal', weight_kg: +m[4], reps: +m[3] });
+        ex.push({ exercise_template_id: id, rest_seconds: 90, sets: sets });
+      });
+      return { title: title, ex: ex, warn: warn };
+    }
+    function show(send) {
+      var b = build(), out = $('#hv-out'); out.textContent = '';
+      if (!b.title || (!b.ex.length && !b.warn.length)) { out.textContent = T.empty; return; }
+      b.warn.forEach(function (w) { var d = document.createElement('div'); d.className = 'd-warn'; d.textContent = '! ' + w; out.appendChild(d); });
+      var pre = document.createElement('div'); pre.textContent = JSON.stringify({ routine: { title: b.title, exercises: b.ex } }, null, 2); out.appendChild(pre);
+      if (send) { var d = document.createElement('div'); d.className = 'd-ok'; d.textContent = T.sent; out.appendChild(d); }
+    }
+    $('#hv-dry').addEventListener('click', function () { show(false); });
+    $('#hv-send').addEventListener('click', function () { show(true); });
+    $('#hv-src').addEventListener('input', function () { show(false); });
+    show(false);
+  })();
+</script>
+
+<style is:global>
+  .hv-wrap { display: grid; gap: 20px; grid-template-columns: 1fr; }
+  @media (min-width: 800px) { .hv-wrap { grid-template-columns: 1fr 1fr; } }
+  .hv-src { width: 100%; padding: 10px 12px; font-family: var(--mono); font-size: 0.8125rem; line-height: 1.6; resize: vertical; display: block; margin-top: 4px; }
+  .hv-out { max-height: 340px; min-height: 220px; margin-top: 4px; }
+</style>

@@ -1,0 +1,118 @@
+---
+import './demo.css';
+import type { Lang } from '../../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = {
+  en: {
+    bar: 'Interactive demo · simulated lock screen', ex: 'Bench Press', set: 'Set', of: 'of', top: 'Top set', back: 'Back-off', done: 'Done', rest: 'Rest',
+    fin: 'Workout finished. Saved to Apple Health (simulated).', again: 'Restart', weight: 'Weight', reps: 'Reps', now: 'now', hint: 'Adjust weight and reps, then press Done. Back-off sets follow the top set at 85%.',
+  },
+  es: {
+    bar: 'Demo interactiva · pantalla de bloqueo simulada', ex: 'Press de banca', set: 'Serie', of: 'de', top: 'Serie principal', back: 'Back-off', done: 'Hecho', rest: 'Descanso',
+    fin: 'Entrenamiento terminado. Guardado en Apple Health (simulado).', again: 'Reiniciar', weight: 'Peso', reps: 'Reps', now: 'ahora', hint: 'Ajusta peso y repeticiones y pulsa Hecho. Las series back-off siguen a la principal al 85 %.',
+  },
+}[lang];
+---
+
+<div class="demo" id="bs" data-t={JSON.stringify(T)}>
+  <div class="demo-bar"><span><b>●</b> {T.bar}</span></div>
+  <div class="demo-body bs-wrap">
+    <div class="bs-phone">
+      <p class="bs-time d-mono">9:41</p>
+      <div class="bs-card" aria-live="polite">
+        <div class="bs-top"><span class="d-mono bs-app">BEAST</span><span class="d-mono d-muted">{T.now}</span></div>
+        <h4 id="bs-title"></h4>
+        <p class="d-mono" id="bs-set"></p>
+        <div class="bs-rest" id="bs-rest" hidden><i id="bs-fill"></i><span id="bs-rt" class="d-mono"></span></div>
+        <div class="bs-ctrl" id="bs-ctrl">
+          <div><span class="d-muted">{T.weight}</span><div class="d-row"><button class="d-btn" data-a="w-" aria-label="− kg">−</button><b id="bs-w" class="d-mono"></b><button class="d-btn" data-a="w+" aria-label="+ kg">+</button></div></div>
+          <div><span class="d-muted">{T.reps}</span><div class="d-row"><button class="d-btn" data-a="r-" aria-label="− reps">−</button><b id="bs-r" class="d-mono"></b><button class="d-btn" data-a="r+" aria-label="+ reps">+</button></div></div>
+        </div>
+        <button type="button" class="d-btn d-solid bs-done" id="bs-done">{T.done}</button>
+      </div>
+    </div>
+    <div class="bs-side">
+      <p class="d-muted">{T.hint}</p>
+      <ol class="bs-sets" id="bs-sets"></ol>
+      <p class="d-ok" id="bs-fin" hidden>{T.fin}</p>
+      <button type="button" class="d-btn" id="bs-reset" hidden>{T.again}</button>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var root = document.getElementById('bs');
+    var T = JSON.parse(root.dataset.t);
+    var $ = function (s) { return root.querySelector(s); };
+    var N = 4, cur, sets, resting, timer;
+    function backoff(top) { return Math.round(top * 0.85 / 2.5) * 2.5; }
+    function init() {
+      clearInterval(timer); resting = false;
+      cur = 0; sets = [{ w: 60, r: 8, done: false }, { w: backoff(60), r: 8, done: false }, { w: backoff(60), r: 8, done: false }, { w: backoff(60), r: 8, done: false }];
+      $('#bs-fin').hidden = true; $('#bs-reset').hidden = true; $('#bs-done').hidden = false; $('#bs-ctrl').hidden = false; $('#bs-rest').hidden = true;
+      draw();
+    }
+    function draw() {
+      var s = sets[Math.min(cur, N - 1)];
+      $('#bs-title').textContent = T.ex;
+      $('#bs-set').textContent = T.set + ' ' + (Math.min(cur, N - 1) + 1) + '/' + N + ' · ' + s.w + ' kg × ' + s.r;
+      $('#bs-w').textContent = s.w; $('#bs-r').textContent = s.r;
+      $('#bs-sets').innerHTML = sets.map(function (x, i) {
+        return '<li class="' + (x.done ? 'bs-d' : i === cur ? 'bs-c' : '') + '"><span class="d-mono">' + (i === 0 ? T.top : T.back) + '</span><span class="d-mono">' + x.w + ' kg × ' + x.r + '</span></li>';
+      }).join('');
+    }
+    root.querySelectorAll('[data-a]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (resting || cur >= N) return;
+        var s = sets[cur], a = b.dataset.a;
+        if (a === 'w-') s.w = Math.max(0, s.w - 2.5); if (a === 'w+') s.w += 2.5;
+        if (a === 'r-') s.r = Math.max(1, s.r - 1); if (a === 'r+') s.r += 1;
+        if (cur === 0 && (a === 'w-' || a === 'w+')) for (var i = 1; i < N; i++) sets[i].w = backoff(s.w);
+        draw();
+      });
+    });
+    $('#bs-done').addEventListener('click', function () {
+      if (resting) return;
+      sets[cur].done = true; cur++;
+      if (cur >= N) { $('#bs-done').hidden = true; $('#bs-ctrl').hidden = true; $('#bs-fin').hidden = false; $('#bs-reset').hidden = false; draw(); return; }
+      resting = true; var t = 8; $('#bs-rest').hidden = false;
+      function paint() { $('#bs-rt').textContent = T.rest + ' 0:' + String(t).padStart(2, '0'); $('#bs-fill').style.width = (t / 8 * 100) + '%'; }
+      paint(); draw();
+      timer = setInterval(function () { t--; paint(); if (t <= 0) { clearInterval(timer); resting = false; $('#bs-rest').hidden = true; draw(); } }, 1000);
+    });
+    $('#bs-reset').addEventListener('click', init);
+    init();
+  })();
+</script>
+
+<style is:global>
+  .bs-wrap { display: grid; gap: 24px; grid-template-columns: 1fr; align-items: start; }
+  @media (min-width: 760px) { .bs-wrap { grid-template-columns: 340px 1fr; } }
+  .bs-phone { padding: 20px 16px 24px; border-radius: 32px; border: 6px solid color-mix(in srgb, var(--ink) 80%, var(--bg)); background: linear-gradient(160deg, #2a1f57, #0e0f10); color: #f3f0ff; }
+  .bs-time { text-align: center; font-size: 2.5rem; margin: 0 0 12px; letter-spacing: -0.03em; color: #fff; }
+  .bs-card { padding: 16px; border-radius: 20px; background: rgba(255,255,255,.1); backdrop-filter: blur(8px); }
+  .bs-top { display: flex; justify-content: space-between; font-size: 0.6875rem; }
+  .bs-app { color: #c9b8ff; letter-spacing: .12em; }
+  .bs-card h4 { margin: 8px 0 2px; font-size: 1.125rem; color: #fff; }
+  .bs-card p { margin: 0 0 12px; font-size: 0.875rem; color: #e6defc; max-width: none; }
+  .bs-card .d-muted { color: #c9b8ff; }
+  .bs-card .d-btn { border-color: rgba(255,255,255,.4); color: #fff; min-width: 44px; padding: 0 12px; }
+  .bs-card .d-btn:hover:not(:disabled) { background: rgba(255,255,255,.22); color: #fff; }
+  .bs-card .d-solid { background: #a78bfa; border-color: #a78bfa; color: #14102b; }
+  .bs-card .d-solid:hover:not(:disabled) { background: #c4b0ff; color: #14102b; }
+  .bs-ctrl { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .bs-ctrl .d-row { flex-wrap: nowrap; gap: 6px; }
+  .bs-ctrl b { min-width: 3ch; text-align: center; color: #fff; }
+  .bs-done { width: 100%; }
+  .bs-rest { position: relative; height: 32px; border-radius: 16px; background: rgba(255,255,255,.12); overflow: hidden; margin-bottom: 12px; }
+  .bs-rest[hidden] { display: none; }
+  .bs-rest i { position: absolute; inset: 0 auto 0 0; background: #a78bfa; opacity: .6; transition: width 1s linear; }
+  .bs-rest span { position: relative; display: block; text-align: center; line-height: 32px; font-size: 0.8125rem; color: #fff; }
+  .bs-sets { list-style: none; margin: 12px 0; padding: 0; display: grid; gap: 6px; }
+  .bs-sets li { display: flex; justify-content: space-between; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); font-size: 0.875rem; }
+  .bs-sets .bs-c { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--bg)); }
+  .bs-sets .bs-d { color: var(--muted); text-decoration: line-through; }
+  @media (prefers-reduced-motion: reduce) { .bs-rest i { transition: none; } }
+</style>

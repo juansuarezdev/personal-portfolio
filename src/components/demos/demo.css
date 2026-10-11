@@ -1,0 +1,20 @@
+.demo { border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--ink) 3%, var(--bg)); overflow: hidden; }
+.demo-bar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); background: var(--bg); font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+.demo-bar b { color: var(--accent); font-weight: 500; }
+.demo-body { padding: 20px; }
+.d-btn { min-height: 44px; padding: 0 16px; border: 1px solid var(--accent); border-radius: 8px; background: none; color: var(--ink); font: inherit; font-size: 0.9375rem; cursor: pointer; }
+.d-btn:hover:not(:disabled) { background: var(--accent); color: var(--bg); }
+.d-btn:disabled { opacity: 0.4; cursor: default; }
+.d-btn.d-solid { background: var(--accent); color: var(--bg); }
+.d-mono { font-family: var(--mono); }
+.d-muted { color: var(--muted); font-size: 0.875rem; }
+.d-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.d-seg { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg); gap: 2px; }
+.d-seg button { min-height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: none; color: var(--muted); font-family: var(--mono); font-size: 0.8125rem; cursor: pointer; }
+.d-seg button[aria-pressed='true'] { background: var(--accent); color: var(--bg); }
+.d-input { min-height: 44px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); font: inherit; }
+.d-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.d-log { margin: 0; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); font-family: var(--mono); font-size: 0.75rem; line-height: 1.6; min-height: 120px; max-height: 220px; overflow: auto; white-space: pre-wrap; }
+.d-ok { color: #1a7d4a; } .d-warn { color: var(--wip); } .d-err { color: #b02a2a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .d-ok { color: #4fd18b; } :root:not([data-theme='light']) .d-err { color: #ff7b7b; } }
+:root[data-theme='dark'] .d-ok { color: #4fd18b; } :root[data-theme='dark'] .d-err { color: #ff7b7b; }

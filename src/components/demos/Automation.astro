@@ -1,0 +1,98 @@
+---
+import './demo.css';
+import type { Lang } from '../../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = {
+  en: {
+    bar: 'Interactive demo · simulated run', run: 'Run now', fail: 'Simulate a provider failure', clear: 'Clear',
+    nodes: ['Schedule 07:00', 'Read reminders', 'Classify', 'Tag and sort', 'Daily report'],
+    log: {
+      start: 'Workflow started (schedule 07:00)', read: 'Read 24 reminders from the Inbox list', classify: 'Classifying with the primary AI provider…',
+      err: 'Primary provider error 402: no credit left', retry: 'Retry 1/1 failed', fallback: 'Switching to the fallback provider', classified: 'Classified 24 reminders',
+      tag: 'Applied tags and moved 24 reminders', report: 'Report written. Done in', done: 'Run finished',
+    },
+  },
+  es: {
+    bar: 'Demo interactiva · ejecución simulada', run: 'Ejecutar ahora', fail: 'Simular un fallo del proveedor', clear: 'Limpiar',
+    nodes: ['Horario 07:00', 'Leer recordatorios', 'Clasificar', 'Etiquetar y ordenar', 'Informe diario'],
+    log: {
+      start: 'Flujo iniciado (horario 07:00)', read: 'Leídos 24 recordatorios de la lista Entrada', classify: 'Clasificando con el proveedor de IA principal…',
+      err: 'Error 402 del proveedor principal: sin crédito', retry: 'Reintento 1/1 fallido', fallback: 'Cambiando al proveedor alternativo', classified: 'Clasificados 24 recordatorios',
+      tag: 'Etiquetas aplicadas y 24 recordatorios movidos', report: 'Informe escrito. Terminado en', done: 'Ejecución terminada',
+    },
+  },
+}[lang];
+---
+
+<div class="demo" id="auto" data-t={JSON.stringify(T)}>
+  <div class="demo-bar"><span><b>●</b> {T.bar}</span></div>
+  <div class="demo-body">
+    <ol class="au-flow" id="au-flow">
+      {T.nodes.map((n, i) => (
+        <li class="au-node" data-i={i}><span class="au-dot" aria-hidden="true"></span><span>{n}</span></li>
+      ))}
+    </ol>
+    <div class="d-row" style="margin:16px 0">
+      <button type="button" class="d-btn d-solid" id="au-run">{T.run}</button>
+      <label class="d-muted"><input type="checkbox" id="au-fail" /> {T.fail}</label>
+      <button type="button" class="d-btn" id="au-clear">{T.clear}</button>
+    </div>
+    <pre class="d-log" id="au-log" aria-live="polite"></pre>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var root = document.getElementById('auto');
+    var T = JSON.parse(root.dataset.t);
+    var nodes = root.querySelectorAll('.au-node');
+    var log = root.querySelector('#au-log');
+    var runBtn = root.querySelector('#au-run');
+    var busy = false;
+    function say(txt, cls) {
+      var t = new Date().toTimeString().slice(0, 8);
+      var line = document.createElement('div');
+      line.textContent = t + '  ' + txt;
+      if (cls) line.className = cls;
+      log.appendChild(line);
+      log.scrollTop = log.scrollHeight;
+    }
+    function set(i, st) { nodes[i].dataset.state = st; }
+    function reset() { nodes.forEach(function (n) { n.dataset.state = ''; }); }
+    function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+    var fast = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 1;
+    async function run() {
+      if (busy) return; busy = true; runBtn.disabled = true; reset();
+      var fail = root.querySelector('#au-fail').checked, t0 = Date.now();
+      set(0, 'run'); say(T.log.start); await wait(500 * fast); set(0, 'ok');
+      set(1, 'run'); await wait(500 * fast); say(T.log.read); set(1, 'ok');
+      set(2, 'run'); say(T.log.classify); await wait(600 * fast);
+      if (fail) {
+        set(2, 'warn'); say(T.log.err, 'd-err'); await wait(500 * fast);
+        say(T.log.retry, 'd-warn'); await wait(500 * fast);
+        say(T.log.fallback, 'd-warn'); await wait(600 * fast);
+      }
+      say(T.log.classified, 'd-ok'); set(2, 'ok');
+      set(3, 'run'); await wait(500 * fast); say(T.log.tag); set(3, 'ok');
+      set(4, 'run'); await wait(400 * fast); say(T.log.report + ' ' + ((Date.now() - t0) / 1000).toFixed(1) + ' s'); set(4, 'ok');
+      say(T.log.done, 'd-ok'); busy = false; runBtn.disabled = false;
+    }
+    runBtn.addEventListener('click', run);
+    root.querySelector('#au-clear').addEventListener('click', function () { log.textContent = ''; reset(); });
+  })();
+</script>
+
+<style is:global>
+  .au-flow { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; grid-template-columns: 1fr; counter-reset: n; }
+  @media (min-width: 760px) { .au-flow { grid-template-columns: repeat(5, 1fr); position: relative; } }
+  .au-node { display: flex; align-items: center; gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); font-size: 0.875rem; transition: border-color 150ms, background 150ms; }
+  .au-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--muted); flex: none; }
+  .au-node[data-state='run'] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--bg)); }
+  .au-node[data-state='run'] .au-dot { border-color: var(--accent); background: var(--accent); animation: au-pulse 1s ease-in-out infinite; }
+  .au-node[data-state='ok'] .au-dot { border-color: #1a9d5a; background: #1a9d5a; }
+  .au-node[data-state='warn'] { border-color: var(--wip); }
+  .au-node[data-state='warn'] .au-dot { border-color: var(--wip); background: var(--wip); }
+  @keyframes au-pulse { 50% { transform: scale(1.4); } }
+  @media (prefers-reduced-motion: reduce) { .au-node[data-state='run'] .au-dot { animation: none; } }
+</style>

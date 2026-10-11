@@ -1,0 +1,150 @@
+---
+import './demo.css';
+import type { Lang } from '../../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = {
+  en: {
+    bar: 'Interactive demo · simulated data', mech: 'Mechanics planner', body: 'Bodywork planner',
+    hint1: 'Pick a job, then start it, finish it or move it to another technician.',
+    hint2: 'Move each vehicle through the stages with the arrows.',
+    stages: ['Disassembly', 'Paint', 'Assembly', 'Ready'], techs: ['Tech 1', 'Tech 2', 'Tech 3'],
+    state: { planned: 'Planned', doing: 'In progress', done: 'Done' },
+    start: 'Start', finish: 'Finish', reset: 'Reset', assign: 'Technician', none: 'Select a job',
+    jobs: ['Oil service', 'Brakes', 'Diagnosis', 'Tyres', 'Timing belt', 'Air con'],
+    cars: ['Car A12', 'Car B07', 'Car C31', 'Car D18'], clocked: 'clocked',
+  },
+  es: {
+    bar: 'Demo interactiva · datos simulados', mech: 'Planificador de mecánica', body: 'Planificador de carrocería',
+    hint1: 'Elige un trabajo; luego inícialo, termínalo o pásalo a otro técnico.',
+    hint2: 'Mueve cada vehículo por las fases con las flechas.',
+    stages: ['Desmontaje', 'Pintura', 'Montaje', 'Listo'], techs: ['Técnico 1', 'Técnico 2', 'Técnico 3'],
+    state: { planned: 'Planificado', doing: 'En curso', done: 'Hecho' },
+    start: 'Iniciar', finish: 'Terminar', reset: 'Reiniciar', assign: 'Técnico', none: 'Elige un trabajo',
+    jobs: ['Cambio de aceite', 'Frenos', 'Diagnosis', 'Neumáticos', 'Correa de distribución', 'Aire acondicionado'],
+    cars: ['Coche A12', 'Coche B07', 'Coche C31', 'Coche D18'], clocked: 'fichadas',
+  },
+}[lang];
+---
+
+<div class="demo" id="planner" data-t={JSON.stringify(T)}>
+  <div class="demo-bar"><span><b>●</b> {T.bar}</span></div>
+  <div class="demo-body">
+    <div class="d-seg" role="group">
+      <button type="button" data-view="mech" aria-pressed="true">{T.mech}</button>
+      <button type="button" data-view="body" aria-pressed="false">{T.body}</button>
+    </div>
+    <div class="pl-view" data-view="mech">
+      <p class="d-muted">{T.hint1}</p>
+      <div class="pl-grid" id="pl-grid"></div>
+      <div class="pl-detail" id="pl-detail" aria-live="polite"></div>
+    </div>
+    <div class="pl-view" data-view="body" hidden>
+      <p class="d-muted">{T.hint2}</p>
+      <div class="pl-board" id="pl-board"></div>
+    </div>
+    <p><button type="button" class="d-btn" id="pl-reset">{T.reset}</button></p>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var root = document.getElementById('planner');
+    var T = JSON.parse(root.dataset.t);
+    var hours = [8, 9, 10, 11, 12, 13, 14, 15];
+    function initJobs() {
+      return [
+        { id: 0, tech: 0, start: 8, len: 2, state: 'planned' },
+        { id: 1, tech: 0, start: 11, len: 3, state: 'planned' },
+        { id: 2, tech: 1, start: 9, len: 1, state: 'planned' },
+        { id: 3, tech: 1, start: 12, len: 2, state: 'planned' },
+        { id: 4, tech: 2, start: 8, len: 4, state: 'planned' },
+        { id: 5, tech: 2, start: 13, len: 2, state: 'planned' },
+      ];
+    }
+    function initCars() {
+      return [{ n: 0, stage: 0, h: 3 }, { n: 1, stage: 1, h: 6 }, { n: 2, stage: 2, h: 9 }, { n: 3, stage: 0, h: 1 }];
+    }
+    var jobs = initJobs(), cars = initCars(), sel = null;
+    var grid = root.querySelector('#pl-grid'), detail = root.querySelector('#pl-detail'), board = root.querySelector('#pl-board');
+
+    function drawGrid() {
+      var html = '<div class="pl-head"><span></span>' + hours.map(function (h) { return '<span>' + h + ':00</span>'; }).join('') + '</div>';
+      T.techs.forEach(function (name, ti) {
+        html += '<div class="pl-row"><span class="pl-tech">' + name + '</span><div class="pl-lane">';
+        jobs.filter(function (j) { return j.tech === ti; }).forEach(function (j) {
+          html += '<button type="button" class="pl-job pl-' + j.state + (sel === j.id ? ' pl-sel' : '') + '" data-id="' + j.id + '" style="left:' + ((j.start - 8) / 8 * 100) + '%;width:' + (j.len / 8 * 100) + '%">' + T.jobs[j.id] + '</button>';
+        });
+        html += '</div></div>';
+      });
+      grid.innerHTML = html;
+      grid.querySelectorAll('.pl-job').forEach(function (b) {
+        b.addEventListener('click', function () { sel = +b.dataset.id; drawGrid(); drawDetail(); });
+      });
+    }
+    function drawDetail() {
+      if (sel === null) { detail.innerHTML = '<p class="d-muted">' + T.none + '</p>'; return; }
+      var j = jobs[sel];
+      var opts = T.techs.map(function (n, i) { return '<option value="' + i + '"' + (i === j.tech ? ' selected' : '') + '>' + n + '</option>'; }).join('');
+      detail.innerHTML = '<div class="d-row"><strong>' + T.jobs[j.id] + '</strong><span class="d-mono d-muted">' + T.state[j.state] + '</span>' +
+        '<label class="d-muted">' + T.assign + ' <select class="d-input" id="pl-tech">' + opts + '</select></label>' +
+        '<button type="button" class="d-btn" id="pl-start"' + (j.state !== 'planned' ? ' disabled' : '') + '>' + T.start + '</button>' +
+        '<button type="button" class="d-btn d-solid" id="pl-finish"' + (j.state !== 'doing' ? ' disabled' : '') + '>' + T.finish + '</button></div>';
+      detail.querySelector('#pl-tech').addEventListener('change', function (e) { j.tech = +e.target.value; drawGrid(); });
+      detail.querySelector('#pl-start').addEventListener('click', function () { j.state = 'doing'; drawGrid(); drawDetail(); });
+      detail.querySelector('#pl-finish').addEventListener('click', function () { j.state = 'done'; drawGrid(); drawDetail(); });
+    }
+    function drawBoard() {
+      var html = '';
+      T.stages.forEach(function (st, si) {
+        var list = cars.filter(function (c) { return c.stage === si; });
+        html += '<div class="pl-col"><h4>' + st + ' <span class="d-mono d-muted">' + list.length + '</span></h4>';
+        list.forEach(function (c) {
+          html += '<div class="pl-card"><strong>' + T.cars[c.n] + '</strong><span class="d-mono d-muted">' + c.h + ' h ' + T.clocked + '</span>' +
+            '<div class="pl-bar"><i style="width:' + Math.min(100, c.h * 10) + '%"></i></div><div class="d-row">' +
+            '<button type="button" class="d-btn pl-mv" data-n="' + c.n + '" data-d="-1" aria-label="←"' + (si === 0 ? ' disabled' : '') + '>←</button>' +
+            '<button type="button" class="d-btn pl-mv" data-n="' + c.n + '" data-d="1" aria-label="→"' + (si === 3 ? ' disabled' : '') + '>→</button></div></div>';
+        });
+        html += '</div>';
+      });
+      board.innerHTML = html;
+      board.querySelectorAll('.pl-mv').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var c = cars[+b.dataset.n]; c.stage += +b.dataset.d; c.h += 1; drawBoard();
+        });
+      });
+    }
+    root.querySelectorAll('.d-seg button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        root.querySelectorAll('.d-seg button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        root.querySelectorAll('.pl-view').forEach(function (v) { v.hidden = v.dataset.view !== b.dataset.view; });
+      });
+    });
+    root.querySelector('#pl-reset').addEventListener('click', function () { jobs = initJobs(); cars = initCars(); sel = null; drawGrid(); drawDetail(); drawBoard(); });
+    drawGrid(); drawDetail(); drawBoard();
+  })();
+</script>
+
+<style is:global>
+  .pl-view { margin-top: 16px; }
+  .pl-view[hidden] { display: none; }
+  .pl-head, .pl-row { display: grid; grid-template-columns: 72px 1fr; gap: 8px; align-items: center; }
+  .pl-head { font-family: var(--mono); font-size: 0.6875rem; color: var(--muted); }
+  .pl-head { grid-template-columns: 72px repeat(8, 1fr); }
+  .pl-row { margin-top: 6px; }
+  .pl-tech { font-size: 0.8125rem; color: var(--muted); }
+  .pl-lane { position: relative; height: 44px; border-radius: 8px; background: repeating-linear-gradient(90deg, transparent 0 calc(12.5% - 1px), var(--line) calc(12.5% - 1px) 12.5%); border: 1px solid var(--line); }
+  .pl-job { position: absolute; top: 3px; bottom: 3px; border: 1px solid var(--accent); border-radius: 6px; background: color-mix(in srgb, var(--accent) 12%, var(--bg)); color: var(--ink); font: inherit; font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; padding: 0 6px; }
+  .pl-job.pl-doing { background: var(--accent); color: var(--bg); }
+  .pl-job.pl-done { background: color-mix(in srgb, var(--ink) 10%, var(--bg)); border-color: var(--line); color: var(--muted); text-decoration: line-through; }
+  .pl-job.pl-sel { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .pl-detail { margin-top: 16px; min-height: 52px; }
+  .pl-board { display: grid; gap: 12px; grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .pl-board { grid-template-columns: repeat(4, 1fr); } }
+  .pl-col { padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); min-height: 120px; }
+  .pl-col h4 { font-size: 0.875rem; margin: 0 0 8px; }
+  .pl-card { display: grid; gap: 4px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 8px; background: color-mix(in srgb, var(--ink) 3%, var(--bg)); }
+  .pl-bar { height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--ink) 12%, transparent); }
+  .pl-bar i { display: block; height: 100%; border-radius: 3px; background: var(--accent); }
+  @media (max-width: 640px) { .pl-head { display: none; } .pl-lane { overflow-x: auto; } }
+</style>

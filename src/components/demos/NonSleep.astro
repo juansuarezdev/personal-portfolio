@@ -1,0 +1,98 @@
+---
+import './demo.css';
+import type { Lang } from '../../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = {
+  en: {
+    bar: 'Interactive demo · simulated menu bar', ask: 'How long?', ph: 'e.g. 25, 45m, 1h30', start: 'Start', stop: 'Stop',
+    idle: 'Mac can sleep', awake: 'Mac stays awake', left: 'left', battery: 'Battery', temp: 'Mac temperature', normal: 'Normal', hot: 'Hot',
+    speed: 'Speed', bad: 'Type a duration like 25, 45m or 1h30',
+    why: { time: 'Stopped: time is up', battery: 'Stopped: battery is low', heat: 'Stopped: the Mac is running hot', user: 'Stopped by you' },
+  },
+  es: {
+    bar: 'Demo interactiva · barra de menús simulada', ask: '¿Cuánto tiempo?', ph: 'p. ej. 25, 45m, 1h30', start: 'Iniciar', stop: 'Parar',
+    idle: 'El Mac puede dormir', awake: 'El Mac sigue despierto', left: 'restantes', battery: 'Batería', temp: 'Temperatura del Mac', normal: 'Normal', hot: 'Caliente',
+    speed: 'Velocidad', bad: 'Escribe una duración como 25, 45m o 1h30',
+    why: { time: 'Parada: se acabó el tiempo', battery: 'Parada: batería baja', heat: 'Parada: el Mac está caliente', user: 'Parada por ti' },
+  },
+}[lang];
+---
+
+<div class="demo" id="ns" data-t={JSON.stringify(T)}>
+  <div class="demo-bar"><span><b>●</b> {T.bar}</span></div>
+  <div class="demo-body">
+    <div class="ns-menubar" aria-hidden="true"><span></span><span class="ns-moon" id="ns-moon">☾</span><span>14:02</span></div>
+    <div class="ns-pop">
+      <p class="d-mono ns-status" id="ns-status" aria-live="polite">{T.idle}</p>
+      <p class="ns-time d-mono" id="ns-time">--:--</p>
+      <form id="ns-form" class="d-row">
+        <label class="d-muted" for="ns-in">{T.ask}</label>
+        <input id="ns-in" class="d-input" placeholder={T.ph} autocomplete="off" />
+        <button type="submit" class="d-btn d-solid" id="ns-go">{T.start}</button>
+        <button type="button" class="d-btn" id="ns-stop" disabled>{T.stop}</button>
+      </form>
+      <p class="d-muted" id="ns-msg" aria-live="polite"></p>
+    </div>
+    <div class="ns-sim">
+      <label class="d-muted">{T.battery}: <b id="ns-bv">80</b>%
+        <input type="range" id="ns-bat" min="0" max="100" value="80" /></label>
+      <label class="d-muted">{T.temp}
+        <select id="ns-temp" class="d-input"><option value="n">{T.normal}</option><option value="h">{T.hot}</option></select></label>
+      <label class="d-muted">{T.speed}
+        <select id="ns-speed" class="d-input"><option value="1">×1</option><option value="60" selected>×60</option></select></label>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var root = document.getElementById('ns');
+    var T = JSON.parse(root.dataset.t);
+    var $ = function (s) { return root.querySelector(s); };
+    var left = 0, timer = null;
+    function parse(v) {
+      v = v.trim().toLowerCase();
+      var m = v.match(/^(\d+)\s*h(?:\s*(\d+)\s*m?)?$/);
+      if (m) return (+m[1] * 60 + (+m[2] || 0)) * 60;
+      m = v.match(/^(\d+)\s*m?$/);
+      return m ? +m[1] * 60 : 0;
+    }
+    function fmt(s) { var h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + ':' : '') + String(m).padStart(2, '0') + ':' + String(x).padStart(2, '0'); }
+    function ui(on, msg) {
+      $('#ns-status').textContent = on ? T.awake : T.idle;
+      $('#ns-moon').style.color = on ? 'var(--accent)' : '';
+      $('#ns-go').disabled = on; $('#ns-stop').disabled = !on; $('#ns-in').disabled = on;
+      if (!on) $('#ns-time').textContent = '--:--';
+      $('#ns-msg').textContent = msg || '';
+    }
+    function end(why) { clearInterval(timer); timer = null; ui(false, T.why[why]); }
+    function tick() {
+      left -= +$('#ns-speed').value;
+      if (+$('#ns-bat').value < 20) return end('battery');
+      if ($('#ns-temp').value === 'h') return end('heat');
+      if (left <= 0) return end('time');
+      $('#ns-time').textContent = fmt(left) + ' ' + T.left;
+    }
+    $('#ns-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var s = parse($('#ns-in').value);
+      if (!s) { $('#ns-msg').textContent = T.bad; return; }
+      left = s; ui(true, ''); $('#ns-time').textContent = fmt(left) + ' ' + T.left;
+      timer = setInterval(tick, 1000);
+    });
+    $('#ns-stop').addEventListener('click', function () { end('user'); });
+    $('#ns-bat').addEventListener('input', function (e) { $('#ns-bv').textContent = e.target.value; });
+  })();
+</script>
+
+<style is:global>
+  .ns-menubar { display: flex; justify-content: flex-end; gap: 16px; padding: 4px 14px; border-radius: 8px 8px 0 0; background: color-mix(in srgb, var(--ink) 8%, var(--bg)); font-size: 0.8125rem; }
+  .ns-moon { font-size: 1rem; }
+  .ns-pop { max-width: 440px; margin: 0 0 16px auto; padding: 16px; border: 1px solid var(--line); border-radius: 0 0 12px 12px; background: var(--bg); box-shadow: 0 12px 32px -16px rgba(0,0,0,.4); }
+  .ns-status { margin: 0; font-size: 0.8125rem; color: var(--muted); }
+  .ns-time { font-size: 2.25rem; margin: 4px 0 12px; letter-spacing: -0.02em; }
+  .ns-sim { display: flex; flex-wrap: wrap; gap: 16px 24px; }
+  .ns-sim label { display: grid; gap: 4px; }
+  .ns-sim input[type='range'] { accent-color: var(--accent); width: 180px; }
+</style>
