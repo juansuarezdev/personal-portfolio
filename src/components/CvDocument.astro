@@ -1,0 +1,93 @@
+---
+import './cv.css';
+import type { Lang } from '../i18n/ui';
+import { t } from '../i18n/ui';
+import { career } from '../data/career';
+import { contact, role, summary, skills, languages, projects } from '../data/cv';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const ui = t(lang);
+const work = [...career].filter((c) => c.kind !== 'education').reverse();
+const education = career.filter((c) => c.kind === 'education');
+---
+
+<article class="cv" aria-label={ui.cv.title}>
+  <header class="cv-head">
+    <h1>Juan Suárez</h1>
+    <p class="cv-role">{role[lang]}</p>
+    <ul class="cv-contact">
+      <li>{contact.location[lang]}</li>
+      <li><a href={`mailto:${contact.email}`}>{contact.email}</a></li>
+      <li><a href={contact.github}>github.com/juansuarezdev</a></li>
+      <li><a href={contact.linkedin}>linkedin.com/in/juansuarez-sanchez</a></li>
+    </ul>
+  </header>
+
+  <div class="cv-cols">
+    <div class="cv-main">
+      <section class="cv-sec">
+        <h2>{ui.cv.summary}</h2>
+        <p>{summary[lang]}</p>
+      </section>
+
+      <section class="cv-sec">
+        <h2>{ui.cv.experience}</h2>
+        {work.map((c) => (
+          <div class="cv-item">
+            <div class="cv-item-head">
+              <h3>{c.title[lang]} · {c.org}</h3>
+              <span class="cv-date">{c.period[lang]}</span>
+            </div>
+            <p class="cv-place">{c.place}</p>
+            {c.summary && <p>{c.summary[lang]}</p>}
+          </div>
+        ))}
+      </section>
+
+      <section class="cv-sec">
+        <h2>{ui.cv.projects}</h2>
+        {projects.map((p) => (
+          <div class="cv-item">
+            <div class="cv-item-head">
+              <h3><a href={`https://${p.href}`}>{p.name}</a></h3>
+              <span class="cv-date">{p.href}</span>
+            </div>
+            <p>{p.text[lang]}</p>
+          </div>
+        ))}
+      </section>
+    </div>
+
+    <aside class="cv-side">
+      <section class="cv-sec">
+        <h2>{ui.cv.education}</h2>
+        {education.map((c) => (
+          <div class="cv-item">
+            <h3>{c.title[lang]}</h3>
+            <p class="cv-place">{c.org} · {c.period[lang]}</p>
+          </div>
+        ))}
+      </section>
+
+      <section class="cv-sec">
+        <h2>{ui.cv.skills}</h2>
+        {skills.map((g) => (
+          <div class="cv-skill">
+            <h3>{g.group[lang]}</h3>
+            <ul class="cv-chips">{g.items.map((i) => <li>{i}</li>)}</ul>
+          </div>
+        ))}
+      </section>
+
+      <section class="cv-sec">
+        <h2>{ui.cv.languages}</h2>
+        <ul class="cv-langs">
+          {languages.map((l) => (
+            <li><span>{l.name[lang]}</span><span class="cv-place">{l.level[lang]}</span></li>
+          ))}
+        </ul>
+      </section>
+    </aside>
+  </div>
+</article>
