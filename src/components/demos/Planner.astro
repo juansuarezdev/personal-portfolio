@@ -6,8 +6,8 @@ const { lang } = Astro.props;
 const T = {
   en: {
     bar: 'Interactive demo · simulated data', mech: 'Mechanics planner', body: 'Bodywork planner',
-    hint1: 'Pick a job, then start it, finish it or move it to another technician.',
-    hint2: 'Move each vehicle through the stages with the arrows.',
+    hint1: 'Drag a job to change its time or technician, or pick it to start, finish or reassign it.',
+    hint2: 'Drag each vehicle to another stage, or use the arrows.', busy: 'That slot is already taken.',
     stages: ['Disassembly', 'Paint', 'Assembly', 'Ready'], techs: ['Tech 1', 'Tech 2', 'Tech 3'],
     state: { planned: 'Planned', doing: 'In progress', done: 'Done' },
     start: 'Start', finish: 'Finish', reset: 'Reset', assign: 'Technician', none: 'Select a job',
@@ -16,8 +16,8 @@ const T = {
   },
   es: {
     bar: 'Demo interactiva · datos simulados', mech: 'Planificador de mecánica', body: 'Planificador de carrocería',
-    hint1: 'Elige un trabajo; luego inícialo, termínalo o pásalo a otro técnico.',
-    hint2: 'Mueve cada vehículo por las fases con las flechas.',
+    hint1: 'Arrastra un trabajo para cambiar su hora o su técnico, o elígelo para iniciarlo, terminarlo o reasignarlo.',
+    hint2: 'Arrastra cada vehículo a otra fase o usa las flechas.', busy: 'Ese hueco ya está ocupado.',
     stages: ['Desmontaje', 'Pintura', 'Montaje', 'Listo'], techs: ['Técnico 1', 'Técnico 2', 'Técnico 3'],
     state: { planned: 'Planificado', doing: 'En curso', done: 'Hecho' },
     start: 'Iniciar', finish: 'Terminar', reset: 'Reiniciar', assign: 'Técnico', none: 'Elige un trabajo',
@@ -65,7 +65,8 @@ const T = {
     function initCars() {
       return [{ n: 0, stage: 0, h: 3 }, { n: 1, stage: 1, h: 6 }, { n: 2, stage: 2, h: 9 }, { n: 3, stage: 0, h: 1 }];
     }
-    var jobs = initJobs(), cars = initCars(), sel = null;
+    var jobs = initJobs(), cars = initCars(), sel = null, note = '', focusId = null;
+    var DRAG_PX = 5;
     var grid = root.querySelector('#pl-grid'), detail = root.querySelector('#pl-detail'), board = root.querySelector('#pl-board');
 
     function drawGrid() {
@@ -81,19 +82,75 @@ const T = {
         }).join('') + '</div></div>';
       });
       grid.innerHTML = html;
-      grid.querySelectorAll('.pl-job, .pl-jobm').forEach(function (b) {
-        b.addEventListener('click', function () { sel = +b.dataset.id; drawGrid(); drawDetail(); });
+      grid.querySelectorAll('.pl-jobm').forEach(function (b) {
+        b.addEventListener('click', function () { sel = +b.dataset.id; note = ''; drawGrid(); drawDetail(); });
+      });
+      grid.querySelectorAll('.pl-job').forEach(bindJob);
+      if (focusId !== null) { var f = grid.querySelector('.pl-job[data-id="' + focusId + '"]'); if (f) f.focus(); focusId = null; }
+    }
+    function fits(j, start, tech) {
+      if (start < 8 || start + j.len > 16) return false;
+      return !jobs.some(function (o) { return o !== j && o.tech === tech && !(start + j.len <= o.start || start >= o.start + o.len); });
+    }
+    function moveJob(j, start, tech) {
+      if (!fits(j, start, tech)) { note = T.busy; return false; }
+      j.start = start; j.tech = tech; note = ''; return true;
+    }
+    function laneAt(y) {
+      var best = 0, bd = Infinity;
+      grid.querySelectorAll('.pl-lane').forEach(function (l, i) {
+        var r = l.getBoundingClientRect(), d = Math.abs(r.top + r.height / 2 - y);
+        if (d < bd) { bd = d; best = i; }
+      });
+      return best;
+    }
+    function bindJob(b) {
+      var j = jobs[+b.dataset.id], dragged = false;
+      b.addEventListener('pointerdown', function (e) {
+        if (e.button !== 0) return;
+        var sx = e.clientX, sy = e.clientY, moved = false;
+        var lanes = grid.querySelectorAll('.pl-lane');
+        var hourW = lanes[0].getBoundingClientRect().width / 8;
+        try { b.setPointerCapture(e.pointerId); } catch (x) {}
+        function mv(ev) {
+          var dx = ev.clientX - sx, dy = ev.clientY - sy;
+          if (!moved && Math.hypot(dx, dy) > DRAG_PX) { moved = true; b.classList.add('pl-drag'); }
+          if (!moved) return;
+          b.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+          var ti = laneAt(ev.clientY);
+          lanes.forEach(function (l, i) { l.classList.toggle('pl-over', i === ti); });
+        }
+        function up(ev) {
+          b.removeEventListener('pointermove', mv); b.removeEventListener('pointerup', up); b.removeEventListener('pointercancel', up);
+          if (!moved) return;
+          dragged = true;
+          moveJob(j, j.start + Math.round((ev.clientX - sx) / hourW), laneAt(ev.clientY));
+          sel = j.id; drawGrid(); drawDetail();
+        }
+        b.addEventListener('pointermove', mv); b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up);
+      });
+      b.addEventListener('click', function () {
+        if (dragged) { dragged = false; return; }
+        sel = j.id; note = ''; drawGrid(); drawDetail();
+      });
+      b.addEventListener('keydown', function (e) {
+        var d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+        if (!d) return;
+        e.preventDefault();
+        var tech = Math.max(0, Math.min(T.techs.length - 1, j.tech + d[1]));
+        moveJob(j, j.start + d[0], tech);
+        sel = j.id; focusId = j.id; drawGrid(); drawDetail();
       });
     }
     function drawDetail() {
-      if (sel === null) { detail.innerHTML = '<p class="d-muted">' + T.none + '</p>'; return; }
+      if (sel === null) { detail.innerHTML = '<p class="d-muted">' + (note || T.none) + '</p>'; return; }
       var j = jobs[sel];
       var opts = T.techs.map(function (n, i) { return '<option value="' + i + '"' + (i === j.tech ? ' selected' : '') + '>' + n + '</option>'; }).join('');
       detail.innerHTML = '<div class="d-row"><strong>' + T.jobs[j.id] + '</strong><span class="d-mono d-muted">' + T.state[j.state] + '</span>' +
         '<label class="d-muted">' + T.assign + ' <select class="d-input" id="pl-tech">' + opts + '</select></label>' +
         '<button type="button" class="d-btn" id="pl-start"' + (j.state !== 'planned' ? ' disabled' : '') + '>' + T.start + '</button>' +
-        '<button type="button" class="d-btn d-solid" id="pl-finish"' + (j.state !== 'doing' ? ' disabled' : '') + '>' + T.finish + '</button></div>';
-      detail.querySelector('#pl-tech').addEventListener('change', function (e) { j.tech = +e.target.value; drawGrid(); });
+        '<button type="button" class="d-btn d-solid" id="pl-finish"' + (j.state !== 'doing' ? ' disabled' : '') + '>' + T.finish + '</button></div>' + (note ? '<p class="d-muted">' + note + '</p>' : '');
+      detail.querySelector('#pl-tech').addEventListener('change', function (e) { moveJob(j, j.start, +e.target.value); drawGrid(); drawDetail(); });
       detail.querySelector('#pl-start').addEventListener('click', function () { j.state = 'doing'; drawGrid(); drawDetail(); });
       detail.querySelector('#pl-finish').addEventListener('click', function () { j.state = 'done'; drawGrid(); drawDetail(); });
     }
@@ -103,7 +160,7 @@ const T = {
         var list = cars.filter(function (c) { return c.stage === si; });
         html += '<div class="pl-col"><h3>' + st + ' <span class="d-mono d-muted">' + list.length + '</span></h3>';
         list.forEach(function (c) {
-          html += '<div class="pl-card"><strong>' + T.cars[c.n] + '</strong><span class="d-mono d-muted">' + c.h + ' h ' + T.clocked + '</span>' +
+          html += '<div class="pl-card" data-n="' + c.n + '"><strong>' + T.cars[c.n] + '</strong><span class="d-mono d-muted">' + c.h + ' h ' + T.clocked + '</span>' +
             '<div class="pl-bar"><i style="width:' + Math.min(100, c.h * 10) + '%"></i></div><div class="d-row">' +
             '<button type="button" class="d-btn pl-mv" data-n="' + c.n + '" data-d="-1" aria-label="←"' + (si === 0 ? ' disabled' : '') + '>←</button>' +
             '<button type="button" class="d-btn pl-mv" data-n="' + c.n + '" data-d="1" aria-label="→"' + (si === 3 ? ' disabled' : '') + '>→</button></div></div>';
@@ -114,6 +171,36 @@ const T = {
       board.querySelectorAll('.pl-mv').forEach(function (b) {
         b.addEventListener('click', function () {
           var c = cars[+b.dataset.n]; c.stage += +b.dataset.d; c.h += 1; drawBoard();
+        });
+      });
+      if (!matchMedia('(min-width: 760px)').matches) return;
+      var cols = board.querySelectorAll('.pl-col');
+      function colAt(x, y) {
+        var hit = -1;
+        cols.forEach(function (cl, i) { var r = cl.getBoundingClientRect(); if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) hit = i; });
+        return hit;
+      }
+      board.querySelectorAll('.pl-card').forEach(function (card) {
+        card.addEventListener('pointerdown', function (e) {
+          if (e.button !== 0 || e.target.closest('button')) return;
+          var c = cars[+card.dataset.n], sx = e.clientX, sy = e.clientY, moved = false;
+          try { card.setPointerCapture(e.pointerId); } catch (x) {}
+          function mv(ev) {
+            var dx = ev.clientX - sx, dy = ev.clientY - sy;
+            if (!moved && Math.hypot(dx, dy) > DRAG_PX) { moved = true; card.classList.add('pl-drag'); }
+            if (!moved) return;
+            card.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+            var ci = colAt(ev.clientX, ev.clientY);
+            cols.forEach(function (cl, i) { cl.classList.toggle('pl-over', i === ci); });
+          }
+          function up(ev) {
+            card.removeEventListener('pointermove', mv); card.removeEventListener('pointerup', up); card.removeEventListener('pointercancel', up);
+            if (!moved) return;
+            var ci = colAt(ev.clientX, ev.clientY);
+            if (ci >= 0 && ci !== c.stage) { c.h += 1; c.stage = ci; }
+            drawBoard();
+          }
+          card.addEventListener('pointermove', mv); card.addEventListener('pointerup', up); card.addEventListener('pointercancel', up);
         });
       });
     }
@@ -153,6 +240,10 @@ const T = {
   .pl-job { position: absolute; top: 3px; bottom: 3px; border: 1px solid var(--accent); border-radius: 6px; background: color-mix(in srgb, var(--accent) 12%, var(--bg)); color: var(--ink); font: inherit; font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; padding: 0 6px; }
   .pl-job.pl-doing { background: var(--accent); color: var(--bg); }
   .pl-job.pl-done { background: color-mix(in srgb, var(--ink) 10%, var(--bg)); border-color: var(--line); color: var(--muted); text-decoration: line-through; }
+  .pl-job { cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .pl-job.pl-drag, .pl-card.pl-drag { cursor: grabbing; z-index: 5; opacity: 0.92; box-shadow: 0 8px 24px -6px color-mix(in srgb, var(--ink) 40%, transparent); transition: none; }
+  .pl-lane.pl-over, .pl-col.pl-over { border-color: var(--accent); background-color: color-mix(in srgb, var(--accent) 8%, var(--bg)); }
+  @media (min-width: 760px) { .pl-card { cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; position: relative; } }
   .pl-job.pl-sel { outline: 2px solid var(--ink); outline-offset: 1px; }
   .pl-detail { margin-top: 16px; min-height: 52px; }
   .pl-board { display: grid; gap: 12px; grid-template-columns: 1fr; }
