@@ -75,8 +75,8 @@ export const work: WorkItem[] = [
       es: 'Digitalización de la planificación de equipos de un taller',
     },
     summary: {
-      en: 'Two planners, one per team, replaced paper in an automotive workshop. Integrations with manufacturer systems.',
-      es: 'Dos planificadores, uno por equipo, sustituyeron al papel en un taller de automoción. Integraciones con sistemas de marcas.',
+      en: 'Two planners, one per team, replaced paper in an automotive workshop. The platform also connects to several manufacturers’ systems.',
+      es: 'Dos planificadores, uno por equipo, sustituyeron al papel en un taller de automoción. La plataforma también se conecta a sistemas de varias marcas.',
     },
     stack: ['Laravel', 'PHP', 'Redis', 'MySQL'],
     body: [
@@ -97,8 +97,8 @@ export const work: WorkItem[] = [
       {
         h: { en: 'Solution', es: 'Solución' },
         text: {
-          en: 'The organisation of the workshop teams was digitised end to end. Two planners were built, each shaped around the needs of its team. The platform also integrates with several car manufacturers’ systems (such as Renault), each using different technologies.',
-          es: 'Se digitalizó por completo la organización de los equipos de trabajo del taller. Se desarrollaron dos planificadores, cada uno según las necesidades de su equipo. La plataforma además se integra con sistemas de varias marcas de automoción (como Renault), cada una con tecnologías distintas.',
+          en: 'The organisation of the workshop teams was digitised end to end. Two planners were built, each shaped around the needs of its team. The platform also integrates with several car manufacturers’ systems, each using different technologies.',
+          es: 'Se digitalizó por completo la organización de los equipos de trabajo del taller. Se desarrollaron dos planificadores, cada uno según las necesidades de su equipo. La plataforma además se integra con sistemas de varias marcas de automoción, cada una con tecnologías distintas.',
         },
       },
       {

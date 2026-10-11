@@ -13,7 +13,7 @@ Portfolio of **Juan Suárez**, full-stack developer. Bilingual (English and Span
 
 ```bash
 npm install
-npm run dev      # http://localhost:4321
+npm run dev      # http://localhost:4321/personal-portfolio/
 npm run check    # type check and production build
 npm run preview  # serve the production build
 ```
@@ -36,3 +36,8 @@ src/
 
 - The CV page has a print stylesheet: a single linear column with plain text and standard headings, so the exported PDF is readable by people and by screening software.
 - The demos run entirely in the browser with simulated data.
+- The site is deployed to GitHub Pages by `.github/workflows/deploy.yml` and served under `/personal-portfolio`. For a custom domain, remove `base` from `astro.config.mjs` and set `site`.
+
+## Licence
+
+The code is under the [MIT licence](LICENSE). The written content (CV, case descriptions, texts) is © Juan Suárez and is not licensed for reuse.

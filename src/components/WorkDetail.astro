@@ -1,5 +1,6 @@
 ---
 import { t, type Lang } from '../i18n/ui';
+import { url } from '../i18n/url';
 import type { WorkItem } from '../data/work';
 import Planner from './demos/Planner.astro';
 import Automation from './demos/Automation.astro';
@@ -49,7 +50,7 @@ const ui = t(lang);
   <div class="wd-bar wd-end">
     <span class="wd-line"></span>
     {w.github && <a class="a-btn" href={w.github}>{ui.work.github} ↗</a>}
-    {!page && <a class="a-btn" href={`/${lang}/work/${w.slug}/`}>{ui.work.fullPage}</a>}
+    {!page && <a class="a-btn" href={url(`/${lang}/work/${w.slug}/`)}>{ui.work.fullPage}</a>}
     {!page && <button type="button" class="a-btn unf-close">{ui.work.close} ↑</button>}
   </div>
 </div>

@@ -1,4 +1,5 @@
 ---
+import { url } from '../i18n/url';
 ---
 
 <!doctype html>
@@ -7,14 +8,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Juan Suárez</title>
-    <meta http-equiv="refresh" content="0; url=/en/" />
-    <link rel="canonical" href="/en/" />
-    <script is:inline>
+    <meta http-equiv="refresh" content={`0; url=${url("/en/")}`} />
+    <link rel="canonical" href={url("/en/")} />
+    <script is:inline define:vars={{ EN: url("/en/"), ES: url("/es/") }}>
       var l = (navigator.language || 'en').toLowerCase();
-      location.replace(l.indexOf('es') === 0 ? '/es/' : '/en/');
+      location.replace(l.indexOf('es') === 0 ? ES : EN);
     </script>
   </head>
   <body>
-    <p><a href="/en/">English</a> · <a href="/es/">Español</a></p>
+    <p><a href={url("/en/")}>English</a> · <a href={url("/es/")}>Español</a></p>
   </body>
 </html>

@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import CvDocument from '../../components/CvDocument.astro';
 import { t, locales, type Lang } from '../../i18n/ui';
+import { url } from '../../i18n/url';
 import { summary } from '../../data/cv';
 
 export function getStaticPaths() {
@@ -14,7 +15,7 @@ const ui = t(lang);
 <Base lang={lang} title={`Juan Suárez - ${ui.cv.title}`} description={summary[lang]}>
   <div class="wrap cv-wrap">
     <div class="cv-actions">
-      <a class="a-btn" href={`/${lang}/`}>← {ui.cv.back}</a>
+      <a class="a-btn" href={url(`/${lang}/`)}>← {ui.cv.back}</a>
       <button type="button" class="a-btn cv-print" id="cv-print">{ui.cv.savePdf}</button>
     </div>
     <CvDocument lang={lang} />

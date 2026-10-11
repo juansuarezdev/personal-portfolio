@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { t, locales, type Lang } from '../i18n/ui';
+import { url, unbase } from '../i18n/url';
 
 interface Props {
   lang: Lang;
@@ -11,10 +12,10 @@ interface Props {
 const { lang, title, description } = Astro.props;
 const ui = t(lang);
 const other = locales.find((l) => l !== lang)!;
-const path = Astro.url.pathname;
+const path = unbase(Astro.url.pathname);
 const otherPath = path.replace(`/${lang}/`, `/${other}/`);
 const onHome = /^\/(en|es)\/?$/.test(path);
-const anchor = (id: string) => (onHome ? `#${id}` : `/${lang}/#${id}`);
+const anchor = (id: string) => (onHome ? `#${id}` : url(`/${lang}/#${id}`));
 ---
 
 <!doctype html>
@@ -24,8 +25,8 @@ const anchor = (id: string) => (onHome ? `#${id}` : `/${lang}/#${id}`);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title ?? ui.siteTitle}</title>
     <meta name="description" content={description ?? ui.siteDescription} />
-    <link rel="alternate" hreflang="en" href={path.replace(`/${lang}/`, '/en/')} />
-    <link rel="alternate" hreflang="es" href={path.replace(`/${lang}/`, '/es/')} />
+    <link rel="alternate" hreflang="en" href={url(path.replace(`/${lang}/`, '/en/'))} />
+    <link rel="alternate" hreflang="es" href={url(path.replace(`/${lang}/`, '/es/'))} />
     <script is:inline>
       document.documentElement.classList.add('js');
       try {
@@ -38,7 +39,7 @@ const anchor = (id: string) => (onHome ? `#${id}` : `/${lang}/#${id}`);
     <a class="skip" href="#main">{ui.skip}</a>
     <header class="site-header">
       <div class="wrap bar">
-        <a class="brand" href={`/${lang}/`} aria-label="Juan Suárez">
+        <a class="brand" href={url(`/${lang}/`)} aria-label="Juan Suárez">
           <span class="mark" aria-hidden="true">JS</span>
           <span class="brand-name">Juan Suárez</span>
         </a>
@@ -48,12 +49,12 @@ const anchor = (id: string) => (onHome ? `#${id}` : `/${lang}/#${id}`);
             <li><a href={anchor('templates')}>{ui.nav.templates}</a></li>
             <li><a href={anchor('work')}>{ui.nav.work}</a></li>
             <li><a href={anchor('journey')}>{ui.nav.journey}</a></li>
-            <li><a href={onHome ? '#cv' : `/${lang}/cv/`} aria-current={path.startsWith(`/${lang}/cv`) ? 'page' : undefined}>{ui.nav.cv}</a></li>
+            <li><a href={onHome ? '#cv' : url(`/${lang}/cv/`)} aria-current={path.startsWith(`/${lang}/cv`) ? 'page' : undefined}>{ui.nav.cv}</a></li>
             <li><a href={anchor('contact')}>{ui.nav.contact}</a></li>
           </ul>
         </nav>
         <div class="controls">
-          <a class="icon-btn" href={otherPath} hreflang={other} lang={other} aria-label={`${ui.lang.label}: ${other.toUpperCase()}`} title={other === 'es' ? 'Español' : 'English'}>
+          <a class="icon-btn" href={url(otherPath)} hreflang={other} lang={other} aria-label={`${ui.lang.label}: ${other.toUpperCase()}`} title={other === 'es' ? 'Español' : 'English'}>
             <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.8 3.9 5.8 3.9 9s-1.3 6.2-3.9 9c-2.6-2.8-3.9-5.8-3.9-9S9.4 5.8 12 3Z"/></svg>
             <span class="icon-code">{other.toUpperCase()}</span>
           </a>

@@ -26,7 +26,7 @@ export const ui = {
     },
     templates: {
       heading: 'Templates',
-      intro: 'The documents behind the method. Pick a block of the page to see what goes in it, an example and why it matters. Generic, so adapt them to your project.',
+      intro: 'The documents behind the method. Pick a block of the page to see what goes in it, an example and why it matters. They are generic: adapt them to your project.',
       hintTag: 'What goes here',
       exampleTag: 'Illustrative example',
       whyTag: 'Why it matters',
@@ -95,7 +95,7 @@ export const ui = {
     },
     templates: {
       heading: 'Plantillas',
-      intro: 'Los documentos detrás del método. Elige un bloque de la hoja para ver qué va en él, un ejemplo y por qué importa. Genéricos: adáptalos a tu proyecto.',
+      intro: 'Los documentos detrás del método. Elige un bloque de la hoja para ver qué va en él, un ejemplo y por qué importa. Son genéricos: adáptalos a tu proyecto.',
       hintTag: 'Qué va aquí',
       exampleTag: 'Ejemplo ilustrativo',
       whyTag: 'Por qué importa',

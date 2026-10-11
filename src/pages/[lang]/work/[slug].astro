@@ -1,6 +1,7 @@
 ---
 import Base from '../../../layouts/Base.astro';
 import { t, locales, type Lang } from '../../../i18n/ui';
+import { url } from '../../../i18n/url';
 import { allWork, hasPage } from '../../../data/work';
 import WorkDetail from '../../../components/WorkDetail.astro';
 
@@ -16,7 +17,7 @@ const ui = t(lang);
 
 <Base lang={lang} title={`${w.title[lang]} — Juan Suárez`} description={w.summary[lang]}>
   <div class="wrap case">
-    <p><a href={`/${lang}/#work`}>← {ui.work.back}</a></p>
+    <p><a href={url(`/${lang}/#work`)}>← {ui.work.back}</a></p>
     <header class="case-head">
       <div class="case-meta">
         <span class="a-chip">{ui.work.status[w.status]}</span>

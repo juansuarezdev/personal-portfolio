@@ -13,3 +13,6 @@ dist/
 !.env.example
 .DS_Store
 *.log
+.agents/
+.claude/
+skills-lock.json

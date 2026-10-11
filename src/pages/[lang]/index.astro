@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { t, locales, type Lang } from '../../i18n/ui';
+import { url, BASE } from '../../i18n/url';
 import { work, moreWork, hasPage } from '../../data/work';
 import { career } from '../../data/career';
 import { templates as allTemplates } from '../../data/templates';
@@ -241,7 +242,7 @@ const stops = [
             <div class="a-what">
               <h3>{c.title[lang]} <span class="a-org">{c.org}</span></h3>
               {c.summary && <p>{c.summary[lang]}</p>}
-              {c.highlights && <ul class="a-hl">{c.highlights[lang].map((h) => <li>{h}</li>)}</ul>}
+              {(c.homeHighlights ?? c.highlights) && <ul class="a-hl">{(c.homeHighlights ?? c.highlights)![lang].map((h) => <li>{h}</li>)}</ul>}
             </div>
           </li>
         ))}
@@ -265,7 +266,7 @@ const stops = [
         <div class="unf-doc" id="cvx-doc"><div><div class="unf-in">
           <div class="cv-actions-inline">
             <button type="button" class="a-btn" id="cvx-print">{ui.cv.savePdf}</button>
-            <a class="a-btn" href={`/${lang}/cv/`}>{ui.cv.fullPage}</a>
+            <a class="a-btn" href={url(`/${lang}/cv/`)}>{ui.cv.fullPage}</a>
           </div>
           <CvDocument lang={lang} />
           <div class="cv-close-row"><button type="button" class="a-btn unf-close">{ui.cv.close} ↑</button></div>
@@ -284,7 +285,7 @@ const stops = [
     </section>
   </div>
 
-  <script is:inline>
+  <script is:inline define:vars={{ BASE }}>
     (function () {
       var nodes = document.querySelectorAll('.a-node');
       var detail = document.getElementById('a-detail');
@@ -374,7 +375,7 @@ const stops = [
           f.tabIndex = -1;
           f.style.cssText = 'position:fixed;width:0;height:0;border:0;opacity:0;pointer-events:none';
           f.addEventListener('load', go);
-          f.src = '/' + document.documentElement.lang + '/cv/';
+          f.src = '' + BASE + '/' + document.documentElement.lang + '/cv/';
           document.body.appendChild(f);
         });
       }

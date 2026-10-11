@@ -12,6 +12,8 @@ export interface CareerEntry {
   end: string;
   summary?: Text;
   highlights?: Record<Lang, string[]>;
+  /** Shorter list for the home page; the CV uses the full `highlights`. */
+  homeHighlights?: Record<Lang, string[]>;
 }
 
 export const career: CareerEntry[] = [
@@ -132,6 +134,20 @@ export const career: CareerEntry[] = [
         'Arquitectura basada en colas para facturación y contabilidad: tareas idempotentes, procesado por lotes configurable, bloqueos lógicos contra condiciones de carrera y métricas en vivo.',
         'Autorización granular, validación exhaustiva, guards separados para web y API, y trazas de auditoría en operaciones sensibles.',
         'Pruebas con PHPUnit, documentación técnica y patrones establecidos (Repository, Jobs, Policies, DTOs).',
+      ],
+    },
+    homeHighlights: {
+      en: [
+        'Automated vehicle catalogue ingestion over SFTP: asynchronous processing, versioned schema validation, idempotent updates and safe rollback.',
+        'Multi-API integration with two-way synchronisation of external providers, OAuth2-secured endpoints, automatic retries and structured logging.',
+        'Queue-based architecture for billing and accounting: idempotent jobs, configurable chunking, logical locks against race conditions and live metrics.',
+        'Granular authorisation, audit trails for sensitive operations, and PHPUnit testing.',
+      ],
+      es: [
+        'Ingestión automatizada de un catálogo de vehículos por SFTP: procesamiento asíncrono, validación de esquema versionada, actualizaciones idempotentes y vuelta atrás segura.',
+        'Integración con varias APIs y sincronización bidireccional de proveedores externos, endpoints protegidos con OAuth2, reintentos automáticos y logs estructurados.',
+        'Arquitectura basada en colas para facturación y contabilidad: tareas idempotentes, procesado por lotes configurable, bloqueos lógicos contra condiciones de carrera y métricas en vivo.',
+        'Autorización granular, trazas de auditoría en operaciones sensibles y pruebas con PHPUnit.',
       ],
     },
   },
