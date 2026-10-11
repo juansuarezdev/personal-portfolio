@@ -1,0 +1,370 @@
+---
+import Base from '../../layouts/Base.astro';
+import { t, locales, type Lang } from '../../i18n/ui';
+import { work, moreWork } from '../../data/work';
+import { career } from '../../data/career';
+import { templates as allTemplates } from '../../data/templates';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+const lang = Astro.params.lang as Lang;
+const ui = t(lang);
+const steps = ui.method.steps;
+const templates = allTemplates[lang];
+const bars = [[92, 64], [78, 52], [86, 40], [70, 58], [90, 46], [66, 72], [82, 50], [74, 60]];
+const parseLine = (l: string) => {
+  const mark = l.match(/^(✓|✗)\s+(.*)$/);
+  if (mark) return { kind: mark[1] === '✓' ? 'ok' : 'bad', key: mark[1], text: mark[2] };
+  const id = l.match(/^(R\d+|\d+\.|[AB]\.)\s+(.*)$/);
+  if (id) return { kind: 'id', key: id[1].replace(/\.$/, ''), text: id[2] };
+  const lab = l.match(/^([^:.]{3,18}):\s+(.*)$/);
+  if (lab) return { kind: 'label', key: lab[1], text: lab[2] };
+  return { kind: 'plain', key: '', text: l };
+};
+const stops = [
+  { x: 90, y: 170, code: 'LPA', when: '2021 – 2023' },
+  { x: 380, y: 70, code: 'MUC', when: lang === 'es' ? 'jul – sep 2023' : 'Jul – Sep 2023' },
+  { x: 640, y: 100, code: 'BER', when: lang === 'es' ? 'mar – jul 2024' : 'Mar – Jul 2024' },
+  { x: 910, y: 170, code: 'LPA', when: lang === 'es' ? 'oct 2024 →' : 'Oct 2024 →' },
+];
+---
+
+<Base lang={lang} >
+  <div class="a-hero">
+    <div class="wrap">
+      <p class="a-kicker">Juan Suárez · Full-stack</p>
+      <h1 class="a-title">{ui.title}</h1>
+      <p class="a-sub">{ui.subtitle}</p>
+
+      <noscript><style>.a-arc { animation: none !important; }</style></noscript>
+      <figure class="a-map">
+        <svg viewBox="0 0 1000 230" role="img" aria-label="Las Palmas, Munich, Berlin, Las Palmas">
+          <path class="a-arc" pathLength="1" d="M90 170 Q235 10 380 70" />
+          <path class="a-arc a-d2" pathLength="1" d="M380 70 Q510 40 640 100" />
+          <path class="a-arc a-d3" pathLength="1" d="M640 100 Q775 20 910 170" />
+          {stops.map((s) => (
+            <g>
+              <circle class="a-st" cx={s.x} cy={s.y} r="9" />
+              <circle class="a-st-in" cx={s.x} cy={s.y} r="3.5" />
+              <text class="a-code" x={s.x} y={s.y + 34} text-anchor="middle">{s.code}</text>
+              <text class="a-when2" x={s.x} y={s.y + 52} text-anchor="middle">{s.when}</text>
+            </g>
+          ))}
+        </svg>
+      </figure>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <section id="method" aria-labelledby="h-method">
+      <p class="a-eyebrow">01</p>
+      <h2 id="h-method">{ui.method.heading}</h2>
+      <div class="a-pipe" id="a-pipe" role="group" aria-label={ui.method.heading}>
+        <span class="a-packet" aria-hidden="true"></span>
+        <span class="a-packet" aria-hidden="true"></span>
+        <span class="a-packet" aria-hidden="true"></span>
+        {steps.map((s, i) => (
+          <button type="button" class="a-node" data-i={i} aria-pressed={i === 0 ? 'true' : 'false'}>
+            <span class="a-dot" aria-hidden="true"></span>
+            <span class="a-num">{String(i + 1).padStart(2, '0')}</span>
+            <span class="a-name">{s.name}</span>
+          </button>
+        ))}
+      </div>
+      <p class="a-detail" id="a-detail" aria-live="polite" data-steps={JSON.stringify(steps.map((s) => s.text))}>
+        {steps[0].text}
+      </p>
+    </section>
+
+    <section id="templates" aria-labelledby="h-templates">
+      <p class="a-eyebrow">02</p>
+      <h2 id="h-templates">{ui.templates.heading}</h2>
+      <p class="lede">{ui.templates.intro}</p>
+      <div class="a-doc" id="a-doc">
+        <div class="a-tabs" role="tablist" aria-label={ui.templates.heading}>
+          {templates.map((tp, i) => (
+            <button type="button" role="tab" class="a-tab" id={`tab-${tp.key}`} aria-controls={`panel-${tp.key}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} data-key={tp.key}>{tp.tab}</button>
+          ))}
+        </div>
+        {templates.map((tp, i) => (
+          <div class="t-panel" role="tabpanel" id={`panel-${tp.key}`} aria-labelledby={`tab-${tp.key}`} data-key={tp.key} data-count={tp.sections.length} hidden={i !== 0}>
+            <div class="t-grid">
+              <div class="t-paper">
+                <div class="t-paper-head">
+                  <strong>{tp.title}</strong>
+                  <span>{tp.meta}</span>
+                </div>
+                {tp.sections.map((sec, n) => (
+                  <button type="button" class="t-block" data-n={n} aria-current={n === 0 ? 'true' : 'false'}>
+                    <span class="t-bn">{String(n + 1).padStart(2, '0')}</span>
+                    <span class="t-bh">{sec.h}</span>
+                    <span class="t-bars" aria-hidden="true">
+                      <i style={`width:${bars[n % bars.length][0]}%`}></i>
+                      <i style={`width:${bars[n % bars.length][1]}%`}></i>
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <div class="t-inspector" aria-live="polite">
+                {tp.sections.map((sec, n) => (
+                  <article class="t-ins" data-n={n} hidden={n !== 0}>
+                    <p class="t-step">{String(n + 1).padStart(2, '0')} {ui.templates.of} {String(tp.sections.length).padStart(2, '0')}</p>
+                    <h4>{sec.h}</h4>
+                    <p class="t-tag">{ui.templates.hintTag}</p>
+                    <p class="t-hint">{sec.hint}</p>
+                    <p class="t-tag">{ui.templates.exampleTag}</p>
+                    <ul class="t-example">
+                      {sec.example.map((l) => {
+                        const x = parseLine(l);
+                        return (
+                          <li class={`t-ex t-${x.kind}`}>
+                            {x.key && <span class="t-key">{x.key}</span>}
+                            <span>{x.text}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                    <p class="t-why"><span>{ui.templates.whyTag}</span>{sec.why}</p>
+                    <div class="t-nav">
+                      <button type="button" class="a-btn t-prev" disabled={n === 0}>← {ui.templates.prev}</button>
+                      <button type="button" class="a-btn t-next" disabled={n === tp.sections.length - 1}>{ui.templates.next} →</button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section id="work" aria-labelledby="h-work">
+      <p class="a-eyebrow">03</p>
+      <h2 id="h-work">{ui.work.heading}</h2>
+      <ul class="a-cards">
+        {work.map((w, i) => (
+          <li class="a-card">
+            <span class="a-idx" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <div class="a-chips">
+              <span class={`a-chip a-${w.status}`}>{ui.work.status[w.status]}</span>
+            </div>
+            <h3>{w.href ? <a href={w.href}>{w.title[lang]}</a> : w.title[lang]}</h3>
+            <p>{w.summary[lang]}</p>
+            <p class="a-stack">{w.stack.join(' · ')}</p>
+          </li>
+        ))}
+      </ul>
+      <p class="more"><span class="label">{ui.work.more}</span>
+        {moreWork.map((m) => <a class="a-pill" href={m.href}>{m.name}</a>)}
+      </p>
+    </section>
+
+    <section id="journey" aria-labelledby="h-journey">
+      <p class="a-eyebrow">04</p>
+      <h2 id="h-journey">{ui.journey.heading}</h2>
+      <ol class="a-rail" id="a-rail">
+        <span class="a-rail-fill" id="a-fill" aria-hidden="true"></span>
+        {[...career].reverse().map((c) => (
+          <li class={`a-step a-k-${c.kind}`}>
+            <span class="a-pin" aria-hidden="true"></span>
+            <div class="a-when">{c.period[lang]}<span>{c.place}</span></div>
+            <div class="a-what">
+              <h3>{c.title[lang]} <span class="a-org">{c.org}</span></h3>
+              {c.summary && <p>{c.summary[lang]}</p>}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section id="contact" aria-labelledby="h-contact">
+      <p class="a-eyebrow">05</p>
+      <h2 id="h-contact">{ui.contact.heading}</h2>
+      <div class="a-contact">
+        <a class="a-big" href="mailto:juansuarezdev@gmail.com">juansuarezdev@gmail.com</a>
+        <a class="a-pill" href="https://github.com/juansuarezdev">GitHub</a>
+        <a class="a-pill" href="https://www.linkedin.com/in/juansuarez-sanchez/">LinkedIn</a>
+      </div>
+    </section>
+  </div>
+
+  <script is:inline>
+    (function () {
+      var nodes = document.querySelectorAll('.a-node');
+      var detail = document.getElementById('a-detail');
+      var texts = JSON.parse(detail.dataset.steps);
+      nodes.forEach(function (n) {
+        function pick() {
+          nodes.forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+          n.setAttribute('aria-pressed', 'true');
+          detail.textContent = texts[+n.dataset.i];
+        }
+        n.addEventListener('click', pick);
+        n.addEventListener('mouseenter', pick);
+      });
+      var doc = document.getElementById('a-doc');
+      var tabs = doc.querySelectorAll('.a-tab');
+      function selectTab(tab) {
+        tabs.forEach(function (x) {
+          var on = x === tab;
+          x.setAttribute('aria-selected', on ? 'true' : 'false');
+          x.tabIndex = on ? 0 : -1;
+          document.getElementById('panel-' + x.dataset.key).hidden = !on;
+        });
+      }
+      tabs.forEach(function (tab, i) {
+        tab.addEventListener('click', function () { selectTab(tab); });
+        tab.addEventListener('keydown', function (e) {
+          var k = e.key, n = tabs.length;
+          if (k !== 'ArrowRight' && k !== 'ArrowLeft') return;
+          var t = tabs[(i + (k === 'ArrowRight' ? 1 : n - 1)) % n];
+          selectTab(t); t.focus(); e.preventDefault();
+        });
+      });
+      doc.querySelectorAll('.t-panel').forEach(function (panel) {
+        var blocks = panel.querySelectorAll('.t-block');
+        var items = panel.querySelectorAll('.t-ins');
+        function show(n) {
+          blocks.forEach(function (b, i) { b.setAttribute('aria-current', i === n ? 'true' : 'false'); });
+          items.forEach(function (it, i) { it.hidden = i !== n; });
+        }
+        blocks.forEach(function (b, i) {
+          b.addEventListener('click', function () { show(i); });
+          b.addEventListener('mouseenter', function () { if (matchMedia('(hover: hover)').matches) show(i); });
+        });
+        items.forEach(function (it, i) {
+          it.querySelector('.t-prev').addEventListener('click', function () { show(i - 1); });
+          it.querySelector('.t-next').addEventListener('click', function () { show(i + 1); });
+        });
+      });
+      var map = document.querySelector('.a-map');
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (e, o) {
+          if (e[0].isIntersecting) { map.classList.add('in'); o.disconnect(); }
+        }, { threshold: 0.4 }).observe(map);
+      } else { map.classList.add('in'); }
+      var rail = document.getElementById('a-rail');
+      var fill = document.getElementById('a-fill');
+      function onScroll() {
+        var r = rail.getBoundingClientRect();
+        var p = (window.innerHeight * 0.6 - r.top) / r.height;
+        fill.style.height = Math.max(0, Math.min(1, p)) * 100 + '%';
+      }
+      addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+  </script>
+</Base>
+
+<style is:global>
+  .a-hero {
+    padding: 72px 0 56px;
+    border-bottom: 1px solid var(--line);
+    background:
+      radial-gradient(60% 80% at 15% 0%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%),
+      radial-gradient(40% 60% at 95% 100%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%);
+  }
+  .a-kicker { font-family: var(--mono); font-size: 0.8125rem; color: var(--accent); margin: 0 0 16px; }
+  .a-title { font-size: clamp(2.25rem, 1rem + 6vw, 5rem); line-height: 1.02; letter-spacing: -0.03em; max-width: 16ch; margin: 0 0 16px; }
+  .a-sub { font-size: 1.25rem; color: var(--muted); max-width: 46ch; margin-bottom: 48px; }
+
+  .a-pipe { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding-top: 28px; }
+  .a-pipe::before { content: ''; position: absolute; left: 10%; right: 10%; top: 38px; height: 2px; background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 20%, transparent)); }
+  .a-packet { position: absolute; z-index: 0; top: 34px; left: 10%; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 16px 4px color-mix(in srgb, var(--accent) 60%, transparent); animation: a-flow 5s linear infinite; }
+  .a-packet:nth-of-type(2) { animation-delay: -1.7s; }
+  .a-packet:nth-of-type(3) { animation-delay: -3.4s; }
+  @keyframes a-flow { from { left: 10%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } to { left: 90%; opacity: 0; } }
+  .a-node { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: 0; color: var(--ink); font: inherit; cursor: pointer; padding: 0 4px 8px; min-height: 44px; }
+  .a-dot { width: 20px; height: 20px; border-radius: 50%; background: var(--bg); border: 2px solid var(--accent); transition: transform 150ms, background 150ms; }
+  .a-node[aria-pressed='true'] .a-dot { background: var(--accent); transform: scale(1.25); }
+  .a-num { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); margin-top: 8px; }
+  .a-name { font-weight: 600; }
+  .a-detail { margin: 24px auto 0; text-align: center; font-size: 1.125rem; max-width: 52ch; min-height: 3.2em; }
+
+  .wrap > section { padding: 56px 0 8px; }
+  .a-eyebrow { font-family: var(--mono); color: var(--accent); font-size: 0.875rem; margin: 0 0 4px; }
+  .a-doc { margin-top: 24px; }
+  .a-tabs { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg); }
+  .a-tab { min-height: 44px; padding: 0 20px; border: 0; border-radius: 999px; background: none; color: var(--muted); font-family: var(--mono); font-size: 0.875rem; cursor: pointer; transition: background 150ms, color 150ms; }
+  .a-tab[aria-selected='true'] { background: var(--accent); color: var(--bg); }
+  .t-panel { margin-top: 24px; }
+  .t-grid { display: grid; gap: 24px; grid-template-columns: 1fr; align-items: start; }
+  @media (min-width: 900px) { .t-grid { grid-template-columns: 5fr 7fr; } .t-inspector { position: sticky; top: 24px; } }
+  .t-paper { border: 1px solid var(--line); border-radius: 12px; padding: 16px; background: color-mix(in srgb, var(--ink) 3%, var(--bg)); display: grid; gap: 8px; }
+  .t-paper-head { display: grid; gap: 2px; padding: 4px 4px 12px; border-bottom: 1px dashed var(--line); margin-bottom: 4px; }
+  .t-paper-head strong { font-family: var(--mono); font-size: 0.9375rem; }
+  .t-paper-head span { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+  .t-block { display: grid; grid-template-columns: 3ch 1fr; grid-template-areas: 'n h' '. b'; gap: 6px 12px; text-align: left; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); font: inherit; cursor: pointer; transition: border-color 150ms, transform 150ms, background 150ms; }
+  .t-block:hover { border-color: var(--accent); transform: translateX(3px); }
+  .t-block[aria-current='true'] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--bg)); box-shadow: inset 4px 0 0 var(--accent); }
+  .t-bn { grid-area: n; font-family: var(--mono); font-size: 0.8125rem; color: var(--accent); }
+  .t-bh { grid-area: h; font-weight: 600; }
+  .t-bars { grid-area: b; display: grid; gap: 4px; }
+  .t-bars i { display: block; height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--ink) 14%, transparent); }
+  .t-block[aria-current='true'] .t-bars i { background: color-mix(in srgb, var(--accent) 35%, transparent); }
+  .t-inspector { border: 1px solid var(--accent); border-radius: 12px; padding: 24px; background: var(--bg); box-shadow: 0 0 40px -12px color-mix(in srgb, var(--accent) 45%, transparent); }
+  .t-ins[hidden] { display: none; }
+  .t-step { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); margin: 0 0 4px; }
+  .t-ins h4 { font-size: 1.5rem; letter-spacing: -0.01em; margin: 0 0 16px; }
+  .t-tag { font-family: var(--mono); font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin: 16px 0 6px; }
+  .t-hint { font-size: 1.0625rem; margin: 0; }
+  .t-example { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .t-ex { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: baseline; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: color-mix(in srgb, var(--ink) 3%, var(--bg)); }
+  .t-ex.t-plain { grid-template-columns: 1fr; }
+  .t-key { font-family: var(--mono); font-size: 0.75rem; padding: 2px 8px; border-radius: 999px; background: color-mix(in srgb, var(--accent) 16%, var(--bg)); color: var(--accent); white-space: nowrap; }
+  .t-ok .t-key { background: color-mix(in srgb, #1a9d5a 18%, var(--bg)); color: #1a7d4a; }
+  .t-bad .t-key { background: color-mix(in srgb, #d23b3b 16%, var(--bg)); color: #b02a2a; }
+  .t-why { margin: 20px 0 0; padding: 12px 14px; border-left: 3px solid var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg)); font-size: 0.9375rem; }
+  .t-why span { display: block; font-family: var(--mono); font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 2px; }
+  .t-nav { display: flex; justify-content: space-between; gap: 8px; margin-top: 20px; }
+  .a-cards { list-style: none; padding: 0; margin: 32px 0 0; display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 800px) { .a-cards { grid-template-columns: 1fr 1fr; } }
+  .a-card { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; padding: 24px; background: color-mix(in srgb, var(--ink) 3%, var(--bg)); transition: border-color 150ms, transform 150ms; }
+  .a-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .a-idx { position: absolute; right: 16px; top: 4px; font-family: var(--mono); font-size: 4rem; font-weight: 500; color: color-mix(in srgb, var(--ink) 7%, transparent); }
+  .a-chip { font-family: var(--mono); font-size: 0.75rem; padding: 2px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
+  .a-chip.a-wip { color: var(--wip); border-color: var(--wip); }
+  .a-chip.a-shipped { color: var(--accent); border-color: var(--accent); }
+  .a-card h3 { font-size: 1.25rem; margin: 16px 0 8px; }
+  .a-stack { font-family: var(--mono); font-size: 0.8125rem; color: var(--muted); margin: 0; }
+  .a-pill { display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border: 1px solid var(--accent); border-radius: 999px; text-decoration: none; margin: 4px 8px 4px 0; }
+  .a-pill:hover { background: var(--accent); color: var(--bg); }
+
+  .a-rail { position: relative; list-style: none; margin: 40px 0 0; padding: 0 0 0 40px; }
+  .a-rail::before { content: ''; position: absolute; left: 11px; top: 0; bottom: 0; width: 2px; background: var(--line); }
+  .a-rail-fill { position: absolute; left: 11px; top: 0; width: 2px; height: 0; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+  .a-step { position: relative; display: grid; gap: 4px 32px; padding-bottom: 40px; }
+  @media (min-width: 800px) { .a-step { grid-template-columns: 220px 1fr; } }
+  .a-pin { position: absolute; left: -40px; top: 4px; width: 24px; height: 24px; border-radius: 50%; background: var(--bg); border: 2px solid var(--accent); }
+  .a-k-job .a-pin { background: var(--accent); }
+  .a-k-education .a-pin { border-radius: 4px; }
+  .a-when { font-family: var(--mono); font-size: 0.875rem; color: var(--muted); }
+  .a-when span { display: block; }
+  .a-what h3 { font-size: 1.125rem; margin: 0 0 4px; }
+  .a-org { color: var(--accent); font-weight: 500; }
+  .a-contact { margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+  .a-big { font-size: clamp(1.25rem, 0.5rem + 3vw, 2.25rem); font-weight: 600; letter-spacing: -0.02em; }
+
+  @media (max-width: 640px) {
+    .a-pipe { grid-template-columns: 1fr; padding-left: 28px; }
+    .a-pipe::before { left: 37px; right: auto; top: 38px; bottom: 38px; width: 2px; height: auto; }
+      .a-node { flex-direction: row; justify-content: flex-start; gap: 12px; }
+    .a-num { margin-top: 0; }
+    .a-packet { display: none; }
+    .a-detail { text-align: left; }
+  }
+  @media (prefers-reduced-motion: reduce) { .a-packet { display: none; } .a-card { transition: none; } }
+  .a-map { margin: 32px 0 0; }
+  .a-map svg { width: 100%; height: auto; overflow: visible; }
+  .a-arc { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: 0.02 0.03; animation: a-draw 2.4s ease-out both; animation-play-state: paused; }
+  .a-map.in .a-arc { animation-play-state: running; }
+  .a-d2 { animation-delay: 0.8s; }
+  .a-d3 { animation-delay: 1.6s; }
+  @keyframes a-draw { from { stroke-dasharray: 0 1; } to { stroke-dasharray: 0.02 0.03; } }
+  .a-st { fill: var(--bg); stroke: var(--accent); stroke-width: 3; }
+  .a-st-in { fill: var(--accent); }
+  .a-code { font-family: var(--mono); font-size: 16px; font-weight: 500; fill: var(--ink); }
+  .a-when2 { font-family: var(--mono); font-size: 12px; fill: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { .a-arc { animation: none; } }
+</style>
