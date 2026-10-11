@@ -292,7 +292,10 @@ const stops = [
       var texts = JSON.parse(detail.dataset.steps);
       nodes.forEach(function (n) {
         function pick() {
-          nodes.forEach(function (x) { x.setAttribute('aria-pressed', 'false'); });
+          nodes.forEach(function (x) {
+            x.setAttribute('aria-pressed', 'false');
+            x.toggleAttribute('data-done', +x.dataset.i < +n.dataset.i);
+          });
           n.setAttribute('aria-pressed', 'true');
           detail.textContent = texts[+n.dataset.i];
         }
@@ -406,7 +409,12 @@ const stops = [
           items.forEach(function (it, i) { it.hidden = i !== n; });
         }
         blocks.forEach(function (b, i) {
-          b.addEventListener('click', function () { show(i); });
+          b.addEventListener('click', function () {
+            show(i);
+            if (matchMedia('(max-width: 899px)').matches) {
+              panel.querySelector('.t-inspector').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+            }
+          });
           b.addEventListener('mouseenter', function () { if (matchMedia('(hover: hover)').matches) show(i); });
         });
         items.forEach(function (it, i) {
@@ -474,14 +482,12 @@ const stops = [
   .t-bars i { display: block; height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--ink) 14%, transparent); }
   .t-block[aria-current='true'] .t-bars i { background: color-mix(in srgb, var(--accent) 35%, transparent); }
   @media (max-width: 899px) {
-    .t-paper { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; overflow: visible; }
-    .t-paper-head { display: none; }
-    .t-block { display: grid; place-items: center; flex: 0 0 auto; width: 44px; height: 44px; padding: 0; border-radius: 12px; }
-    .t-bh, .t-bars { display: none; }
-    .t-bn { font-size: 0.9375rem; }
-    .t-block[aria-current='true'] { background: var(--accent); border-color: var(--accent); box-shadow: none; }
-    .t-block[aria-current='true'] .t-bn { color: var(--bg); }
+    .t-paper { gap: 6px; padding: 12px; }
+    .t-block { grid-template-areas: 'n h'; align-items: center; min-height: 44px; padding: 8px 12px; }
+    .t-bars { display: none; }
+    .t-block[aria-current='true'] .t-bn { font-weight: 600; }
     .t-block:hover { transform: none; }
+    .t-inspector { scroll-margin-top: 130px; }
     .t-inspector { padding: 20px; }
   }
   .t-inspector { border: 1px solid var(--accent); border-radius: 12px; padding: 24px; background: var(--bg); box-shadow: 0 0 40px -12px color-mix(in srgb, var(--accent) 45%, transparent); }
@@ -574,11 +580,16 @@ const stops = [
     .a-dot { grid-area: dot; justify-self: center; }
     .a-node .a-num { display: none; }
     .a-name { grid-area: head; font-size: 1.0625rem; }
-    .a-ntext { display: block; grid-area: text; color: var(--muted); font-size: 0.9375rem; line-height: 1.5; text-align: left; margin-top: 2px; }
-    .a-node[aria-pressed='true'] .a-ntext { color: var(--ink); }
+    .a-ntext { display: block; grid-area: text; color: var(--ink); font-size: 0.9375rem; line-height: 1.5; text-align: left; max-height: 0; opacity: 0; overflow: hidden; transition: max-height 250ms ease, opacity 200ms ease, margin-top 250ms ease; }
+    .a-node[aria-pressed='true'] .a-ntext { max-height: 6em; opacity: 1; margin-top: 4px; }
+    .a-name { color: var(--muted); transition: color 150ms; }
+    .a-node[aria-pressed='true'] .a-name, .a-node[data-done] .a-name { color: var(--ink); }
+    .a-node[data-done] .a-dot { background: color-mix(in srgb, var(--accent) 45%, var(--bg)); }
+    .a-node:not(:last-child)::after { content: ''; position: absolute; left: 11px; width: 2px; top: 22px; bottom: -26px; background: var(--accent); transform: scaleY(0); transform-origin: top; transition: transform 250ms ease; }
+    .a-node[data-done]::after { transform: scaleY(1); }
     .a-detail { display: none; }
   }
-  @media (prefers-reduced-motion: reduce) { .a-packet { display: none; } .a-card { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .a-packet { display: none; } .a-card { transition: none; } .a-ntext, .a-node::after { transition: none; } }
   .a-map { margin: 32px 0 0; }
   .a-map-m { display: none; }
   .a-code-m { font-size: 22px; }
