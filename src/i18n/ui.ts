@@ -37,7 +37,7 @@ export const ui = {
     },
     work: {
       heading: 'Work',
-      intro: 'Selected projects.',
+      intro: 'Selected projects, from client work to tools I built for myself.',
       status: { case: 'Case study', shipped: 'Shipped', wip: 'In progress' },
       more: 'More projects',
       back: 'All work',
@@ -51,7 +51,7 @@ export const ui = {
       draft: 'Draft: text pending review',
       stack: 'Stack',
     },
-    journey: { heading: 'Journey', intro: 'A short history as a programmer.' },
+    journey: { heading: 'Journey', intro: 'Where I studied and worked as a developer.' },
     contact: { heading: 'Contact', intro: 'Email is the fastest way.' },
     cv: {
       title: 'Curriculum vitae',
@@ -107,7 +107,7 @@ export const ui = {
     },
     work: {
       heading: 'Trabajo',
-      intro: 'Proyectos seleccionados.',
+      intro: 'Proyectos seleccionados, del trabajo para clientes a herramientas que he hecho para mí.',
       status: { case: 'Caso', shipped: 'Publicado', wip: 'En curso' },
       more: 'Más proyectos',
       back: 'Todo el trabajo',
@@ -121,7 +121,7 @@ export const ui = {
       draft: 'Borrador: texto pendiente de revisión',
       stack: 'Tecnologías',
     },
-    journey: { heading: 'Trayectoria', intro: 'Una breve historia como programador.' },
+    journey: { heading: 'Trayectoria', intro: 'Dónde he estudiado y trabajado como desarrollador.' },
     contact: { heading: 'Contacto', intro: 'El email es la vía más rápida.' },
     cv: {
       title: 'Currículum',
