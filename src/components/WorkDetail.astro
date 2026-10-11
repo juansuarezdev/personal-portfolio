@@ -18,7 +18,6 @@ const Sec = page ? 'h2' : 'h3';
 <div class:list={['wd', { 'wd-page': page }]}>
   <div class="wd-bar">
     <span class="wd-tag">{ui.work.about}</span>
-    {w.draft && !page && <span class="a-chip a-wip">{ui.work.draft}</span>}
     <span class="wd-line"></span>
   </div>
   {w.body && (

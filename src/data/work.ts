@@ -11,8 +11,6 @@ export interface WorkItem {
   status: Status;
   stack: string[];
   demo?: DemoKey;
-  /** Text still waiting for the author's review. */
-  draft?: boolean;
   featured?: boolean;
   github?: string;
   body?: { h: Text; text: Text }[];
@@ -22,7 +20,6 @@ export const work: WorkItem[] = [
   {
     slug: 'supported-employment-portal',
     status: 'wip',
-    draft: true,
     featured: true,
     demo: 'portal',
     title: {
@@ -68,7 +65,6 @@ export const work: WorkItem[] = [
   {
     slug: 'workshop-planning',
     status: 'case',
-    draft: true,
     demo: 'planner',
     title: {
       en: 'Digitising a workshop’s team planning',
@@ -113,7 +109,6 @@ export const work: WorkItem[] = [
   {
     slug: 'automation-platform',
     status: 'case',
-    draft: true,
     demo: 'automation',
     title: { en: 'Personal automation platform', es: 'Plataforma de automatización personal' },
     summary: {
