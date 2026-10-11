@@ -600,14 +600,17 @@ const stops = [
     .a-map-m { display: block; max-width: 360px; margin: 0 auto; }
   }
   .a-map svg { width: 100%; height: auto; overflow: visible; }
-  .a-arc { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: 0.02 0.03; animation: a-draw 9s ease-out infinite both; animation-play-state: paused; }
+  .a-arc { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: 0 1; animation: a-draw1 12s ease-in-out infinite; animation-play-state: paused; }
   .a-map.in .a-arc { animation-play-state: running; }
-  .a-d2 { animation-delay: 0.8s; }
-  .a-d3 { animation-delay: 1.6s; }
-  @keyframes a-draw { 0% { stroke-dasharray: 0 1; opacity: 1; } 27% { stroke-dasharray: 0.02 0.03; } 88% { stroke-dasharray: 0.02 0.03; opacity: 1; } 100% { stroke-dasharray: 0.02 0.03; opacity: 0; } }
+  .a-d2 { animation-name: a-draw2; }
+  .a-d3 { animation-name: a-draw3; }
+  /* each leg draws in order, holds, then retracts in reverse order */
+  @keyframes a-draw1 { 0% { stroke-dasharray: 0 1; } 20%, 90% { stroke-dasharray: 0.02 0.03; } 100% { stroke-dasharray: 0 1; } }
+  @keyframes a-draw2 { 0%, 20% { stroke-dasharray: 0 1; } 40%, 80% { stroke-dasharray: 0.02 0.03; } 90%, 100% { stroke-dasharray: 0 1; } }
+  @keyframes a-draw3 { 0%, 40% { stroke-dasharray: 0 1; } 60%, 68% { stroke-dasharray: 0.02 0.03; } 80%, 100% { stroke-dasharray: 0 1; } }
   .a-st { fill: var(--bg); stroke: var(--accent); stroke-width: 3; }
   .a-st-in { fill: var(--accent); }
   .a-code { font-family: var(--mono); font-size: 16px; font-weight: 500; fill: var(--ink); }
   .a-when2 { font-family: var(--mono); font-size: 12px; fill: var(--muted); }
-  @media (prefers-reduced-motion: reduce) { .a-arc { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .a-arc { animation: none; stroke-dasharray: 0.02 0.03; } }
 </style>
