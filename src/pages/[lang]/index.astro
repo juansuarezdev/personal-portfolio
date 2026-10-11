@@ -48,11 +48,20 @@ const parseLine = (l: string) => {
 const arcsD = ['M380 70 Q235 10 90 170', 'M640 100 Q510 40 380 70', 'M910 170 Q775 20 640 100'];
 const arcsM = ['M296 160 C 296 90, 200 74, 64 74', 'M64 272 C 64 214, 296 224, 296 160', 'M296 382 C 296 332, 64 340, 64 272'];
 const mobilePos = [{ x: 64, y: 74, side: 'a' }, { x: 296, y: 160, side: 'l' }, { x: 64, y: 272, side: 'r' }, { x: 296, y: 382, side: 'l' }];
+const es = lang === 'es';
 const stops = [
-  { x: 90, y: 170, code: 'LPA', when: '2021 – 2023' },
-  { x: 380, y: 70, code: 'MUC', when: lang === 'es' ? 'jul – sep 2023' : 'Jul – Sep 2023' },
-  { x: 640, y: 100, code: 'BER', when: lang === 'es' ? 'mar – jun 2024' : 'Mar – Jun 2024' },
-  { x: 910, y: 170, code: 'LPA', when: lang === 'es' ? 'oct 2024 →' : 'Oct 2024 →' },
+  { x: 90, y: 170, code: 'LPA', when: '2021 – 2023', tip: es
+    ? ['IES El Rincón · Desarrollo de Aplicaciones Web, 2021 – 2023', 'HYVE · Desarrollador web, prácticas, mar – jun 2023']
+    : ['IES El Rincón · Web Application Development, 2021 – 2023', 'HYVE · Web developer, internship, Mar – Jun 2023'] },
+  { x: 380, y: 70, code: 'MUC', when: es ? 'jul – sep 2023' : 'Jul – Sep 2023', tip: es
+    ? ['HYVE · Desarrollador de software, prácticas', 'jul – sep 2023']
+    : ['HYVE · Software developer, internship', 'Jul – Sep 2023'] },
+  { x: 640, y: 100, code: 'BER', when: es ? 'mar – jun 2024' : 'Mar – Jun 2024', tip: es
+    ? ['OVAN GmbH · Desarrollador de software, prácticas', 'mar – jun 2024']
+    : ['OVAN GmbH · Software developer, internship', 'Mar – Jun 2024'] },
+  { x: 910, y: 170, code: 'LPA', when: es ? 'oct 2024 →' : 'Oct 2024 →', tip: es
+    ? ['Grupo ARI · Desarrollador full-stack', 'oct 2024 – actualidad']
+    : ['Grupo ARI · Full-stack developer', 'Oct 2024 – present'] },
 ];
 ---
 
@@ -65,10 +74,11 @@ const stops = [
 
       <noscript><style>.a-arc { animation: none !important; stroke-dasharray: 0.02 0.03 !important; }</style></noscript>
       <figure class="a-map">
-        <svg class="a-map-d" viewBox="0 0 1000 230" role="img" aria-label="Las Palmas, Munich, Berlin, Las Palmas">
+        <svg class="a-map-d" viewBox="0 0 1000 230" role="group" aria-label="Las Palmas, Munich, Berlin, Las Palmas">
           {arcsD.map((d, i) => <path class={`a-arc a-d${i + 1}`} pathLength="1" d={d} />)}
           {stops.map((s) => (
-            <g>
+            <g class="a-stop" tabindex="0" role="button" aria-label={`${s.code}: ${s.tip.join('. ')}`} data-tip={JSON.stringify(s.tip)}>
+              <circle class="a-hit" cx={s.x} cy={s.y} r="30" />
               <circle class="a-st" cx={s.x} cy={s.y} r="9" />
               <circle class="a-st-in" cx={s.x} cy={s.y} r="3.5" />
               <text class="a-code" x={s.x} y={s.y + 34} text-anchor="middle">{s.code}</text>
@@ -76,7 +86,7 @@ const stops = [
             </g>
           ))}
         </svg>
-        <svg class="a-map-m" viewBox="0 0 360 430" role="img" aria-label="Las Palmas, Munich, Berlin, Las Palmas">
+        <svg class="a-map-m" viewBox="0 0 360 430" role="group" aria-label="Las Palmas, Munich, Berlin, Las Palmas">
           {arcsM.map((d, i) => <path class={`a-arc a-d${i + 1}`} pathLength="1" d={d} />)}
           {stops.map((st, i) => {
             const q = mobilePos[i];
@@ -85,7 +95,8 @@ const stops = [
             const anchor = q.side === 'l' ? 'end' : 'start';
             const dy = above ? -42 : -2;
             return (
-              <g>
+              <g class="a-stop" tabindex="0" role="button" aria-label={`${st.code}: ${st.tip.join('. ')}`} data-tip={JSON.stringify(st.tip)}>
+                <circle class="a-hit" cx={q.x} cy={q.y} r="30" />
                 <circle class="a-st" cx={q.x} cy={q.y} r="11" />
                 <circle class="a-st-in" cx={q.x} cy={q.y} r="4.5" />
                 <text class="a-code a-code-m" x={q.x + dx} y={q.y + dy} text-anchor={anchor}>{st.code}</text>
@@ -94,6 +105,7 @@ const stops = [
             );
           })}
         </svg>
+        <div class="a-tip" id="a-tip" role="tooltip" hidden></div>
       </figure>
     </div>
   </div>
@@ -423,6 +435,31 @@ const stops = [
         });
       });
       var map = document.querySelector('.a-map');
+      var tip = document.getElementById('a-tip');
+      var curStop = null;
+      function hideTip() { tip.hidden = true; curStop = null; }
+      function showTip(g) {
+        var lines = JSON.parse(g.dataset.tip);
+        tip.innerHTML = lines.map(function (l, i) { return i === 0 || lines.length === 1 ? '<strong>' + l + '</strong>' : '<span>' + l + '</span>'; }).join('');
+        tip.hidden = false;
+        var fr = map.getBoundingClientRect(), cr = g.querySelector('.a-st').getBoundingClientRect();
+        var w = tip.offsetWidth, h = tip.offsetHeight;
+        var cx = cr.left + cr.width / 2 - fr.left;
+        var left = Math.max(0, Math.min(fr.width - w, cx - w / 2));
+        var top = cr.top - fr.top - h - 12;
+        if (top < 0) top = cr.bottom - fr.top + 12;
+        tip.style.left = left + 'px'; tip.style.top = top + 'px';
+        curStop = g;
+      }
+      map.querySelectorAll('.a-stop').forEach(function (g) {
+        g.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') showTip(g); });
+        g.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') hideTip(); });
+        g.addEventListener('focus', function () { showTip(g); });
+        g.addEventListener('blur', hideTip);
+        g.addEventListener('click', function (e) { e.stopPropagation(); if (curStop === g && e.detail !== 0 && matchMedia('(hover: none)').matches) hideTip(); else showTip(g); });
+        g.addEventListener('keydown', function (e) { if (e.key === 'Escape') { hideTip(); g.blur(); } });
+      });
+      document.addEventListener('click', function (e) { if (!e.target.closest('.a-stop')) hideTip(); });
       if ('IntersectionObserver' in window) {
         new IntersectionObserver(function (e, o) {
           if (e[0].isIntersecting) { map.classList.add('in'); o.disconnect(); }
@@ -608,6 +645,15 @@ const stops = [
   @keyframes a-draw1 { 0% { stroke-dasharray: 0 1; } 20%, 90% { stroke-dasharray: 0.02 0.03; } 100% { stroke-dasharray: 0 1; } }
   @keyframes a-draw2 { 0%, 20% { stroke-dasharray: 0 1; } 40%, 80% { stroke-dasharray: 0.02 0.03; } 90%, 100% { stroke-dasharray: 0 1; } }
   @keyframes a-draw3 { 0%, 40% { stroke-dasharray: 0 1; } 60%, 68% { stroke-dasharray: 0.02 0.03; } 80%, 100% { stroke-dasharray: 0 1; } }
+  .a-map { position: relative; }
+  .a-stop { cursor: pointer; outline: none; }
+  .a-hit { fill: transparent; }
+  .a-stop:hover .a-st, .a-stop:focus-visible .a-st { fill: color-mix(in srgb, var(--accent) 18%, var(--bg)); }
+  .a-stop:focus-visible .a-hit { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 4 4; }
+  .a-tip { position: absolute; z-index: 5; display: grid; gap: 2px; max-width: min(360px, 100%); padding: 10px 14px; border: 1px solid var(--accent); border-radius: 10px; background: var(--bg); box-shadow: 0 12px 32px -10px color-mix(in srgb, var(--ink) 35%, transparent); font-size: 0.875rem; line-height: 1.4; pointer-events: none; }
+  .a-tip[hidden] { display: none; }
+  .a-tip strong { font-weight: 600; }
+  .a-tip span { color: var(--muted); font-family: var(--mono); font-size: 0.8125rem; }
   .a-st { fill: var(--bg); stroke: var(--accent); stroke-width: 3; }
   .a-st-in { fill: var(--accent); }
   .a-code { font-family: var(--mono); font-size: 16px; font-weight: 500; fill: var(--ink); }
