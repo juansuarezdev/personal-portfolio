@@ -11,6 +11,7 @@ export interface CareerEntry {
   start: string;
   end: string;
   summary?: Text;
+  highlights?: Record<Lang, string[]>;
 }
 
 export const career: CareerEntry[] = [
@@ -34,6 +35,10 @@ export const career: CareerEntry[] = [
     kind: 'internship',
     start: '2023-03',
     end: '2023-06',
+    summary: {
+      en: 'Web developer intern on an innovation consultancy team, supporting client projects.',
+      es: 'Prácticas como desarrollador web en un equipo de consultoría de innovación, apoyando proyectos de clientes.',
+    },
   },
   {
     period: { en: 'Jul – Sep 2023', es: 'jul – sep 2023' },
@@ -43,9 +48,21 @@ export const career: CareerEntry[] = [
     kind: 'internship',
     start: '2023-07',
     end: '2023-09',
-    summary: {
-      en: 'Cross-platform mobile with React Native and TypeScript, unit testing with Jest, Docker, and software for Raspberry Pi devices.',
-      es: 'Móvil multiplataforma con React Native y TypeScript, pruebas unitarias con Jest, Docker y software para dispositivos Raspberry Pi.',
+    highlights: {
+      en: [
+        'Learned the basics of cross-platform mobile development with React Native and TypeScript.',
+        'Unit testing with Jest to improve code quality and stability.',
+        'First steps with Docker for containerised deployment.',
+        'Market research to identify features for client-driven improvements.',
+        'Software for Raspberry Pi devices, using several APIs for data exchange between applications.',
+      ],
+      es: [
+        'Primeros pasos en desarrollo móvil multiplataforma con React Native y TypeScript.',
+        'Pruebas unitarias con Jest para mejorar la calidad y la estabilidad del código.',
+        'Primeros pasos con Docker para el despliegue en contenedores.',
+        'Investigación de mercado para identificar funciones que mejoraran los proyectos de clientes.',
+        'Software para dispositivos Raspberry Pi, usando varias APIs para intercambiar datos entre aplicaciones.',
+      ],
     },
   },
   {
@@ -66,8 +83,26 @@ export const career: CareerEntry[] = [
     start: '2024-10',
     end: '2026-10',
     summary: {
-      en: 'Laravel and JavaScript on an enterprise platform for the automotive sector: data ingestion, queue-based processing, integrations and access control.',
-      es: 'Laravel y JavaScript en una plataforma empresarial del sector automoción: ingestión de datos, procesamiento con colas, integraciones y control de acceso.',
+      en: 'Develops and maintains an enterprise ERP platform for the automotive sector, with Laravel and JavaScript: sales, appraisals, billing and document management.',
+      es: 'Desarrolla y mantiene una plataforma ERP empresarial del sector automoción, con Laravel y JavaScript: ventas, tasaciones, facturación y gestión documental.',
+    },
+    highlights: {
+      en: [
+        'Automated vehicle catalogue ingestion over SFTP: asynchronous processing, versioned schema validation, idempotent updates and safe rollback.',
+        'End-to-end module to send documents in bulk to external systems, with integrity validation, visible progress and full traceability.',
+        'Multi-API integration with two-way synchronisation of external providers, OAuth2-secured endpoints, automatic retries and structured logging.',
+        'Queue-based architecture for billing and accounting: idempotent jobs, configurable chunking, logical locks against race conditions and live metrics.',
+        'Granular authorisation, thorough validation, separate web and API guards, and audit trails for sensitive operations.',
+        'Testing with PHPUnit, technical documentation and established patterns (Repository, Jobs, Policies, DTOs).',
+      ],
+      es: [
+        'Ingestión automatizada de un catálogo de vehículos por SFTP: procesamiento asíncrono, validación de esquema versionada, actualizaciones idempotentes y vuelta atrás segura.',
+        'Módulo de extremo a extremo para enviar documentos en bloque a sistemas externos, con validación de integridad, progreso visible y trazabilidad completa.',
+        'Integración con varias APIs y sincronización bidireccional de proveedores externos, endpoints protegidos con OAuth2, reintentos automáticos y logs estructurados.',
+        'Arquitectura basada en colas para facturación y contabilidad: tareas idempotentes, procesado por lotes configurable, bloqueos lógicos contra condiciones de carrera y métricas en vivo.',
+        'Autorización granular, validación exhaustiva, guards separados para web y API, y trazas de auditoría en operaciones sensibles.',
+        'Pruebas con PHPUnit, documentación técnica y patrones establecidos (Repository, Jobs, Policies, DTOs).',
+      ],
     },
   },
 ];

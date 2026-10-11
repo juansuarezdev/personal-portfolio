@@ -41,6 +41,7 @@ const education = career.filter((c) => c.kind === 'education');
             </div>
             <p class="cv-place">{c.place}</p>
             {c.summary && <p>{c.summary[lang]}</p>}
+            {c.highlights && <ul class="cv-hl">{c.highlights[lang].map((h) => <li>{h}</li>)}</ul>}
           </div>
         ))}
       </section>

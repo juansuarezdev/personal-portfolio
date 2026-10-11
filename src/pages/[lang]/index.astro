@@ -201,6 +201,7 @@ const stops = [
             <div class="a-what">
               <h3>{c.title[lang]} <span class="a-org">{c.org}</span></h3>
               {c.summary && <p>{c.summary[lang]}</p>}
+              {c.highlights && <ul class="a-hl">{c.highlights[lang].map((h) => <li>{h}</li>)}</ul>}
             </div>
           </li>
         ))}
@@ -354,12 +355,18 @@ const stops = [
 </Base>
 
 <style is:global>
-  .a-hero {
-    padding: 72px 0 56px;
-    border-bottom: 1px solid var(--line);
+  .a-hero { position: relative; isolation: isolate; padding: 72px 0 72px; }
+  .a-hero::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 -520px 0;
+    pointer-events: none;
     background:
-      radial-gradient(60% 80% at 15% 0%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%),
-      radial-gradient(40% 60% at 95% 100%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 70%);
+      radial-gradient(60% 55% at 15% 12%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%),
+      radial-gradient(48% 62% at 100% 46%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 72%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
   }
   .a-kicker { font-family: var(--mono); font-size: 0.8125rem; color: var(--accent); margin: 0 0 16px; }
   .a-title { font-size: clamp(2.25rem, 1rem + 6vw, 5rem); line-height: 1.02; letter-spacing: -0.03em; max-width: 16ch; margin: 0 0 16px; }
@@ -473,6 +480,8 @@ const stops = [
   .a-when { font-family: var(--mono); font-size: 0.875rem; color: var(--muted); }
   .a-when span { display: block; }
   .a-what h3 { font-size: 1.125rem; margin: 0 0 4px; }
+  .a-hl { margin: 8px 0 0; padding-left: 1.1em; max-width: var(--measure); }
+  .a-hl li { margin-bottom: 6px; font-size: 0.9375rem; }
   .a-org { color: var(--accent); font-weight: 500; }
   .a-contact { margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
   .a-big { font-size: clamp(1.25rem, 0.5rem + 3vw, 2.25rem); font-weight: 600; letter-spacing: -0.02em; }
