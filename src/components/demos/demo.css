@@ -18,3 +18,4 @@
 .d-ok { color: #1a7d4a; } .d-warn { color: var(--wip); } .d-err { color: #b02a2a; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .d-ok { color: #4fd18b; } :root:not([data-theme='light']) .d-err { color: #ff7b7b; } }
 :root[data-theme='dark'] .d-ok { color: #4fd18b; } :root[data-theme='dark'] .d-err { color: #ff7b7b; }
+@media (max-width: 640px) { .demo-body { padding: 14px; } }

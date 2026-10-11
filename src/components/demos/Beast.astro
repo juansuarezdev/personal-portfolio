@@ -88,8 +88,9 @@ const T = {
 </script>
 
 <style is:global>
-  .bs-wrap { display: grid; gap: 24px; grid-template-columns: 1fr; align-items: start; }
-  @media (min-width: 760px) { .bs-wrap { grid-template-columns: 340px 1fr; } }
+  .bs-wrap { display: grid; gap: 24px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+  .bs-phone, .bs-side { min-width: 0; }
+  @media (min-width: 760px) { .bs-wrap { grid-template-columns: 340px minmax(0, 1fr); } }
   .bs-phone { padding: 20px 16px 24px; border-radius: 32px; border: 6px solid color-mix(in srgb, var(--ink) 80%, var(--bg)); background: linear-gradient(160deg, #2a1f57, #0e0f10); color: #f3f0ff; }
   .bs-time { text-align: center; font-size: 2.5rem; margin: 0 0 12px; letter-spacing: -0.03em; color: #fff; }
   .bs-card { padding: 16px; border-radius: 20px; background: rgba(255,255,255,.1); backdrop-filter: blur(8px); }
@@ -114,5 +115,6 @@ const T = {
   .bs-sets li { display: flex; justify-content: space-between; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); font-size: 0.875rem; }
   .bs-sets .bs-c { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--bg)); }
   .bs-sets .bs-d { color: var(--muted); text-decoration: line-through; }
+  @media (max-width: 640px) { .bs-ctrl { grid-template-columns: 1fr; } .bs-phone { padding: 16px 12px 20px; } }
   @media (prefers-reduced-motion: reduce) { .bs-rest i { transition: none; } }
 </style>

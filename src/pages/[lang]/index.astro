@@ -42,6 +42,7 @@ const parseLine = (l: string) => {
   if (lab) return { kind: 'label', key: lab[1], text: lab[2] };
   return { kind: 'plain', key: '', text: l };
 };
+const mobilePos = [{ x: 64, y: 56, side: 'a' }, { x: 296, y: 160, side: 'l' }, { x: 64, y: 272, side: 'r' }, { x: 296, y: 382, side: 'l' }];
 const stops = [
   { x: 90, y: 170, code: 'LPA', when: '2021 – 2023' },
   { x: 380, y: 70, code: 'MUC', when: lang === 'es' ? 'jul – sep 2023' : 'Jul – Sep 2023' },
@@ -59,7 +60,7 @@ const stops = [
 
       <noscript><style>.a-arc { animation: none !important; }</style></noscript>
       <figure class="a-map">
-        <svg viewBox="0 0 1000 230" role="img" aria-label="Las Palmas, Munich, Berlin, Las Palmas">
+        <svg class="a-map-d" viewBox="0 0 1000 230" role="img" aria-label="Las Palmas, Munich, Berlin, Las Palmas">
           <path class="a-arc" pathLength="1" d="M90 170 Q235 10 380 70" />
           <path class="a-arc a-d2" pathLength="1" d="M380 70 Q510 40 640 100" />
           <path class="a-arc a-d3" pathLength="1" d="M640 100 Q775 20 910 170" />
@@ -71,6 +72,26 @@ const stops = [
               <text class="a-when2" x={s.x} y={s.y + 52} text-anchor="middle">{s.when}</text>
             </g>
           ))}
+        </svg>
+        <svg class="a-map-m" viewBox="0 0 360 430" role="img" aria-label="Las Palmas, Munich, Berlin, Las Palmas">
+          <path class="a-arc" pathLength="1" d="M64 56 C 200 56, 296 76, 296 160" />
+          <path class="a-arc a-d2" pathLength="1" d="M296 160 C 296 224, 64 214, 64 272" />
+          <path class="a-arc a-d3" pathLength="1" d="M64 272 C 64 340, 296 332, 296 382" />
+          {stops.map((st, i) => {
+            const q = mobilePos[i];
+            const above = q.side === 'a';
+            const dx = above ? -11 : q.side === 'r' ? 24 : -24;
+            const anchor = q.side === 'l' ? 'end' : 'start';
+            const dy = above ? -30 : -2;
+            return (
+              <g>
+                <circle class="a-st" cx={q.x} cy={q.y} r="11" />
+                <circle class="a-st-in" cx={q.x} cy={q.y} r="4.5" />
+                <text class="a-code a-code-m" x={q.x + dx} y={q.y + dy} text-anchor={anchor}>{st.code}</text>
+                <text class="a-when2 a-when-m" x={q.x + dx} y={q.y + dy + 20} text-anchor={anchor}>{st.when}</text>
+              </g>
+            );
+          })}
         </svg>
       </figure>
     </div>
@@ -89,6 +110,7 @@ const stops = [
             <span class="a-dot" aria-hidden="true"></span>
             <span class="a-num">{String(i + 1).padStart(2, '0')}</span>
             <span class="a-name">{s.name}</span>
+            <span class="a-ntext">{s.text}</span>
           </button>
         ))}
       </div>
@@ -116,7 +138,7 @@ const stops = [
                   <span>{tp.meta}</span>
                 </div>
                 {tp.sections.map((sec, n) => (
-                  <button type="button" class="t-block" data-n={n} aria-current={n === 0 ? 'true' : 'false'}>
+                  <button type="button" class="t-block" data-n={n} aria-label={`${n + 1}. ${sec.h}`} aria-current={n === 0 ? 'true' : 'false'}>
                     <span class="t-bn">{String(n + 1).padStart(2, '0')}</span>
                     <span class="t-bh">{sec.h}</span>
                     <span class="t-bars" aria-hidden="true">
@@ -450,6 +472,17 @@ const stops = [
   .t-bars { grid-area: b; display: grid; gap: 4px; }
   .t-bars i { display: block; height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--ink) 14%, transparent); }
   .t-block[aria-current='true'] .t-bars i { background: color-mix(in srgb, var(--accent) 35%, transparent); }
+  @media (max-width: 899px) {
+    .t-paper { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; overflow: visible; }
+    .t-paper-head { display: none; }
+    .t-block { display: grid; place-items: center; flex: 0 0 auto; width: 44px; height: 44px; padding: 0; border-radius: 12px; }
+    .t-bh, .t-bars { display: none; }
+    .t-bn { font-size: 0.9375rem; }
+    .t-block[aria-current='true'] { background: var(--accent); border-color: var(--accent); box-shadow: none; }
+    .t-block[aria-current='true'] .t-bn { color: var(--bg); }
+    .t-block:hover { transform: none; }
+    .t-inspector { padding: 20px; }
+  }
   .t-inspector { border: 1px solid var(--accent); border-radius: 12px; padding: 24px; background: var(--bg); box-shadow: 0 0 40px -12px color-mix(in srgb, var(--accent) 45%, transparent); }
   .t-ins[hidden] { display: none; }
   .t-step { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); margin: 0 0 4px; }
@@ -525,22 +558,34 @@ const stops = [
   .a-when { font-family: var(--mono); font-size: 0.875rem; color: var(--muted); }
   .a-when span { display: block; }
   .a-what h3 { font-size: 1.125rem; margin: 0 0 4px; }
-  .a-hl { margin: 8px 0 0; padding-left: 1.1em; max-width: var(--measure); }
+  .a-hl { margin: 8px 0 0; padding-left: 1.1em; max-width: var(--measure); list-style: disc; }
   .a-hl li { margin-bottom: 6px; font-size: 0.9375rem; }
   .a-org { color: var(--accent); font-weight: 500; }
   .a-contact { margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
   .a-big { font-size: clamp(1.25rem, 0.5rem + 3vw, 2.25rem); font-weight: 600; letter-spacing: -0.02em; }
 
+  .a-ntext { display: none; }
   @media (max-width: 640px) {
-    .a-pipe { grid-template-columns: 1fr; padding-left: 28px; }
-    .a-pipe::before { left: 37px; right: auto; top: 38px; bottom: 38px; width: 2px; height: auto; }
-      .a-node { flex-direction: row; justify-content: flex-start; gap: 12px; }
-    .a-num { margin-top: 0; }
+    .a-pipe { grid-template-columns: 1fr; gap: 4px; padding: 4px 0 0; }
+    .a-pipe::before { left: 11px; right: auto; top: 22px; bottom: 22px; width: 2px; height: auto; background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 25%, transparent)); }
     .a-packet { display: none; }
-    .a-detail { text-align: left; }
+    .a-node { display: grid; grid-template-columns: 24px 1fr; grid-template-areas: 'dot head' '. text'; column-gap: 16px; align-items: center; text-align: left; padding: 8px 0 12px; }
+    .a-dot { grid-area: dot; justify-self: center; }
+    .a-node .a-num { display: none; }
+    .a-name { grid-area: head; font-size: 1.0625rem; }
+    .a-ntext { display: block; grid-area: text; color: var(--muted); font-size: 0.9375rem; line-height: 1.5; text-align: left; margin-top: 2px; }
+    .a-node[aria-pressed='true'] .a-ntext { color: var(--ink); }
+    .a-detail { display: none; }
   }
   @media (prefers-reduced-motion: reduce) { .a-packet { display: none; } .a-card { transition: none; } }
   .a-map { margin: 32px 0 0; }
+  .a-map-m { display: none; }
+  .a-code-m { font-size: 22px; }
+  .a-when-m { font-size: 14px; }
+  @media (max-width: 640px) {
+    .a-map-d { display: none; }
+    .a-map-m { display: block; max-width: 360px; margin: 0 auto; }
+  }
   .a-map svg { width: 100%; height: auto; overflow: visible; }
   .a-arc { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: 0.02 0.03; animation: a-draw 2.4s ease-out both; animation-play-state: paused; }
   .a-map.in .a-arc { animation-play-state: running; }

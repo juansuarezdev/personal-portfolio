@@ -57,6 +57,7 @@ const ui = t(lang);
 <style is:global>
   .wd { margin-top: 20px; padding: 20px; border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); border-left-width: 4px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 5%, var(--bg)); }
   .wd-page { margin-top: 8px; }
+  @media (max-width: 640px) { .wd { padding: 14px; } }
   .wd-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
   .wd-line { flex: 1 1 40px; height: 1px; background: color-mix(in srgb, var(--accent) 40%, var(--line)); }
   .wd-tag { font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); }

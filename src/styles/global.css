@@ -231,7 +231,10 @@ html {
     width: 100%;
     overflow-x: auto;
     scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to right, #000 88%, transparent);
+    mask-image: linear-gradient(to right, #000 88%, transparent);
   }
+  .nav ul { padding-right: 28px; }
   .nav ul {
     width: max-content;
   }

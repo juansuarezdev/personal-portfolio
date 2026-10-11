@@ -75,10 +75,13 @@ const T = {
         jobs.filter(function (j) { return j.tech === ti; }).forEach(function (j) {
           html += '<button type="button" class="pl-job pl-' + j.state + (sel === j.id ? ' pl-sel' : '') + '" data-id="' + j.id + '" style="left:' + ((j.start - 8) / 8 * 100) + '%;width:' + (j.len / 8 * 100) + '%">' + T.jobs[j.id] + '</button>';
         });
-        html += '</div></div>';
+        html += '</div>';
+        html += '<div class="pl-mlist">' + jobs.filter(function (j) { return j.tech === ti; }).sort(function (a, b) { return a.start - b.start; }).map(function (j) {
+          return '<button type="button" class="pl-jobm pl-' + j.state + (sel === j.id ? ' pl-sel' : '') + '" data-id="' + j.id + '"><span class="d-mono">' + j.start + ':00–' + (j.start + j.len) + ':00</span><span>' + T.jobs[j.id] + '</span><span class="d-mono pl-st">' + T.state[j.state] + '</span></button>';
+        }).join('') + '</div></div>';
       });
       grid.innerHTML = html;
-      grid.querySelectorAll('.pl-job').forEach(function (b) {
+      grid.querySelectorAll('.pl-job, .pl-jobm').forEach(function (b) {
         b.addEventListener('click', function () { sel = +b.dataset.id; drawGrid(); drawDetail(); });
       });
     }
@@ -130,6 +133,19 @@ const T = {
   .pl-view[hidden] { display: none; }
   .pl-head, .pl-row { display: grid; grid-template-columns: 72px 1fr; gap: 8px; align-items: center; }
   .pl-head { font-family: var(--mono); font-size: 0.6875rem; color: var(--muted); }
+  .pl-mlist { display: none; }
+  @media (max-width: 640px) {
+    .pl-head, .pl-lane { display: none; }
+    .pl-row { display: block; margin-top: 12px; }
+    .pl-tech { display: block; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+    .pl-mlist { display: grid; gap: 6px; }
+    .pl-jobm { display: grid; grid-template-columns: 96px 1fr auto; align-items: center; gap: 8px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--accent); border-radius: 8px; background: color-mix(in srgb, var(--accent) 10%, var(--bg)); color: var(--ink); font: inherit; font-size: 0.875rem; text-align: left; cursor: pointer; }
+    .pl-jobm .pl-st { font-size: 0.6875rem; color: var(--muted); }
+    .pl-jobm.pl-doing { background: var(--accent); color: var(--bg); }
+    .pl-jobm.pl-doing .pl-st { color: var(--bg); }
+    .pl-jobm.pl-done { background: color-mix(in srgb, var(--ink) 8%, var(--bg)); border-color: var(--line); color: var(--muted); text-decoration: line-through; }
+    .pl-jobm.pl-sel { outline: 2px solid var(--ink); outline-offset: 1px; }
+  }
   .pl-head { grid-template-columns: 72px repeat(8, 1fr); }
   .pl-row { margin-top: 6px; }
   .pl-tech { font-size: 0.8125rem; color: var(--muted); }
@@ -146,5 +162,4 @@ const T = {
   .pl-card { display: grid; gap: 4px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 8px; background: color-mix(in srgb, var(--ink) 3%, var(--bg)); }
   .pl-bar { height: 5px; border-radius: 3px; background: color-mix(in srgb, var(--ink) 12%, transparent); }
   .pl-bar i { display: block; height: 100%; border-radius: 3px; background: var(--accent); }
-  @media (max-width: 640px) { .pl-head { display: none; } .pl-lane { overflow-x: auto; } }
 </style>
