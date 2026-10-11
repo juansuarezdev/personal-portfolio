@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { t, locales, type Lang } from '../../i18n/ui';
-import { work, moreWork } from '../../data/work';
+import { work, moreWork, hasPage } from '../../data/work';
 import { career } from '../../data/career';
 import { templates as allTemplates } from '../../data/templates';
 
@@ -149,14 +149,14 @@ const stops = [
             <div class="a-chips">
               <span class={`a-chip a-${w.status}`}>{ui.work.status[w.status]}</span>
             </div>
-            <h3>{w.href ? <a href={w.href}>{w.title[lang]}</a> : w.title[lang]}</h3>
+            <h3>{hasPage(w) ? <a href={`/${lang}/work/${w.slug}/`}>{w.title[lang]}</a> : w.title[lang]}</h3>
             <p>{w.summary[lang]}</p>
             <p class="a-stack">{w.stack.join(' · ')}</p>
           </li>
         ))}
       </ul>
       <p class="more"><span class="label">{ui.work.more}</span>
-        {moreWork.map((m) => <a class="a-pill" href={m.href}>{m.name}</a>)}
+        {moreWork.map((m) => <a class="a-pill" href={`/${lang}/work/${m.slug}/`}>{m.title[lang]}</a>)}
       </p>
     </section>
 
@@ -328,6 +328,7 @@ const stops = [
   .a-chip.a-shipped { color: var(--accent); border-color: var(--accent); }
   .a-card h3 { font-size: 1.25rem; margin: 16px 0 8px; }
   .a-stack { font-family: var(--mono); font-size: 0.8125rem; color: var(--muted); margin: 0; }
+  .more .label { margin-right: 16px; }
   .a-pill { display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border: 1px solid var(--accent); border-radius: 999px; text-decoration: none; margin: 4px 8px 4px 0; }
   .a-pill:hover { background: var(--accent); color: var(--bg); }
 
