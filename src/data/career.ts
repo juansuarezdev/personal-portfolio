@@ -35,9 +35,19 @@ export const career: CareerEntry[] = [
     kind: 'internship',
     start: '2023-03',
     end: '2023-06',
-    summary: {
-      en: 'Web developer intern on an innovation consultancy team, supporting client projects.',
-      es: 'Prácticas como desarrollador web en un equipo de consultoría de innovación, apoyando proyectos de clientes.',
+    highlights: {
+      en: [
+        'Built and designed web applications with HTML, CSS and JavaScript.',
+        'Developed responsive web applications with React and TypeScript.',
+        'Worked in a team using daily Scrum, with Jira for project management.',
+        'Quality assurance in Jira: documented the processes and reported the bugs found.',
+      ],
+      es: [
+        'Desarrollo y diseño de aplicaciones web con HTML, CSS y JavaScript.',
+        'Desarrollo de aplicaciones web responsivas con React y TypeScript.',
+        'Trabajo en equipo con Scrum diario y Jira para la gestión del proyecto.',
+        'Control de calidad en Jira: documentación de los procesos e informe de los errores encontrados.',
+      ],
     },
   },
   {
@@ -66,13 +76,33 @@ export const career: CareerEntry[] = [
     },
   },
   {
-    period: { en: 'Mar – Jul 2024', es: 'mar – jul 2024' },
+    period: { en: 'Mar – Jun 2024', es: 'mar – jun 2024' },
     title: { en: 'Software developer, internship', es: 'Desarrollador de software, prácticas' },
     org: 'OVAN GmbH',
     place: 'Berlin, DE',
     kind: 'internship',
     start: '2024-03',
-    end: '2024-07',
+    end: '2024-06',
+    highlights: {
+      en: [
+        'Built custom software solutions and web portals with TYPO3 CMS.',
+        'Implemented React applications inside TYPO3 extensions, improving the interface and functionality.',
+        'Developed back-end systems and data structures with Laravel to support the React applications.',
+        'Designed and implemented several entity-relationship models for different databases.',
+        'Designed and integrated user interfaces.',
+        'Debugged and optimised existing and in-house solutions in TYPO3 and React.',
+        'Worked with the development team to solve technical challenges.',
+      ],
+      es: [
+        'Desarrollo de soluciones de software a medida y portales web con TYPO3 CMS.',
+        'Implementación de aplicaciones React dentro de extensiones de TYPO3, mejorando la interfaz y la funcionalidad.',
+        'Desarrollo de sistemas back-end y estructuras de datos con Laravel para respaldar las aplicaciones React.',
+        'Diseño e implementación de varios modelos entidad-relación para distintas bases de datos.',
+        'Diseño e integración de interfaces de usuario.',
+        'Depuración y optimización de soluciones internas y existentes en TYPO3 y React.',
+        'Colaboración con el equipo de desarrollo para resolver retos técnicos.',
+      ],
+    },
   },
   {
     period: { en: 'Oct 2024 – present', es: 'oct 2024 – actualidad' },

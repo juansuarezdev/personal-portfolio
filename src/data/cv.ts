@@ -17,9 +17,9 @@ export const summary: Text = {
 };
 
 export const skills: { group: Text; items: string[] }[] = [
-  { group: { en: 'Backend', es: 'Backend' }, items: ['Laravel', 'PHP', 'MySQL', 'PostgreSQL', 'Redis', 'Horizon', 'Passport (OAuth2)', 'REST APIs', 'SFTP'] },
+  { group: { en: 'Backend', es: 'Backend' }, items: ['Laravel', 'PHP', 'TYPO3 CMS', 'MySQL', 'PostgreSQL', 'Redis', 'Horizon', 'Passport (OAuth2)', 'REST APIs', 'SFTP'] },
   { group: { en: 'Frontend', es: 'Frontend' }, items: ['JavaScript (ES6+)', 'Bootstrap', 'Vite', 'jQuery', 'React Native', 'TypeScript'] },
-  { group: { en: 'Quality and tools', es: 'Calidad y herramientas' }, items: ['PHPUnit', 'Jest', 'Git', 'Docker', 'n8n'] },
+  { group: { en: 'Quality and tools', es: 'Calidad y herramientas' }, items: ['PHPUnit', 'Jest', 'Git', 'Docker', 'Jira', 'Scrum', 'n8n'] },
   { group: { en: 'Native and scripting', es: 'Nativo y scripting' }, items: ['Swift', 'SwiftUI', 'Python', 'Node.js'] },
 ];
 
