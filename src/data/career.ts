@@ -31,7 +31,7 @@ export const career: CareerEntry[] = [
   },
   {
     period: { en: 'Mar – Jun 2023', es: 'mar – jun 2023' },
-    title: { en: 'Web developer, internship', es: 'Desarrollador web, prácticas' },
+    title: { en: 'Web engineer, internship', es: 'Ingeniero web, prácticas' },
     org: 'HYVE',
     place: 'Las Palmas de Gran Canaria, ES',
     kind: 'internship',
@@ -54,7 +54,7 @@ export const career: CareerEntry[] = [
   },
   {
     period: { en: 'Jul – Sep 2023', es: 'jul – sep 2023' },
-    title: { en: 'Software developer, internship', es: 'Desarrollador de software, prácticas' },
+    title: { en: 'Software engineer, internship', es: 'Ingeniero de software, prácticas' },
     org: 'HYVE',
     place: 'Munich, DE',
     kind: 'internship',
@@ -79,7 +79,7 @@ export const career: CareerEntry[] = [
   },
   {
     period: { en: 'Mar – Jun 2024', es: 'mar – jun 2024' },
-    title: { en: 'Software developer, internship', es: 'Desarrollador de software, prácticas' },
+    title: { en: 'Software engineer, internship', es: 'Ingeniero de software, prácticas' },
     org: 'OVAN GmbH',
     place: 'Berlin, DE',
     kind: 'internship',
@@ -108,7 +108,7 @@ export const career: CareerEntry[] = [
   },
   {
     period: { en: 'Oct 2024 – present', es: 'oct 2024 – actualidad' },
-    title: { en: 'Full-stack developer', es: 'Desarrollador full-stack' },
+    title: { en: 'Full-stack engineer', es: 'Ingeniero full-stack' },
     org: 'Grupo ARI',
     place: 'Las Palmas de Gran Canaria, ES',
     kind: 'job',

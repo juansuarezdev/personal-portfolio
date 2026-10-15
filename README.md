@@ -1,6 +1,6 @@
 # Personal Portfolio
 
-Portfolio of **Juan Suárez**, full-stack developer. Bilingual (English and Spanish), light and dark themes, an interactive CV that exports to PDF, and interactive demos of selected projects.
+Portfolio of **Juan Suárez**, full-stack engineer. Bilingual (English and Spanish), light and dark themes, an interactive CV that exports to PDF, and interactive demos of selected projects.
 
 ## Stack
 

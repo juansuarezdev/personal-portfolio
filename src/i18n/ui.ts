@@ -3,9 +3,9 @@ export type Lang = (typeof locales)[number];
 
 export const ui = {
   en: {
-    siteTitle: 'Juan Suárez — Full-stack developer',
+    siteTitle: 'Juan Suárez — Full-stack engineer',
     siteDescription:
-      'Full-stack developer. I turn a business need into a specified, tested, running system.',
+      'Full-stack engineer. I turn a business need into a specified, tested, running system.',
     skip: 'Skip to content',
     menu: 'Menu',
     nav: { method: 'Method', templates: 'Templates', work: 'Work', journey: 'Journey', cv: 'CV', contact: 'Contact' },
@@ -13,7 +13,7 @@ export const ui = {
     lang: { label: 'Language' },
     title: 'Software that makes companies run better.',
     subtitle:
-      'Full-stack developer. I turn a business need into a specified, tested, running system.',
+      'Full-stack engineer. I turn a business need into a specified, tested, running system.',
     method: {
       heading: 'Method',
       intro: 'Every project follows the same five steps.',
@@ -50,7 +50,7 @@ export const ui = {
       github: 'Source on GitHub',
       stack: 'Stack',
     },
-    journey: { heading: 'Journey', intro: 'Where I studied and worked as a developer.' },
+    journey: { heading: 'Journey', intro: 'Where I studied and worked as a engineer.' },
     contact: { heading: 'Contact', intro: 'Email is the fastest way.' },
     cv: {
       title: 'Curriculum vitae',
@@ -72,9 +72,9 @@ export const ui = {
     footer: 'Juan Suárez',
   },
   es: {
-    siteTitle: 'Juan Suárez — Desarrollador full-stack',
+    siteTitle: 'Juan Suárez — Ingeniero full-stack',
     siteDescription:
-      'Desarrollador full-stack. Convierto una necesidad de negocio en un sistema especificado, probado y en producción.',
+      'Ingeniero full-stack. Convierto una necesidad de negocio en un sistema especificado, probado y en producción.',
     skip: 'Saltar al contenido',
     menu: 'Menú',
     nav: { method: 'Método', templates: 'Plantillas', work: 'Trabajo', journey: 'Trayectoria', cv: 'CV', contact: 'Contacto' },
@@ -82,7 +82,7 @@ export const ui = {
     lang: { label: 'Idioma' },
     title: 'Software que hace que las empresas funcionen mejor.',
     subtitle:
-      'Desarrollador full-stack. Convierto una necesidad de negocio en un sistema especificado, probado y en producción.',
+      'Ingeniero full-stack. Convierto una necesidad de negocio en un sistema especificado, probado y en producción.',
     method: {
       heading: 'Método',
       intro: 'Todos los proyectos siguen los mismos cinco pasos.',
@@ -119,7 +119,7 @@ export const ui = {
       github: 'Código en GitHub',
       stack: 'Tecnologías',
     },
-    journey: { heading: 'Trayectoria', intro: 'Dónde he estudiado y trabajado como desarrollador.' },
+    journey: { heading: 'Trayectoria', intro: 'Dónde he estudiado y trabajado como ingeniero.' },
     contact: { heading: 'Contacto', intro: 'El email es la vía más rápida.' },
     cv: {
       title: 'Currículum',

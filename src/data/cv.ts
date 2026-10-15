@@ -9,11 +9,11 @@ export const contact = {
   location: { en: 'Las Palmas de Gran Canaria, Spain', es: 'Las Palmas de Gran Canaria, España' } as Text,
 };
 
-export const role: Text = { en: 'Full-stack developer', es: 'Desarrollador full-stack' };
+export const role: Text = { en: 'Full-stack engineer', es: 'Ingeniero full-stack' };
 
 export const summary: Text = {
-  en: 'Full-stack developer working with Laravel and JavaScript. I analyse a business need, specify it, build it in small tested steps and keep it running. Experience on an enterprise platform for the automotive sector, and internships in Munich and Berlin.',
-  es: 'Desarrollador full-stack con Laravel y JavaScript. Analizo una necesidad de negocio, la especifico, la construyo en pasos pequeños y probados, y la mantengo funcionando. Experiencia en una plataforma empresarial del sector automoción y prácticas en Múnich y Berlín.',
+  en: 'Full-stack engineer working with Laravel and JavaScript. I analyse a business need, specify it, build it in small tested steps and keep it running. Experience on an enterprise platform for the automotive sector, and internships in Munich and Berlin.',
+  es: 'Ingeniero full-stack con Laravel y JavaScript. Analizo una necesidad de negocio, la especifico, la construyo en pasos pequeños y probados, y la mantengo funcionando. Experiencia en una plataforma empresarial del sector automoción y prácticas en Múnich y Berlín.',
 };
 
 export const skills: { group: Text; items: string[] }[] = [

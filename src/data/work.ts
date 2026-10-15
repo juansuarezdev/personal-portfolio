@@ -35,8 +35,8 @@ export const work: WorkItem[] = [
       {
         h: { en: 'Need', es: 'Necesidad' },
         text: {
-          en: 'The company’s website was hard to maintain and slow. Its transparency portal has nine fixed sections that must gain new documents every year, added by staff who are not developers.',
-          es: 'La web de la empresa era lenta y difícil de mantener. Su portal de transparencia tiene nueve secciones fijas que deben recibir documentos nuevos cada año, añadidos por personal que no es desarrollador.',
+          en: 'The company’s website was hard to maintain and slow. Its transparency portal has nine fixed sections that must gain new documents every year, added by staff who are not engineers.',
+          es: 'La web de la empresa era lenta y difícil de mantener. Su portal de transparencia tiene nueve secciones fijas que deben recibir documentos nuevos cada año, añadidos por personal que no es ingeniero.',
         },
       },
       {
