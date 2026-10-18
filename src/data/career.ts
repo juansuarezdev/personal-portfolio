@@ -31,7 +31,7 @@ export const career: CareerEntry[] = [
   },
   {
     period: { en: 'Mar – Jun 2023', es: 'mar – jun 2023' },
-    title: { en: 'Web engineer, internship', es: 'Ingeniero web, prácticas' },
+    title: { en: 'Software engineer, internship', es: 'Ingeniero de software, prácticas' },
     org: 'HYVE',
     place: 'Las Palmas de Gran Canaria, ES',
     kind: 'internship',
@@ -108,7 +108,7 @@ export const career: CareerEntry[] = [
   },
   {
     period: { en: 'Oct 2024 – present', es: 'oct 2024 – actualidad' },
-    title: { en: 'Full-stack engineer', es: 'Ingeniero full-stack' },
+    title: { en: 'Full-stack software engineer', es: 'Ingeniero de software full-stack' },
     org: 'Grupo ARI',
     place: 'Las Palmas de Gran Canaria, ES',
     kind: 'job',
