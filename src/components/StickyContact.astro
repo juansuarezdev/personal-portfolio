@@ -1,0 +1,69 @@
+---
+interface Props {
+  label: string;
+  after: string; // id of the hero CTA: the strip shows once it scrolls out of view
+  until: string; // id of the section where the strip hides
+}
+const { label, after, until } = Astro.props;
+---
+
+<div class="a-sticky" id="a-sticky" data-after={after} data-until={until} data-show="false" hidden>
+  <a class="a-btn a-btn-primary" href={`#${until}`}>{label}</a>
+</div>
+
+<script is:inline>
+  (function () {
+    var bar = document.getElementById('a-sticky');
+    if (!bar || !('IntersectionObserver' in window)) return;
+    var cta = document.getElementById(bar.dataset.after);
+    var end = document.getElementById(bar.dataset.until);
+    if (!cta || !end) return;
+    bar.hidden = false;
+    var ctaGone = false, atEnd = false;
+    function paint() {
+      var show = ctaGone && !atEnd;
+      bar.dataset.show = show ? 'true' : 'false';
+      if (show) bar.removeAttribute('inert'); else bar.setAttribute('inert', '');
+    }
+    bar.setAttribute('inert', '');
+    // gone = out of view above the viewport (not merely below it on short screens)
+    new IntersectionObserver(function (e) {
+      var en = e[e.length - 1];
+      ctaGone = !en.isIntersecting && en.boundingClientRect.top < 0;
+      paint();
+    }).observe(cta);
+    new IntersectionObserver(function (e) {
+      atEnd = e[e.length - 1].isIntersecting;
+      paint();
+    }).observe(end);
+  })();
+</script>
+
+<style is:global>
+  .a-sticky {
+    position: fixed;
+    z-index: 15;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    opacity: 0;
+    visibility: hidden;
+  }
+  .a-sticky[data-show='true'] { opacity: 1; visibility: visible; }
+  .a-sticky .a-btn { width: 100%; justify-content: center; }
+  @media (min-width: 640px) {
+    .a-sticky { left: auto; right: 24px; bottom: 24px; border-radius: 999px; }
+    .a-sticky .a-btn { width: auto; border-radius: 999px; padding: 0 24px; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .a-sticky { transform: translateY(8px); transition: opacity 200ms ease, transform 200ms ease, visibility 0s linear 200ms; }
+    .a-sticky[data-show='true'] { transform: none; transition-delay: 0s; }
+  }
+  @media print { .a-sticky { display: none; } }
+</style>

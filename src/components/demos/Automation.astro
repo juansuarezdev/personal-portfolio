@@ -91,7 +91,7 @@ const T = {
   .au-node[data-state='run'] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--bg)); }
   .au-node[data-state='run'] .au-dot { border-color: var(--accent); background: var(--accent); animation: au-pulse 1s ease-in-out infinite; }
   .au-node[data-state='ok'] .au-dot { border-color: #1a9d5a; background: #1a9d5a; }
-  .au-node[data-state='warn'] { border-color: var(--wip); }
+  .au-node[data-state='warn'] { border-color: var(--wip-text); }
   .au-node[data-state='warn'] .au-dot { border-color: var(--wip); background: var(--wip); }
   @keyframes au-pulse { 50% { transform: scale(1.4); } }
   @media (prefers-reduced-motion: reduce) { .au-node[data-state='run'] .au-dot { animation: none; } }

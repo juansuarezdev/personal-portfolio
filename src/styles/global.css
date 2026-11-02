@@ -10,7 +10,14 @@
   --muted: #5c5c57;
   --line: #e4e3dd;
   --accent: #6c31e3;
-  --wip: #8a5a00;
+  --on-accent: #fafaf7;
+  --cta: #fc734d;
+  --cta-hover: #fc8462;
+  --cta-press: #de6544;
+  --on-cta: #000;
+  --wip: #e0b050;
+  --wip-ink: #8a5a00;
+  --wip-text: #8a5a00; /* WIP as text/border on the page bg (AA) */
   --sans: 'Geist Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
   --measure: 68ch;
@@ -25,7 +32,8 @@
     --muted: #9a9a93;
     --line: #26272a;
     --accent: #a78bfa;
-    --wip: #e0b050;
+    --on-accent: #0e0f10;
+    --wip-text: #e0b050;
     color-scheme: dark;
   }
 }
@@ -36,7 +44,8 @@
   --muted: #9a9a93;
   --line: #26272a;
   --accent: #a78bfa;
-  --wip: #e0b050;
+  --on-accent: #0e0f10;
+  --wip-text: #e0b050;
   color-scheme: dark;
 }
 
@@ -66,11 +75,18 @@ a {
   text-underline-offset: 0.2em;
 }
 
+/* focus: Cantaloupe ring + an ink ring outside it, so it keeps 3:1 on both themes */
 a:focus-visible,
 button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
+  outline: 2px solid var(--cta);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--bg), 0 0 0 6px var(--ink);
   border-radius: 2px;
+}
+
+::selection {
+  background: var(--cta);
+  color: #000;
 }
 
 .wrap {
@@ -91,21 +107,61 @@ button:focus-visible {
   z-index: 10;
 }
 
-/* page-level gradient: sits behind the navbar and the hero and fades out */
-body::before {
-  content: '';
+/* page wash: tall field; purple-led; tertiary orange accents drift with scroll */
+.page-wash {
   position: absolute;
+  inset: 0;
   z-index: -1;
-  inset: 0 0 auto 0;
-  height: 1400px;
   pointer-events: none;
-  background:
-    radial-gradient(60% 42% at 15% 8%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%),
-    radial-gradient(48% 48% at 100% 34%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 72%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+  overflow: hidden;
 }
-@media print { body::before { display: none; } }
+.page-wash__a,
+.page-wash__b {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -15%;
+  height: 130%;
+  will-change: transform, opacity;
+}
+.page-wash__a {
+  transform: translate3d(0, calc(var(--wash-p, 0) * -12%), 0);
+  background:
+    radial-gradient(38% 22% at 10% 6%, color-mix(in srgb, var(--accent) 36%, transparent), transparent 70%),
+    radial-gradient(34% 20% at 88% 4%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 72%),
+    radial-gradient(40% 24% at 22% 22%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 72%),
+    radial-gradient(36% 22% at 76% 28%, color-mix(in srgb, var(--cta) 8%, transparent), transparent 74%),
+    radial-gradient(42% 24% at 8% 42%, color-mix(in srgb, var(--accent) 28%, transparent), transparent 70%),
+    radial-gradient(34% 20% at 92% 48%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 72%),
+    radial-gradient(40% 22% at 30% 62%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 72%),
+    radial-gradient(36% 20% at 70% 70%, color-mix(in srgb, var(--cta) 9%, transparent), transparent 74%),
+    radial-gradient(38% 22% at 14% 84%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 70%),
+    radial-gradient(34% 20% at 82% 92%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 72%);
+}
+.page-wash__b {
+  opacity: calc(0.2 + var(--wash-phase, 0.5) * 0.55);
+  transform: translate3d(0, calc(var(--wash-p, 0) * 14%), 0);
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(32% 18% at 60% 8%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 72%),
+    radial-gradient(36% 20% at 18% 18%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 70%),
+    radial-gradient(30% 16% at 84% 34%, color-mix(in srgb, var(--cta) 10%, transparent), transparent 74%),
+    radial-gradient(34% 18% at 40% 46%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 72%),
+    radial-gradient(32% 18% at 12% 58%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 72%),
+    radial-gradient(36% 20% at 78% 66%, color-mix(in srgb, var(--accent) 24%, transparent), transparent 70%),
+    radial-gradient(30% 16% at 48% 80%, color-mix(in srgb, var(--cta) 8%, transparent), transparent 74%),
+    radial-gradient(34% 18% at 26% 94%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 72%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-wash__a,
+  .page-wash__b {
+    transform: none;
+    opacity: 0.7;
+  }
+}
+@media print {
+  .page-wash { display: none; }
+}
 
 /* header */
 html {
@@ -173,6 +229,24 @@ html {
 .nav a[aria-current] {
   color: var(--bg);
   background: var(--accent);
+}
+/* Contact = the one action in the nav: Cantaloupe outline (current section stays purple) */
+.nav a.nav-cta,
+.nav a.nav-cta[aria-current] {
+  background: transparent;
+  color: var(--cta);
+  border: 1px solid var(--cta);
+  font-weight: 500;
+}
+.nav a.nav-cta:hover {
+  background: color-mix(in srgb, var(--cta) 12%, transparent);
+  color: var(--cta-hover);
+  border-color: var(--cta-hover);
+}
+.nav a.nav-cta:active {
+  background: color-mix(in srgb, var(--cta) 18%, transparent);
+  color: var(--cta-press);
+  border-color: var(--cta-press);
 }
 .controls {
   display: flex;
@@ -298,6 +372,44 @@ html {
   cursor: default;
 }
 
+.a-btn-primary {
+  border-color: var(--cta);
+  background: transparent;
+  color: var(--cta);
+}
+.a-btn-primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--cta) 12%, transparent);
+  border-color: var(--cta-hover);
+  color: var(--cta-hover);
+}
+.a-btn-primary:active:not(:disabled) {
+  background: color-mix(in srgb, var(--cta) 18%, transparent);
+  border-color: var(--cta-press);
+  color: var(--cta-press);
+}
+
+/* ActionLink: ink text, 2px Cantaloupe underline; used to close sections */
+.a-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: var(--ink);
+  font-weight: 500;
+  text-decoration: none;
+}
+.a-action > span:first-child {
+  text-decoration: underline 2px var(--cta);
+  text-underline-offset: 0.3em;
+}
+.a-action:hover > span:first-child { text-decoration-color: var(--cta-hover); text-decoration-thickness: 3px; }
+.a-action:active > span:first-child { text-decoration-color: var(--cta-press); }
+@media (prefers-reduced-motion: no-preference) {
+  .a-action > span:last-child { transition: transform 200ms ease; }
+  .a-action:hover > span:last-child { transform: translateX(3px); }
+}
+.a-close { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin: 24px 0 0; color: var(--muted); }
+
 /* unfold (shared by cards, project details and the CV) */
 .unf-btn { cursor: pointer; }
 .unf-chev { width: 8px; height: 8px; margin-left: 10px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform 400ms cubic-bezier(.2, .8, .2, 1); }
@@ -406,7 +518,7 @@ ol.steps p {
   margin-bottom: 4px;
 }
 .status-wip {
-  color: var(--wip);
+  color: var(--wip-text);
 }
 .more {
   margin-top: 24px;
