@@ -107,21 +107,61 @@ button:focus-visible {
   z-index: 10;
 }
 
-/* page-level gradient: sits behind the navbar and the hero and fades out */
-body::before {
-  content: '';
+/* page wash: tall field; purple-led; tertiary orange accents drift with scroll */
+.page-wash {
   position: absolute;
+  inset: 0;
   z-index: -1;
-  inset: 0 0 auto 0;
-  height: 1400px;
   pointer-events: none;
-  background:
-    radial-gradient(60% 42% at 15% 8%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%),
-    radial-gradient(48% 48% at 100% 34%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 72%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+  overflow: hidden;
 }
-@media print { body::before { display: none; } }
+.page-wash__a,
+.page-wash__b {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -15%;
+  height: 130%;
+  will-change: transform, opacity;
+}
+.page-wash__a {
+  transform: translate3d(0, calc(var(--wash-p, 0) * -12%), 0);
+  background:
+    radial-gradient(38% 22% at 10% 6%, color-mix(in srgb, var(--accent) 36%, transparent), transparent 70%),
+    radial-gradient(34% 20% at 88% 4%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 72%),
+    radial-gradient(40% 24% at 22% 22%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 72%),
+    radial-gradient(36% 22% at 76% 28%, color-mix(in srgb, var(--cta) 8%, transparent), transparent 74%),
+    radial-gradient(42% 24% at 8% 42%, color-mix(in srgb, var(--accent) 28%, transparent), transparent 70%),
+    radial-gradient(34% 20% at 92% 48%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 72%),
+    radial-gradient(40% 22% at 30% 62%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 72%),
+    radial-gradient(36% 20% at 70% 70%, color-mix(in srgb, var(--cta) 9%, transparent), transparent 74%),
+    radial-gradient(38% 22% at 14% 84%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 70%),
+    radial-gradient(34% 20% at 82% 92%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 72%);
+}
+.page-wash__b {
+  opacity: calc(0.2 + var(--wash-phase, 0.5) * 0.55);
+  transform: translate3d(0, calc(var(--wash-p, 0) * 14%), 0);
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(32% 18% at 60% 8%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 72%),
+    radial-gradient(36% 20% at 18% 18%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 70%),
+    radial-gradient(30% 16% at 84% 34%, color-mix(in srgb, var(--cta) 10%, transparent), transparent 74%),
+    radial-gradient(34% 18% at 40% 46%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 72%),
+    radial-gradient(32% 18% at 12% 58%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 72%),
+    radial-gradient(36% 20% at 78% 66%, color-mix(in srgb, var(--accent) 24%, transparent), transparent 70%),
+    radial-gradient(30% 16% at 48% 80%, color-mix(in srgb, var(--cta) 8%, transparent), transparent 74%),
+    radial-gradient(34% 18% at 26% 94%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 72%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-wash__a,
+  .page-wash__b {
+    transform: none;
+    opacity: 0.7;
+  }
+}
+@media print {
+  .page-wash { display: none; }
+}
 
 /* header */
 html {
@@ -190,19 +230,23 @@ html {
   color: var(--bg);
   background: var(--accent);
 }
-/* Contact = the one action in the nav: Cantaloupe chip (current section stays purple) */
+/* Contact = the one action in the nav: Cantaloupe outline (current section stays purple) */
 .nav a.nav-cta,
 .nav a.nav-cta[aria-current] {
-  background: var(--cta);
-  color: var(--on-cta);
+  background: transparent;
+  color: var(--cta);
+  border: 1px solid var(--cta);
   font-weight: 500;
 }
 .nav a.nav-cta:hover {
-  background: var(--cta-hover);
-  color: var(--on-cta);
+  background: color-mix(in srgb, var(--cta) 12%, transparent);
+  color: var(--cta-hover);
+  border-color: var(--cta-hover);
 }
 .nav a.nav-cta:active {
-  background: var(--cta-press);
+  background: color-mix(in srgb, var(--cta) 18%, transparent);
+  color: var(--cta-press);
+  border-color: var(--cta-press);
 }
 .controls {
   display: flex;
@@ -330,17 +374,18 @@ html {
 
 .a-btn-primary {
   border-color: var(--cta);
-  background: var(--cta);
-  color: var(--on-cta);
+  background: transparent;
+  color: var(--cta);
 }
 .a-btn-primary:hover:not(:disabled) {
-  background: var(--cta-hover);
+  background: color-mix(in srgb, var(--cta) 12%, transparent);
   border-color: var(--cta-hover);
-  color: var(--on-cta);
+  color: var(--cta-hover);
 }
 .a-btn-primary:active:not(:disabled) {
-  background: var(--cta-press);
+  background: color-mix(in srgb, var(--cta) 18%, transparent);
   border-color: var(--cta-press);
+  color: var(--cta-press);
 }
 
 /* ActionLink: ink text, 2px Cantaloupe underline; used to close sections */

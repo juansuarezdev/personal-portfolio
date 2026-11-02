@@ -515,15 +515,15 @@ const stops = [
   .a-proofs li { display: flex; gap: 10px; align-items: baseline; }
   .a-proofs li::before { content: ''; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); transform: translateY(-2px); }
   .a-hero-cta { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px; }
-  .a-hero-feat { position: relative; overflow: hidden; display: grid; gap: 8px; justify-items: start; padding: 28px 24px 24px; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--ink) 3%, var(--bg)); }
-  .a-hero-feat::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--cta); }
+  .a-hero-feat { position: relative; overflow: hidden; display: grid; gap: 8px; justify-items: start; padding: 28px 24px 24px; border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); border-radius: 12px; background: linear-gradient(145deg, color-mix(in srgb, var(--accent) 14%, var(--bg)), color-mix(in srgb, var(--accent) 6%, var(--bg)) 55%, color-mix(in srgb, var(--ink) 2%, var(--bg))); box-shadow: 0 18px 40px -28px color-mix(in srgb, var(--accent) 50%, transparent); }
+  .a-hero-feat::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--cta) 55%, var(--accent))); }
   .a-hero-feat h2 { font-size: 1.375rem; margin: 8px 0 0; letter-spacing: -0.01em; }
   .a-hero-feat p { margin: 0; max-width: none; }
   .a-hero-feat .a-action { margin-top: 8px; }
   .a-featured { position: relative; }
-  .a-featured::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--cta); }
-  .a-node.a-focus .a-dot { border-color: var(--cta); box-shadow: 0 0 0 3px color-mix(in srgb, var(--cta) 35%, transparent); }
-  .a-node.a-focus[aria-pressed='true'] .a-dot { background: var(--cta); }
+  .a-featured::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--cta) 45%, var(--accent))); }
+  .a-node.a-focus .a-dot { border-color: color-mix(in srgb, var(--cta) 55%, var(--accent)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--cta) 18%, transparent); }
+  .a-node.a-focus[aria-pressed='true'] .a-dot { background: color-mix(in srgb, var(--cta) 60%, var(--accent)); }
 
 
   .a-pipe { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding-top: 28px; }

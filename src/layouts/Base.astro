@@ -50,6 +50,7 @@ const anchor = (id: string) => (onHome ? `#${id}` : url(`/${lang}/#${id}`));
     </script>
   </head>
   <body>
+    <div class="page-wash" aria-hidden="true"><div class="page-wash__a"></div><div class="page-wash__b"></div></div>
     <a class="skip" href="#main">{ui.skip}</a>
     <header class="site-header">
       <div class="wrap bar">
@@ -163,6 +164,32 @@ const anchor = (id: string) => (onHome ? `#${id}` : url(`/${lang}/#${id}`));
             if (el) io.observe(el);
           });
         }
+      })();
+    </script>
+  
+    <script is:inline>
+      (function () {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        var root = document.documentElement;
+        var ticking = false;
+        function setWash() {
+          var max = root.scrollHeight - window.innerHeight;
+          var p = max > 0 ? window.scrollY / max : 0;
+          if (p < 0) p = 0;
+          if (p > 1) p = 1;
+          root.style.setProperty('--wash-p', p.toFixed(4));
+          root.style.setProperty('--wash-phase', (Math.sin(p * Math.PI * 2.5) * 0.5 + 0.5).toFixed(4));
+          ticking = false;
+        }
+        function onScroll() {
+          if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(setWash);
+          }
+        }
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll);
+        setWash();
       })();
     </script>
   </body>
