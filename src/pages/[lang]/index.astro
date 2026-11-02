@@ -8,6 +8,7 @@ import { templates as allTemplates } from '../../data/templates';
 import WorkDetail from '../../components/WorkDetail.astro';
 import CvDocument from '../../components/CvDocument.astro';
 import { role } from '../../data/cv';
+import StickyContact from '../../components/StickyContact.astro';
 
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang } }));
@@ -16,6 +17,7 @@ const lang = Astro.params.lang as Lang;
 const ui = t(lang);
 const steps = ui.method.steps;
 const templates = allTemplates[lang];
+const featured = work.find((w) => w.featured);
 const gridItems: { type: 'card' | 'drawer'; w: (typeof work)[number]; i: number }[] = [];
 {
   let group: { w: (typeof work)[number]; i: number }[] = [];
@@ -45,21 +47,21 @@ const parseLine = (l: string) => {
 };
 // Paths are drawn from destination to origin: the dash spacing contracts toward the path start,
 // so the dashes appear to travel from the origin city to the destination.
-const arcsD = ['M380 70 Q235 10 90 170', 'M640 100 Q510 40 380 70', 'M910 170 Q775 20 640 100'];
+const arcsD = ['M380 22 Q235 -2 90 66', 'M640 34 Q510 4 380 22', 'M910 66 Q775 0 640 34'];
 const arcsM = ['M296 160 C 296 90, 200 74, 64 74', 'M64 272 C 64 214, 296 224, 296 160', 'M296 382 C 296 332, 64 340, 64 272'];
 const mobilePos = [{ x: 64, y: 74, side: 'a' }, { x: 296, y: 160, side: 'l' }, { x: 64, y: 272, side: 'r' }, { x: 296, y: 382, side: 'l' }];
 const es = lang === 'es';
 const stops = [
-  { x: 90, y: 170, code: 'LPA', when: '2021 – 2023', tip: es
+  { x: 90, y: 66, code: 'LPA', when: '2021 – 2023', tip: es
     ? ['IES El Rincón · Desarrollo de Aplicaciones Web, 2021 – 2023', 'HYVE · Ingeniero de software, prácticas, mar – jun 2023']
     : ['IES El Rincón · Web Application Development, 2021 – 2023', 'HYVE · Software engineer, internship, Mar – Jun 2023'] },
-  { x: 380, y: 70, code: 'MUC', when: es ? 'jul – sep 2023' : 'Jul – Sep 2023', tip: es
+  { x: 380, y: 22, code: 'MUC', when: es ? 'jul – sep 2023' : 'Jul – Sep 2023', tip: es
     ? ['HYVE · Ingeniero de software, prácticas', 'jul – sep 2023']
     : ['HYVE · Software engineer, internship', 'Jul – Sep 2023'] },
-  { x: 640, y: 100, code: 'BER', when: es ? 'mar – jun 2024' : 'Mar – Jun 2024', tip: es
+  { x: 640, y: 34, code: 'BER', when: es ? 'mar – jun 2024' : 'Mar – Jun 2024', tip: es
     ? ['OVAN GmbH · Ingeniero de software, prácticas', 'mar – jun 2024']
     : ['OVAN GmbH · Software engineer, internship', 'Mar – Jun 2024'] },
-  { x: 910, y: 170, code: 'LPA', when: es ? 'oct 2024 →' : 'Oct 2024 →', tip: es
+  { x: 910, y: 66, code: 'LPA', when: es ? 'oct 2024 →' : 'Oct 2024 →', tip: es
     ? ['Grupo ARI · Ingeniero de software full-stack', 'oct 2024 – actualidad']
     : ['Grupo ARI · Full-stack software engineer', 'Oct 2024 – present'] },
 ];
@@ -68,13 +70,33 @@ const stops = [
 <Base lang={lang} >
   <div class="a-hero">
     <div class="wrap">
-      <p class="a-kicker">Juan Suárez · Full-stack</p>
-      <h1 class="a-title">{ui.title}</h1>
-      <p class="a-sub">{ui.subtitle}</p>
+      <div class="a-hero-grid">
+        <div class="a-hero-main">
+          <p class="a-kicker">Juan Suárez · Full-stack</p>
+          <h1 class="a-title">{ui.title}</h1>
+          <p class="a-sub">{ui.subtitle}</p>
+          <ul class="a-proofs">
+            {ui.hero.proofs.map((p) => <li>{p}</li>)}
+          </ul>
+          <div class="a-hero-cta">
+            <a class="a-btn a-btn-primary" id="hero-cta" href="#contact">{ui.hero.cta}</a>
+            <a class="a-btn" href="#work">{ui.hero.ghost}</a>
+          </div>
+        </div>
+        {featured && (
+          <article class="a-hero-feat" aria-labelledby="hero-feat-h">
+            <div class="a-chips"><span class={`a-chip a-${featured.status}`}>{ui.work.status[featured.status]}</span></div>
+            <h2 id="hero-feat-h">{featured.title[lang]}</h2>
+            <p>{featured.summary[lang]}</p>
+            <p class="a-stack">{featured.stack.join(' · ')}</p>
+            <a class="a-action" href={`#w-${featured.slug}`}><span>{ui.hero.link}</span><span aria-hidden="true">→</span></a>
+          </article>
+        )}
+      </div>
 
       <noscript><style>.a-arc { animation: none !important; stroke-dasharray: 0.02 0.03 !important; }</style></noscript>
       <figure class="a-map">
-        <svg class="a-map-d" viewBox="0 0 1000 230" role="group" aria-label="Las Palmas, Munich, Berlin, Las Palmas">
+        <svg class="a-map-d" viewBox="0 0 1000 130" role="group" aria-label="Las Palmas, Munich, Berlin, Las Palmas">
           {arcsD.map((d, i) => <path class={`a-arc a-d${i + 1}`} pathLength="1" d={d} />)}
           {stops.map((s) => (
             <g class="a-stop" tabindex="0" role="button" aria-label={`${s.code}: ${s.tip.join('. ')}`} data-tip={JSON.stringify(s.tip)}>
@@ -119,7 +141,7 @@ const stops = [
         <span class="a-packet" aria-hidden="true"></span>
         <span class="a-packet" aria-hidden="true"></span>
         {steps.map((s, i) => (
-          <button type="button" class="a-node" data-i={i} aria-pressed={i === 0 ? 'true' : 'false'}>
+          <button type="button" class={`a-node${i === steps.length - 1 ? ' a-focus' : ''}`} data-i={i} aria-pressed={i === 0 ? 'true' : 'false'}>
             <span class="a-dot" aria-hidden="true"></span>
             <span class="a-num">{String(i + 1).padStart(2, '0')}</span>
             <span class="a-name">{s.name}</span>
@@ -130,6 +152,7 @@ const stops = [
       <p class="a-detail" id="a-detail" aria-live="polite" data-steps={JSON.stringify(steps.map((s) => s.text))}>
         {steps[0].text}
       </p>
+      <p class="a-close"><span>{ui.method.closing}</span><a class="a-action" href="#contact"><span>{ui.hero.cta}</span><span aria-hidden="true">→</span></a></p>
     </section>
 
     <section id="templates" aria-labelledby="h-templates">
@@ -240,6 +263,7 @@ const stops = [
           ))}
         </div></div></div>
       </div>
+      <p class="a-close"><span>{ui.work.closing}</span><a class="a-action" href="#contact"><span>{ui.hero.cta}</span><span aria-hidden="true">→</span></a></p>
     </section>
 
     <section id="journey" aria-labelledby="h-journey">
@@ -290,12 +314,14 @@ const stops = [
       <p class="a-eyebrow">06</p>
       <h2 id="h-contact">{ui.contact.heading}</h2>
       <div class="a-contact">
-        <a class="a-big" href="mailto:juansuarezdev@gmail.com">juansuarezdev@gmail.com</a>
+        <a class="a-btn a-btn-primary" href="mailto:juansuarezdev@gmail.com">juansuarezdev@gmail.com</a>
         <a class="a-pill" href="https://github.com/juansuarezdev">GitHub</a>
         <a class="a-pill" href="https://www.linkedin.com/in/juansuarez-sanchez/">LinkedIn</a>
       </div>
     </section>
   </div>
+
+  <StickyContact label={ui.hero.cta} after="hero-cta" until="contact" />
 
   <script is:inline define:vars={{ BASE }}>
     (function () {
@@ -479,10 +505,26 @@ const stops = [
 </Base>
 
 <style is:global>
-  .a-hero { padding: 72px 0 72px; }
+  .a-hero { padding: 56px 0 40px; }
   .a-kicker { font-family: var(--mono); font-size: 0.8125rem; color: var(--accent); margin: 0 0 16px; }
-  .a-title { font-size: clamp(2.25rem, 1rem + 6vw, 5rem); line-height: 1.02; letter-spacing: -0.03em; max-width: 16ch; margin: 0 0 16px; }
-  .a-sub { font-size: 1.25rem; color: var(--muted); max-width: 46ch; margin-bottom: 48px; }
+  .a-title { font-size: clamp(2.25rem, 1rem + 5vw, 4rem); line-height: 1.04; letter-spacing: -0.03em; max-width: 16ch; margin: 0 0 16px; }
+  .a-sub { font-size: 1.25rem; color: var(--muted); max-width: 46ch; margin-bottom: 20px; }
+  .a-hero-grid { display: grid; gap: 32px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+  @media (min-width: 960px) { .a-hero-grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px; } }
+  .a-proofs { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 6px; font-size: 0.9375rem; }
+  .a-proofs li { display: flex; gap: 10px; align-items: baseline; }
+  .a-proofs li::before { content: ''; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); transform: translateY(-2px); }
+  .a-hero-cta { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px; }
+  .a-hero-feat { position: relative; overflow: hidden; display: grid; gap: 8px; justify-items: start; padding: 28px 24px 24px; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--ink) 3%, var(--bg)); }
+  .a-hero-feat::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--cta); }
+  .a-hero-feat h2 { font-size: 1.375rem; margin: 8px 0 0; letter-spacing: -0.01em; }
+  .a-hero-feat p { margin: 0; max-width: none; }
+  .a-hero-feat .a-action { margin-top: 8px; }
+  .a-featured { position: relative; }
+  .a-featured::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--cta); }
+  .a-node.a-focus .a-dot { border-color: var(--cta); box-shadow: 0 0 0 3px color-mix(in srgb, var(--cta) 35%, transparent); }
+  .a-node.a-focus[aria-pressed='true'] .a-dot { background: var(--cta); }
+
 
   .a-pipe { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; padding-top: 28px; }
   .a-pipe::before { content: ''; position: absolute; left: 10%; right: 10%; top: 38px; height: 2px; background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 20%, transparent)); }
@@ -584,7 +626,7 @@ const stops = [
   .a-card:hover { border-color: var(--accent); transform: translateY(-2px); }
   .a-idx { position: absolute; right: 16px; top: 4px; font-family: var(--mono); font-size: 4rem; font-weight: 500; color: color-mix(in srgb, var(--ink) 7%, transparent); }
   .a-chip { font-family: var(--mono); font-size: 0.75rem; padding: 2px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); }
-  .a-chip.a-wip { color: var(--wip); border-color: var(--wip); }
+  .a-chip.a-wip { color: var(--wip-text); border-color: var(--wip-text); }
   .a-chip.a-shipped { color: var(--accent); border-color: var(--accent); }
   .a-card h3 { font-size: 1.25rem; margin: 16px 0 8px; }
   .a-stack { font-family: var(--mono); font-size: 0.8125rem; color: var(--muted); margin: 0; }

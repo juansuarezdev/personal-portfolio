@@ -10,7 +10,14 @@
   --muted: #5c5c57;
   --line: #e4e3dd;
   --accent: #6c31e3;
-  --wip: #8a5a00;
+  --on-accent: #fafaf7;
+  --cta: #fc734d;
+  --cta-hover: #fc8462;
+  --cta-press: #de6544;
+  --on-cta: #000;
+  --wip: #e0b050;
+  --wip-ink: #8a5a00;
+  --wip-text: #8a5a00; /* WIP as text/border on the page bg (AA) */
   --sans: 'Geist Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
   --measure: 68ch;
@@ -25,7 +32,8 @@
     --muted: #9a9a93;
     --line: #26272a;
     --accent: #a78bfa;
-    --wip: #e0b050;
+    --on-accent: #0e0f10;
+    --wip-text: #e0b050;
     color-scheme: dark;
   }
 }
@@ -36,7 +44,8 @@
   --muted: #9a9a93;
   --line: #26272a;
   --accent: #a78bfa;
-  --wip: #e0b050;
+  --on-accent: #0e0f10;
+  --wip-text: #e0b050;
   color-scheme: dark;
 }
 
@@ -66,11 +75,18 @@ a {
   text-underline-offset: 0.2em;
 }
 
+/* focus: Cantaloupe ring + an ink ring outside it, so it keeps 3:1 on both themes */
 a:focus-visible,
 button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
+  outline: 2px solid var(--cta);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--bg), 0 0 0 6px var(--ink);
   border-radius: 2px;
+}
+
+::selection {
+  background: var(--cta);
+  color: #000;
 }
 
 .wrap {
@@ -173,6 +189,20 @@ html {
 .nav a[aria-current] {
   color: var(--bg);
   background: var(--accent);
+}
+/* Contact = the one action in the nav: Cantaloupe chip (current section stays purple) */
+.nav a.nav-cta,
+.nav a.nav-cta[aria-current] {
+  background: var(--cta);
+  color: var(--on-cta);
+  font-weight: 500;
+}
+.nav a.nav-cta:hover {
+  background: var(--cta-hover);
+  color: var(--on-cta);
+}
+.nav a.nav-cta:active {
+  background: var(--cta-press);
 }
 .controls {
   display: flex;
@@ -298,6 +328,43 @@ html {
   cursor: default;
 }
 
+.a-btn-primary {
+  border-color: var(--cta);
+  background: var(--cta);
+  color: var(--on-cta);
+}
+.a-btn-primary:hover:not(:disabled) {
+  background: var(--cta-hover);
+  border-color: var(--cta-hover);
+  color: var(--on-cta);
+}
+.a-btn-primary:active:not(:disabled) {
+  background: var(--cta-press);
+  border-color: var(--cta-press);
+}
+
+/* ActionLink: ink text, 2px Cantaloupe underline; used to close sections */
+.a-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: var(--ink);
+  font-weight: 500;
+  text-decoration: none;
+}
+.a-action > span:first-child {
+  text-decoration: underline 2px var(--cta);
+  text-underline-offset: 0.3em;
+}
+.a-action:hover > span:first-child { text-decoration-color: var(--cta-hover); text-decoration-thickness: 3px; }
+.a-action:active > span:first-child { text-decoration-color: var(--cta-press); }
+@media (prefers-reduced-motion: no-preference) {
+  .a-action > span:last-child { transition: transform 200ms ease; }
+  .a-action:hover > span:last-child { transform: translateX(3px); }
+}
+.a-close { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin: 24px 0 0; color: var(--muted); }
+
 /* unfold (shared by cards, project details and the CV) */
 .unf-btn { cursor: pointer; }
 .unf-chev { width: 8px; height: 8px; margin-left: 10px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform 400ms cubic-bezier(.2, .8, .2, 1); }
@@ -406,7 +473,7 @@ ol.steps p {
   margin-bottom: 4px;
 }
 .status-wip {
-  color: var(--wip);
+  color: var(--wip-text);
 }
 .more {
   margin-top: 24px;

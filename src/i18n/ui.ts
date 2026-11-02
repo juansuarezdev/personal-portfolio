@@ -14,8 +14,15 @@ export const ui = {
     title: 'Software that makes companies run better.',
     subtitle:
       'Full-stack software engineer. I turn a business need into a specified, tested, running system.',
+    hero: {
+      cta: 'Let’s talk',
+      ghost: 'See work',
+      link: 'View case',
+      proofs: ['Specified before it is built', 'Tested in small increments', 'Operable: logs, queues, rollbacks'],
+    },
     method: {
       heading: 'Method',
+      closing: 'Have a process that needs this?',
       intro: 'Every project follows the same five steps.',
       steps: [
         { name: 'Understand', text: 'Start from the business problem, not the ticket.' },
@@ -37,6 +44,7 @@ export const ui = {
     },
     work: {
       heading: 'Work',
+      closing: 'Have a similar need?',
       intro: 'Selected projects, from client work to tools I built for myself.',
       status: { case: 'Case study', shipped: 'Shipped', wip: 'In progress' },
       more: 'More projects',
@@ -83,8 +91,15 @@ export const ui = {
     title: 'Software que hace que las empresas funcionen mejor.',
     subtitle:
       'Ingeniero de software full-stack. Convierto una necesidad de negocio en un sistema especificado, probado y en producción.',
+    hero: {
+      cta: 'Hablemos',
+      ghost: 'Ver trabajo',
+      link: 'Ver caso',
+      proofs: ['Especificado antes de construir', 'Probado en incrementos pequeños', 'Operable: logs, colas, reversiones'],
+    },
     method: {
       heading: 'Método',
+      closing: '¿Tienes un proceso que necesita esto?',
       intro: 'Todos los proyectos siguen los mismos cinco pasos.',
       steps: [
         { name: 'Entender', text: 'Partir del problema de negocio, no del ticket.' },
@@ -106,6 +121,7 @@ export const ui = {
     },
     work: {
       heading: 'Trabajo',
+      closing: '¿Tienes una necesidad parecida?',
       intro: 'Proyectos seleccionados, del trabajo para clientes a herramientas que he hecho para mí.',
       status: { case: 'Caso', shipped: 'Publicado', wip: 'En curso' },
       more: 'Más proyectos',
