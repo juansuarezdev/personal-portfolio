@@ -3,9 +3,9 @@ export type Lang = (typeof locales)[number];
 
 export const ui = {
   en: {
-    siteTitle: 'Juan Suárez — Full-stack software engineer',
+    siteTitle: 'Juan Suárez — Full-stack & AI engineer',
     siteDescription:
-      'Full-stack software engineer. I turn a business need into a specified, tested, running system.',
+      'Full-stack & AI engineer. I turn a business need into a specified, tested, running system.',
     skip: 'Skip to content',
     menu: 'Menu',
     nav: { method: 'Method', templates: 'Templates', work: 'Work', journey: 'Journey', cv: 'CV', contact: 'Contact' },
@@ -13,7 +13,7 @@ export const ui = {
     lang: { label: 'Language' },
     title: 'Software that makes companies run better.',
     subtitle:
-      'Full-stack software engineer. I turn a business need into a specified, tested, running system.',
+      'Full-stack & AI engineer. I turn a business need into a specified, tested, running system.',
     hero: {
       cta: 'Let’s talk',
       ghost: 'See work',
@@ -80,9 +80,9 @@ export const ui = {
     footer: 'Juan Suárez',
   },
   es: {
-    siteTitle: 'Juan Suárez — Ingeniero de software full-stack',
+    siteTitle: 'Juan Suárez — Ingeniero full-stack e IA',
     siteDescription:
-      'Ingeniero de software full-stack. Convierto una necesidad de negocio en un sistema especificado, probado y en producción.',
+      'Ingeniero full-stack e IA. Convierto una necesidad de negocio en un sistema especificado, probado y en producción.',
     skip: 'Saltar al contenido',
     menu: 'Menú',
     nav: { method: 'Método', templates: 'Plantillas', work: 'Trabajo', journey: 'Trayectoria', cv: 'CV', contact: 'Contacto' },
@@ -90,7 +90,7 @@ export const ui = {
     lang: { label: 'Idioma' },
     title: 'Software que hace que las empresas funcionen mejor.',
     subtitle:
-      'Ingeniero de software full-stack. Convierto una necesidad de negocio en un sistema especificado, probado y en producción.',
+      'Ingeniero full-stack e IA. Convierto una necesidad de negocio en un sistema especificado, probado y en producción.',
     hero: {
       cta: 'Hablemos',
       ghost: 'Ver trabajo',

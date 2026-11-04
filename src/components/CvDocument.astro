@@ -51,8 +51,8 @@ const education = career.filter((c) => c.kind === 'education');
         {projects.map((p) => (
           <div class="cv-item">
             <div class="cv-item-head">
-              <h3><a href={`https://${p.href}`}>{p.name}</a></h3>
-              <span class="cv-date">{p.href}</span>
+              <h3>{p.href ? <a href={`https://${p.href}`}>{p.name}</a> : p.name}</h3>
+              {p.href && <span class="cv-date">{p.href}</span>}
             </div>
             <p>{p.text[lang]}</p>
           </div>
