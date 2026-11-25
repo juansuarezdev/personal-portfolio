@@ -167,7 +167,7 @@ export const moreWork: WorkItem[] = [
       en: 'Turns a self-hosted kanban board into a work queue for AI coding agents: tag a card and it is planned or implemented in its own branch, reviewed and merged.',
       es: 'Convierte un tablero kanban autoalojado en una cola de trabajo para agentes de IA: etiquetas una tarjeta y se planifica o implementa en su propia rama, se revisa y se integra.',
     },
-    stack: ['Python', 'launchd', 'Claude Code', 'OpenCode', 'git worktrees'],
+    stack: ['Python', 'launchd', 'git worktrees', 'AI coding agents'],
     body: [
       {
         h: { en: 'What it does', es: 'Qué hace' },
@@ -186,8 +186,8 @@ export const moreWork: WorkItem[] = [
       {
         h: { en: 'Usage and fallback', es: 'Uso y reserva' },
         text: {
-          en: 'Claude’s usage window is paced along a straight line so the dispatcher never spends it ahead of time. When Claude is held, implementation work moves to OpenCode, then to a reserve model, with one alert when the chain degrades and one when it recovers.',
-          es: 'La ventana de uso de Claude se reparte sobre una línea recta para que el despachador no la gaste antes de tiempo. Cuando Claude queda en espera, el trabajo de implementación pasa a OpenCode y después a un modelo de reserva, con un aviso cuando la cadena se degrada y otro cuando se recupera.',
+          en: 'Agents are interchangeable: you choose which agents run and in what order, from a primary agent to an alternate and a reserve. The primary agent’s usage window is paced along a straight line so it is never spent ahead of time; when it is held, implementation work moves down the chain, with one alert when the chain degrades and one when it recovers.',
+          es: 'Los agentes son intercambiables: eliges qué agentes se usan y en qué orden, de un agente principal a uno alternativo y uno de reserva. La ventana de uso del agente principal se reparte sobre una línea recta para no gastarla antes de tiempo; cuando queda en espera, el trabajo de implementación baja por la cadena, con un aviso cuando la cadena se degrada y otro cuando se recupera.',
         },
       },
     ],

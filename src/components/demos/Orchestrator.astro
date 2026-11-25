@@ -11,9 +11,9 @@ const T = {
     changes: 'Review asks for changes once',
     round: 'Review round',
     stages: [
-      { k: 'Card', h: 'A card on the kanban board', p: 'Work starts as an ordinary card in the self-hosted TaskView board, assigned to an AI user: Claude, OpenCode or both. The assignee decides who runs it. Cards assigned to the owner, or tagged para-mí, are never touched.' },
+      { k: 'Card', h: 'A card on the kanban board', p: 'Work starts as an ordinary card in the self-hosted TaskView board, assigned to an AI agent user. The assignee decides which agent runs it. Cards assigned to the owner, or tagged para-mí, are never touched.' },
       { k: 'Tag', h: 'One tag decides what happens', p: 'ia·plan runs a read-only session that writes a plan into the card note. ia·ejecutar implements the card. ia·continuar resumes a session that stopped with a question, and ia·correo emails the result. A tag with no AI assignee does nothing.' },
-      { k: 'Queue', h: 'The dispatcher picks one card', p: 'launchd starts the dispatcher every minute. It reads the board through the TaskView HTTP API, serves priority boards first and runs one card at a time under a file lock. Before starting Claude it checks the usage pacing.' },
+      { k: 'Queue', h: 'The dispatcher picks one card', p: 'launchd starts the dispatcher every minute. It reads the board through the TaskView HTTP API, serves priority boards first and runs one card at a time under a file lock. Before starting the primary agent it checks its usage pacing.' },
       { k: 'Worktree', h: 'Isolated work on its own branch', p: 'Each card gets its own git worktree on branch ai/t<id>. The session runs with an allow list and a deny list: git push, rm, curl, sudo, reset, merge and rebase are denied. Subagents search the code and run the tests. If information is missing, it ends with PREGUNTA: instead of guessing.' },
       { k: 'Review', h: 'An automatic review with a JSON verdict', p: 'A separate review session must answer with a JSON schema: a verdict of APROBADO or CAMBIOS, a summary and findings with file, line and severity. CAMBIOS sends the branch back to the implementation step, up to max_rounds.' },
       { k: 'Main', h: 'Merge to main, only where allowed', p: 'For repos listed in merge_to_main_repos, the approved branch is merged into a clean main, tested and pushed. Never --force. A conflict aborts the merge and turns into a question on the card; a failing test undoes the merge and nothing is pushed.' },
@@ -23,21 +23,20 @@ const T = {
     verdictOk: '{ "veredicto": "APROBADO", "resumen": "…", "hallazgos": [] }',
     verdictNo: '{ "veredicto": "CAMBIOS", "hallazgos": [{ "archivo": "…", "severidad": "media", … }] }',
     paceTitle: 'Who runs it: usage pacing and fallback chain',
-    paceIntro: 'The dispatcher spreads Claude’s 5-hour usage window along a straight line instead of reacting only when the limit is hit. Move the sliders to see the decision.',
+    agentsIntro: 'Agents are interchangeable: choose which agent fills each place in the chain and in what order.',
+    paceIntro: 'The dispatcher spreads the primary agent’s 5-hour usage window along a straight line instead of reacting only when the limit is hit. Move the sliders to see the decision.',
     used: '5 h window used', elapsed: 'Minutes into the window', allowed: 'Allowed now',
     mode: 'Card mode', modePlan: 'ia·plan', modeExec: 'ia·ejecutar',
-    ocOut: 'OpenCode primary model out of quota', resOut: 'Reserve model fails too', sensitive: 'Sensitive board',
+    altOut: 'Alternate agent out of quota', resOut: 'Reserve agent fails too',
+    roles: ['Primary agent', 'Alternate agent', 'Reserve agent'], agent: 'Agent', failLabel: 'ia·fallo + alert',
     chainLabel: 'Fallback chain',
-    chain: ['Claude Code', 'OpenCode', 'Reserve model', 'Free model', 'ia·fallo + alert'],
-    skipped: 'skipped', waits: 'Card waits',
+    waits: 'Card waits',
     out: {
-      claude: 'Under the line: Claude runs the card.',
-      waitPlan: 'Over the line: Claude is held. Only implementation cards are handed to OpenCode, so a plan card waits for the window.',
-      oc: 'Over the line: an implementation card is handed to OpenCode.',
-      res: 'OpenCode is out of quota: one retry on the reserve model.',
-      resPriv: 'OpenCode is out of quota: one retry on the private reserve (sensitive board).',
-      free: 'Reserve failed too: the free model takes it, with one alert when the chain degrades.',
-      fail: 'Reserve failed and sensitive boards never use free models: ia·fallo and an alert. The card is re-queued later.',
+      primary: 'Under the line: {a} (primary) runs the card.',
+      waitPlan: 'Over the line: {a} is held. Only implementation cards are handed down the chain, so a plan card waits for the window.',
+      alt: 'Over the line: the implementation card is handed to {a} (alternate).',
+      res: '{b} is out of quota: one retry on {a} (reserve), with one alert when the chain degrades.',
+      fail: 'The reserve failed too: ia·fallo and an alert. The card is re-queued when a quota renews.',
     },
     hard: 'hard cap',
   },
@@ -48,9 +47,9 @@ const T = {
     changes: 'La revisión pide cambios una vez',
     round: 'Ronda de revisión',
     stages: [
-      { k: 'Tarjeta', h: 'Una tarjeta en el kanban', p: 'El trabajo empieza como una tarjeta normal en el tablero de TaskView autoalojado, asignada a un usuario de IA: Claude, OpenCode o ambos. El asignado decide quién la ejecuta. Las tarjetas asignadas al dueño o con la etiqueta para-mí nunca se tocan.' },
+      { k: 'Tarjeta', h: 'Una tarjeta en el kanban', p: 'El trabajo empieza como una tarjeta normal en el tablero de TaskView autoalojado, asignada a un usuario agente de IA. El asignado decide qué agente la ejecuta. Las tarjetas asignadas al dueño o con la etiqueta para-mí nunca se tocan.' },
       { k: 'Etiqueta', h: 'Una etiqueta decide qué pasa', p: 'ia·plan lanza una sesión de solo lectura que escribe un plan en la nota. ia·ejecutar implementa la tarjeta. ia·continuar reanuda una sesión que se paró con una pregunta e ia·correo envía el resultado por correo. Una etiqueta sin asignado de IA no hace nada.' },
-      { k: 'Cola', h: 'El despachador elige una tarjeta', p: 'launchd arranca el despachador cada minuto. Lee el tablero por la API HTTP de TaskView, atiende primero los tableros prioritarios y ejecuta una tarjeta cada vez bajo un bloqueo de archivo. Antes de arrancar Claude comprueba el ritmo de uso.' },
+      { k: 'Cola', h: 'El despachador elige una tarjeta', p: 'launchd arranca el despachador cada minuto. Lee el tablero por la API HTTP de TaskView, atiende primero los tableros prioritarios y ejecuta una tarjeta cada vez bajo un bloqueo de archivo. Antes de arrancar el agente principal comprueba su ritmo de uso.' },
       { k: 'Worktree', h: 'Trabajo aislado en su propia rama', p: 'Cada tarjeta tiene su propio worktree de git en la rama ai/t<id>. La sesión corre con lista de permitidos y de prohibidos: git push, rm, curl, sudo, reset, merge y rebase están denegados. Subagentes buscan en el código y lanzan los tests. Si falta información, termina con PREGUNTA: en lugar de adivinar.' },
       { k: 'Revisión', h: 'Revisión automática con veredicto JSON', p: 'Una sesión de revisión aparte debe responder con un esquema JSON: veredicto APROBADO o CAMBIOS, un resumen y hallazgos con archivo, línea y severidad. CAMBIOS devuelve la rama al paso de implementación, hasta max_rounds.' },
       { k: 'Main', h: 'Merge a main, solo donde se permite', p: 'En los repos de merge_to_main_repos, la rama aprobada se integra en un main limpio, se prueba y se sube. Nunca --force. Un conflicto aborta el merge y se convierte en una pregunta en la tarjeta; si fallan los tests se deshace el merge y no se sube nada.' },
@@ -60,21 +59,20 @@ const T = {
     verdictOk: '{ "veredicto": "APROBADO", "resumen": "…", "hallazgos": [] }',
     verdictNo: '{ "veredicto": "CAMBIOS", "hallazgos": [{ "archivo": "…", "severidad": "media", … }] }',
     paceTitle: 'Quién la ejecuta: ritmo de uso y cadena de reserva',
-    paceIntro: 'El despachador reparte la ventana de uso de 5 horas de Claude sobre una línea recta en lugar de reaccionar solo al llegar al límite. Mueve los controles para ver la decisión.',
+    agentsIntro: 'Los agentes son intercambiables: elige qué agente ocupa cada puesto de la cadena y en qué orden.',
+    paceIntro: 'El despachador reparte la ventana de uso de 5 horas del agente principal sobre una línea recta en lugar de reaccionar solo al llegar al límite. Mueve los controles para ver la decisión.',
     used: 'Uso de la ventana de 5 h', elapsed: 'Minutos dentro de la ventana', allowed: 'Permitido ahora',
     mode: 'Modo de la tarjeta', modePlan: 'ia·plan', modeExec: 'ia·ejecutar',
-    ocOut: 'Modelo principal de OpenCode sin cuota', resOut: 'El modelo de reserva también falla', sensitive: 'Tablero sensible',
+    altOut: 'Agente alternativo sin cuota', resOut: 'El agente de reserva también falla',
+    roles: ['Agente principal', 'Agente alternativo', 'Agente de reserva'], agent: 'Agente', failLabel: 'ia·fallo + aviso',
     chainLabel: 'Cadena de reserva',
-    chain: ['Claude Code', 'OpenCode', 'Modelo de reserva', 'Modelo gratuito', 'ia·fallo + aviso'],
-    skipped: 'se omite', waits: 'La tarjeta espera',
+    waits: 'La tarjeta espera',
     out: {
-      claude: 'Por debajo de la línea: Claude ejecuta la tarjeta.',
-      waitPlan: 'Por encima de la línea: Claude queda en espera. Solo las tarjetas de implementación pasan a OpenCode, así que una tarjeta de plan espera a la ventana.',
-      oc: 'Por encima de la línea: una tarjeta de implementación pasa a OpenCode.',
-      res: 'OpenCode sin cuota: un reintento con el modelo de reserva.',
-      resPriv: 'OpenCode sin cuota: un reintento con la reserva privada (tablero sensible).',
-      free: 'La reserva también falla: la coge el modelo gratuito, con un único aviso cuando la cadena se degrada.',
-      fail: 'La reserva falló y los tableros sensibles nunca usan modelos gratuitos: ia·fallo y un aviso. La tarjeta se reencola después.',
+      primary: 'Por debajo de la línea: {a} (principal) ejecuta la tarjeta.',
+      waitPlan: 'Por encima de la línea: {a} queda en espera. Solo las tarjetas de implementación bajan por la cadena, así que una tarjeta de plan espera a la ventana.',
+      alt: 'Por encima de la línea: la tarjeta de implementación pasa a {a} (alternativo).',
+      res: '{b} sin cuota: un reintento con {a} (reserva), con un único aviso cuando la cadena se degrada.',
+      fail: 'La reserva también falló: ia·fallo y un aviso. La tarjeta se reencola cuando se renueve alguna cuota.',
     },
     hard: 'tope',
   },
@@ -108,7 +106,7 @@ const cardTags = [[], ['ia·ejecutar'], ['ia·trabajando'], ['ia·trabajando'], 
         <p id="orq-p">{T.stages[0].p}</p>
       </div>
       <div class="orq-card" aria-hidden="true">
-        <div class="orq-card-top d-mono"><span>t128</span><span class="orq-who">Claude</span></div>
+        <div class="orq-card-top d-mono"><span>t128</span><span class="orq-who" id="orq-who"></span></div>
         <p class="orq-card-title">{T.cardTitle}</p>
         <div class="orq-tags" id="orq-tags"></div>
         <p class="orq-branch d-mono" id="orq-branch" hidden>{T.branch} ai/t128</p>
@@ -143,13 +141,23 @@ const cardTags = [[], ['ia·ejecutar'], ['ia·trabajando'], ['ia·trabajando'], 
             <button type="button" class="orq-mode" data-mode="exec" aria-pressed="true">{T.modeExec}</button>
             <button type="button" class="orq-mode" data-mode="plan" aria-pressed="false">{T.modePlan}</button>
           </div>
-          <label class="d-muted orq-check"><input type="checkbox" id="orq-ocout" /> {T.ocOut}</label>
+          <label class="d-muted orq-check"><input type="checkbox" id="orq-altout" /> {T.altOut}</label>
           <label class="d-muted orq-check"><input type="checkbox" id="orq-resout" /> {T.resOut}</label>
-          <label class="d-muted orq-check"><input type="checkbox" id="orq-sens" /> {T.sensitive}</label>
         </div>
         <div>
+          <p class="d-muted orq-agents-intro">{T.agentsIntro}</p>
           <ol class="orq-chain" aria-label={T.chainLabel}>
-            {T.chain.map((c, i) => (<li class="orq-link" data-i={i}><span class="orq-dot" aria-hidden="true"></span><span>{c}</span><span class="orq-note d-mono"></span></li>))}
+            {T.roles.map((r, i) => (
+              <li class="orq-link" data-i={i}>
+                <span class="orq-dot" aria-hidden="true"></span>
+                <label class="orq-role" for={`orq-slot-${i}`}>{r}</label>
+                <select class="d-input orq-slot" id={`orq-slot-${i}`} data-i={i}>
+                  {['A', 'B', 'C'].map((x, j) => (<option value={x} selected={i === j}>{T.agent} {x}</option>))}
+                </select>
+                <span class="orq-note d-mono"></span>
+              </li>
+            ))}
+            <li class="orq-link" data-i="3"><span class="orq-dot" aria-hidden="true"></span><span>{T.failLabel}</span><span class="orq-note d-mono"></span></li>
           </ol>
           <p class="orq-out" id="orq-out" role="status"></p>
         </div>
@@ -229,6 +237,7 @@ const cardTags = [[], ['ia·ejecutar'], ['ia·trabajando'], ['ia·trabajando'], 
     // Pacing: allowed = min(100, elapsed / 240 * 100 + 10); hold above it or from 90% (pace() in ai-dispatch.py)
     var mode = 'exec';
     var links = root.querySelectorAll('.orq-link');
+    var slots = Array.prototype.slice.call(root.querySelectorAll('.orq-slot'));
     function decide() {
       var used = +$('orq-used').value, el = +$('orq-el').value;
       var allowed = Math.min(100, el / 240 * 100 + 10), hold = used > allowed || used >= 90;
@@ -238,23 +247,34 @@ const cardTags = [[], ['ia·ejecutar'], ['ia·trabajando'], ['ia·trabajando'], 
       $('orq-meter-used').style.width = used + '%';
       $('orq-meter-line').style.left = allowed + '%';
       root.querySelector('.orq-meter').dataset.hold = hold ? 'true' : 'false';
-      var oc = $('orq-ocout').checked, res = $('orq-resout').checked, sens = $('orq-sens').checked;
-      $('orq-resout').disabled = !oc;
-      var state = ['', '', '', '', ''], notes = ['', '', '', '', ''], msg;
-      if (!hold) { state[0] = 'on'; msg = T.out.claude; }
-      else if (mode === 'plan') { state[0] = 'hold'; notes[0] = T.waits; msg = T.out.waitPlan; }
+      var alt = $('orq-altout').checked, res = $('orq-resout').checked;
+      $('orq-resout').disabled = !alt;
+      var name = slots.map(function (x) { return T.agent + ' ' + x.value; });
+      var fill = function (m, i, j) { return m.replace('{a}', name[i]).replace('{b}', j == null ? '' : name[j]); };
+      var state = ['', '', '', ''], notes = ['', '', '', ''], msg;
+      if (!hold) { state[0] = 'on'; msg = fill(T.out.primary, 0); }
+      else if (mode === 'plan') { state[0] = 'hold'; notes[0] = T.waits; msg = fill(T.out.waitPlan, 0); }
       else {
         state[0] = 'hold';
-        if (!oc) { state[1] = 'on'; msg = T.out.oc; }
-        else if (!res) { state[1] = 'off'; state[2] = 'on'; msg = sens ? T.out.resPriv : T.out.res; }
-        else if (!sens) { state[1] = state[2] = 'off'; state[3] = 'on'; msg = T.out.free; }
-        else { state[1] = state[2] = 'off'; state[3] = 'skip'; notes[3] = T.skipped; state[4] = 'on'; msg = T.out.fail; }
+        if (!alt) { state[1] = 'on'; msg = fill(T.out.alt, 1); }
+        else if (!res) { state[1] = 'off'; state[2] = 'on'; msg = fill(T.out.res, 2, 1); }
+        else { state[1] = state[2] = 'off'; state[3] = 'on'; msg = T.out.fail; }
       }
       links.forEach(function (l, i) { l.dataset.state = state[i]; l.querySelector('.orq-note').textContent = notes[i]; });
       $('orq-out').textContent = msg;
+      $('orq-who').textContent = name[0];
     }
+    // Each place in the chain holds a different agent: picking one already in use swaps the two
+    slots.forEach(function (sel) {
+      sel.dataset.prev = sel.value;
+      sel.addEventListener('change', function () {
+        slots.forEach(function (o) { if (o !== sel && o.value === sel.value) { o.value = sel.dataset.prev; o.dataset.prev = o.value; } });
+        sel.dataset.prev = sel.value;
+        decide();
+      });
+    });
     ['orq-used', 'orq-el'].forEach(function (id) { $(id).addEventListener('input', decide); });
-    ['orq-ocout', 'orq-resout', 'orq-sens'].forEach(function (id) { $(id).addEventListener('change', decide); });
+    ['orq-altout', 'orq-resout'].forEach(function (id) { $(id).addEventListener('change', decide); });
     root.querySelectorAll('.orq-mode').forEach(function (b) {
       b.addEventListener('click', function () {
         mode = b.dataset.mode;
@@ -314,15 +334,19 @@ const cardTags = [[], ['ia·ejecutar'], ['ia·trabajando'], ['ia·trabajando'], 
   .orq-meter-hard { position: absolute; top: 0; bottom: 0; left: 90%; width: 0; border-left: 2px dotted var(--muted); }
   .orq-allowed { margin: 0; font-size: 0.75rem; }
   .orq-chain { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-  .orq-link { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); font-size: 0.875rem; transition: border-color 150ms, background 150ms, opacity 150ms; }
+  .orq-link { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); font-size: 0.875rem; transition: border-color 150ms, background 150ms, opacity 150ms; }
   .orq-link + .orq-link { position: relative; }
   .orq-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--muted); flex: none; }
-  .orq-note { margin-left: auto; font-size: 0.6875rem; color: var(--muted); }
+  .orq-note { flex: 1 0 100%; padding-left: 22px; font-size: 0.6875rem; color: var(--muted); }
+  .orq-note:empty { display: none; }
   .orq-link[data-state='on'] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
   .orq-link[data-state='on'] .orq-dot { border-color: var(--accent); background: var(--accent); }
   .orq-link[data-state='hold'] .orq-dot, .orq-link[data-state='off'] .orq-dot { border-color: var(--cta); }
-  .orq-link[data-state='off'] { opacity: 0.7; text-decoration: line-through; text-decoration-color: var(--cta); }
-  .orq-link[data-state='skip'] { opacity: 0.5; border-style: dashed; }
+  .orq-link[data-state='off'] { opacity: 0.7; }
+  .orq-link[data-state='off'] .orq-role { text-decoration: line-through; text-decoration-color: var(--cta); }
+  .orq-role { flex: 1 1 auto; }
+  .orq-slot { min-height: 36px; padding: 0 8px; font-size: 0.8125rem; }
+  .orq-agents-intro { margin: 0 0 10px; }
   .orq-link:last-child[data-state='on'] { border-color: var(--cta); background: color-mix(in srgb, var(--cta) 12%, var(--bg)); }
   .orq-link:last-child[data-state='on'] .orq-dot { border-color: var(--cta); background: var(--cta); }
   .orq-out { margin: 12px 0 0; font-size: 0.9375rem; min-height: 3em; }
