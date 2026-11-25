@@ -1,0 +1,332 @@
+---
+import './demo.css';
+import type { Lang } from '../../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = {
+  en: {
+    bar: 'Interactive diagram · simulated run',
+    flowLabel: 'Pipeline stages',
+    play: 'Play the run', prev: 'Previous stage', next: 'Next stage',
+    changes: 'Review asks for changes once',
+    round: 'Review round',
+    stages: [
+      { k: 'Card', h: 'A card on the kanban board', p: 'Work starts as an ordinary card in the self-hosted TaskView board, assigned to an AI user: Claude, OpenCode or both. The assignee decides who runs it. Cards assigned to the owner, or tagged para-mí, are never touched.' },
+      { k: 'Tag', h: 'One tag decides what happens', p: 'ia·plan runs a read-only session that writes a plan into the card note. ia·ejecutar implements the card. ia·continuar resumes a session that stopped with a question, and ia·correo emails the result. A tag with no AI assignee does nothing.' },
+      { k: 'Queue', h: 'The dispatcher picks one card', p: 'launchd starts the dispatcher every minute. It reads the board through the TaskView HTTP API, serves priority boards first and runs one card at a time under a file lock. Before starting Claude it checks the usage pacing.' },
+      { k: 'Worktree', h: 'Isolated work on its own branch', p: 'Each card gets its own git worktree on branch ai/t<id>. The session runs with an allow list and a deny list: git push, rm, curl, sudo, reset, merge and rebase are denied. Subagents search the code and run the tests. If information is missing, it ends with PREGUNTA: instead of guessing.' },
+      { k: 'Review', h: 'An automatic review with a JSON verdict', p: 'A separate review session must answer with a JSON schema: a verdict of APROBADO or CAMBIOS, a summary and findings with file, line and severity. CAMBIOS sends the branch back to the implementation step, up to max_rounds.' },
+      { k: 'Main', h: 'Merge to main, only where allowed', p: 'For repos listed in merge_to_main_repos, the approved branch is merged into a clean main, tested and pushed. Never --force. A conflict aborts the merge and turns into a question on the card; a failing test undoes the merge and nothing is pushed.' },
+    ],
+    cardTitle: 'Add CSV export to the report',
+    branch: 'branch',
+    verdictOk: '{ "veredicto": "APROBADO", "resumen": "…", "hallazgos": [] }',
+    verdictNo: '{ "veredicto": "CAMBIOS", "hallazgos": [{ "archivo": "…", "severidad": "media", … }] }',
+    paceTitle: 'Who runs it: usage pacing and fallback chain',
+    paceIntro: 'The dispatcher spreads Claude’s 5-hour usage window along a straight line instead of reacting only when the limit is hit. Move the sliders to see the decision.',
+    used: '5 h window used', elapsed: 'Minutes into the window', allowed: 'Allowed now',
+    mode: 'Card mode', modePlan: 'ia·plan', modeExec: 'ia·ejecutar',
+    ocOut: 'OpenCode primary model out of quota', resOut: 'Reserve model fails too', sensitive: 'Sensitive board',
+    chainLabel: 'Fallback chain',
+    chain: ['Claude Code', 'OpenCode', 'Reserve model', 'Free model', 'ia·fallo + alert'],
+    skipped: 'skipped', waits: 'Card waits',
+    out: {
+      claude: 'Under the line: Claude runs the card.',
+      waitPlan: 'Over the line: Claude is held. Only implementation cards are handed to OpenCode, so a plan card waits for the window.',
+      oc: 'Over the line: an implementation card is handed to OpenCode.',
+      res: 'OpenCode is out of quota: one retry on the reserve model.',
+      resPriv: 'OpenCode is out of quota: one retry on the private reserve (sensitive board).',
+      free: 'Reserve failed too: the free model takes it, with one alert when the chain degrades.',
+      fail: 'Reserve failed and sensitive boards never use free models: ia·fallo and an alert. The card is re-queued later.',
+    },
+    hard: 'hard cap',
+  },
+  es: {
+    bar: 'Diagrama interactivo · ejecución simulada',
+    flowLabel: 'Etapas del flujo',
+    play: 'Reproducir la ejecución', prev: 'Etapa anterior', next: 'Etapa siguiente',
+    changes: 'La revisión pide cambios una vez',
+    round: 'Ronda de revisión',
+    stages: [
+      { k: 'Tarjeta', h: 'Una tarjeta en el kanban', p: 'El trabajo empieza como una tarjeta normal en el tablero de TaskView autoalojado, asignada a un usuario de IA: Claude, OpenCode o ambos. El asignado decide quién la ejecuta. Las tarjetas asignadas al dueño o con la etiqueta para-mí nunca se tocan.' },
+      { k: 'Etiqueta', h: 'Una etiqueta decide qué pasa', p: 'ia·plan lanza una sesión de solo lectura que escribe un plan en la nota. ia·ejecutar implementa la tarjeta. ia·continuar reanuda una sesión que se paró con una pregunta e ia·correo envía el resultado por correo. Una etiqueta sin asignado de IA no hace nada.' },
+      { k: 'Cola', h: 'El despachador elige una tarjeta', p: 'launchd arranca el despachador cada minuto. Lee el tablero por la API HTTP de TaskView, atiende primero los tableros prioritarios y ejecuta una tarjeta cada vez bajo un bloqueo de archivo. Antes de arrancar Claude comprueba el ritmo de uso.' },
+      { k: 'Worktree', h: 'Trabajo aislado en su propia rama', p: 'Cada tarjeta tiene su propio worktree de git en la rama ai/t<id>. La sesión corre con lista de permitidos y de prohibidos: git push, rm, curl, sudo, reset, merge y rebase están denegados. Subagentes buscan en el código y lanzan los tests. Si falta información, termina con PREGUNTA: en lugar de adivinar.' },
+      { k: 'Revisión', h: 'Revisión automática con veredicto JSON', p: 'Una sesión de revisión aparte debe responder con un esquema JSON: veredicto APROBADO o CAMBIOS, un resumen y hallazgos con archivo, línea y severidad. CAMBIOS devuelve la rama al paso de implementación, hasta max_rounds.' },
+      { k: 'Main', h: 'Merge a main, solo donde se permite', p: 'En los repos de merge_to_main_repos, la rama aprobada se integra en un main limpio, se prueba y se sube. Nunca --force. Un conflicto aborta el merge y se convierte en una pregunta en la tarjeta; si fallan los tests se deshace el merge y no se sube nada.' },
+    ],
+    cardTitle: 'Añadir exportación CSV al informe',
+    branch: 'rama',
+    verdictOk: '{ "veredicto": "APROBADO", "resumen": "…", "hallazgos": [] }',
+    verdictNo: '{ "veredicto": "CAMBIOS", "hallazgos": [{ "archivo": "…", "severidad": "media", … }] }',
+    paceTitle: 'Quién la ejecuta: ritmo de uso y cadena de reserva',
+    paceIntro: 'El despachador reparte la ventana de uso de 5 horas de Claude sobre una línea recta en lugar de reaccionar solo al llegar al límite. Mueve los controles para ver la decisión.',
+    used: 'Uso de la ventana de 5 h', elapsed: 'Minutos dentro de la ventana', allowed: 'Permitido ahora',
+    mode: 'Modo de la tarjeta', modePlan: 'ia·plan', modeExec: 'ia·ejecutar',
+    ocOut: 'Modelo principal de OpenCode sin cuota', resOut: 'El modelo de reserva también falla', sensitive: 'Tablero sensible',
+    chainLabel: 'Cadena de reserva',
+    chain: ['Claude Code', 'OpenCode', 'Modelo de reserva', 'Modelo gratuito', 'ia·fallo + aviso'],
+    skipped: 'se omite', waits: 'La tarjeta espera',
+    out: {
+      claude: 'Por debajo de la línea: Claude ejecuta la tarjeta.',
+      waitPlan: 'Por encima de la línea: Claude queda en espera. Solo las tarjetas de implementación pasan a OpenCode, así que una tarjeta de plan espera a la ventana.',
+      oc: 'Por encima de la línea: una tarjeta de implementación pasa a OpenCode.',
+      res: 'OpenCode sin cuota: un reintento con el modelo de reserva.',
+      resPriv: 'OpenCode sin cuota: un reintento con la reserva privada (tablero sensible).',
+      free: 'La reserva también falla: la coge el modelo gratuito, con un único aviso cuando la cadena se degrada.',
+      fail: 'La reserva falló y los tableros sensibles nunca usan modelos gratuitos: ia·fallo y un aviso. La tarjeta se reencola después.',
+    },
+    hard: 'tope',
+  },
+}[lang];
+// Tags shown on the mock card at each stage (mirrors ai-dispatch.py progress tags)
+const cardTags = [[], ['ia·ejecutar'], ['ia·trabajando'], ['ia·trabajando'], ['ia·trabajando'], ['ia·hecho']];
+---
+
+<div class="demo orq" id="orq" data-t={JSON.stringify(T)} data-tags={JSON.stringify(cardTags)}>
+  <div class="demo-bar"><span><b>●</b> {T.bar}</span><span>taskview-ai-orchestrator</span></div>
+  <div class="demo-body">
+    <ol class="orq-flow" aria-label={T.flowLabel}>
+      {T.stages.map((s, i) => (
+        <li>
+          <button type="button" class="orq-step" data-i={i} aria-pressed={i === 0 ? 'true' : 'false'} aria-controls="orq-detail">
+            <span class="orq-n d-mono" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <span class="orq-k">{s.k}</span>
+          </button>
+        </li>
+      ))}
+    </ol>
+    <svg class="orq-loop" id="orq-loop" viewBox="0 0 600 28" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <path d="M 450 4 C 450 24, 350 24, 350 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 4" vector-effect="non-scaling-stroke" />
+      <path d="M 344 10 L 350 3 L 356 10" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+    </svg>
+
+    <div class="orq-stage">
+      <div class="orq-detail" id="orq-detail" aria-live="polite">
+        <p class="a-eyebrow d-mono" id="orq-eyebrow">01 / 06</p>
+        <h4 id="orq-h">{T.stages[0].h}</h4>
+        <p id="orq-p">{T.stages[0].p}</p>
+      </div>
+      <div class="orq-card" aria-hidden="true">
+        <div class="orq-card-top d-mono"><span>t128</span><span class="orq-who">Claude</span></div>
+        <p class="orq-card-title">{T.cardTitle}</p>
+        <div class="orq-tags" id="orq-tags"></div>
+        <p class="orq-branch d-mono" id="orq-branch" hidden>{T.branch} ai/t128</p>
+        <pre class="orq-json d-mono" id="orq-json" hidden></pre>
+        <p class="orq-round d-mono" id="orq-round" hidden></p>
+      </div>
+    </div>
+
+    <div class="d-row orq-ctrl">
+      <button type="button" class="d-btn" id="orq-prev" aria-label={T.prev}>←</button>
+      <button type="button" class="d-btn d-solid" id="orq-play">▶ {T.play}</button>
+      <button type="button" class="d-btn" id="orq-next" aria-label={T.next}>→</button>
+      <label class="d-muted orq-check"><input type="checkbox" id="orq-changes" /> {T.changes}</label>
+    </div>
+
+    <div class="orq-pace">
+      <h4>{T.paceTitle}</h4>
+      <p class="d-muted">{T.paceIntro}</p>
+      <div class="orq-pace-grid">
+        <div class="orq-sliders">
+          <label class="orq-range"><span>{T.used} <output class="d-mono" id="orq-used-o">40%</output></span>
+            <input type="range" id="orq-used" min="0" max="100" value="40" /></label>
+          <label class="orq-range"><span>{T.elapsed} <output class="d-mono" id="orq-el-o">150</output></span>
+            <input type="range" id="orq-el" min="0" max="300" step="5" value="150" /></label>
+          <div class="orq-meter" aria-hidden="true">
+            <span class="orq-meter-used" id="orq-meter-used"></span>
+            <span class="orq-meter-line" id="orq-meter-line"></span>
+            <span class="orq-meter-hard"></span>
+          </div>
+          <p class="d-muted d-mono orq-allowed">{T.allowed}: <span id="orq-allowed">72%</span> · {T.hard} 90%</p>
+          <div class="d-seg" role="group" aria-label={T.mode}>
+            <button type="button" class="orq-mode" data-mode="exec" aria-pressed="true">{T.modeExec}</button>
+            <button type="button" class="orq-mode" data-mode="plan" aria-pressed="false">{T.modePlan}</button>
+          </div>
+          <label class="d-muted orq-check"><input type="checkbox" id="orq-ocout" /> {T.ocOut}</label>
+          <label class="d-muted orq-check"><input type="checkbox" id="orq-resout" /> {T.resOut}</label>
+          <label class="d-muted orq-check"><input type="checkbox" id="orq-sens" /> {T.sensitive}</label>
+        </div>
+        <div>
+          <ol class="orq-chain" aria-label={T.chainLabel}>
+            {T.chain.map((c, i) => (<li class="orq-link" data-i={i}><span class="orq-dot" aria-hidden="true"></span><span>{c}</span><span class="orq-note d-mono"></span></li>))}
+          </ol>
+          <p class="orq-out" id="orq-out" role="status"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var root = document.getElementById('orq');
+    if (!root) return;
+    var T = JSON.parse(root.dataset.t), TAGS = JSON.parse(root.dataset.tags);
+    var steps = root.querySelectorAll('.orq-step');
+    var $ = function (id) { return root.querySelector('#' + id); };
+    var N = T.stages.length, cur = 0, round = 0, playing = false;
+    var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function render(i, opts) {
+      opts = opts || {};
+      cur = i;
+      steps.forEach(function (b, j) {
+        b.setAttribute('aria-pressed', j === i ? 'true' : 'false');
+        b.dataset.state = j < i ? 'done' : j === i ? 'on' : '';
+      });
+      var s = T.stages[i];
+      $('orq-eyebrow').textContent = String(i + 1).padStart(2, '0') + ' / ' + String(N).padStart(2, '0');
+      $('orq-h').textContent = s.h;
+      $('orq-p').textContent = s.p;
+      var tags = opts.verdict === 'no' ? ['ia·trabajando'] : TAGS[i];
+      $('orq-tags').innerHTML = '';
+      tags.forEach(function (t) {
+        var e = document.createElement('span');
+        e.className = 'orq-tag' + (t === 'ia·hecho' ? ' orq-tag-ok' : t === 'ia·trabajando' ? ' orq-tag-run' : '');
+        e.textContent = t; $('orq-tags').appendChild(e);
+      });
+      $('orq-branch').hidden = i < 3;
+      var json = $('orq-json');
+      json.hidden = i !== 4;
+      json.textContent = opts.verdict === 'no' ? T.verdictNo : T.verdictOk;
+      json.dataset.v = opts.verdict === 'no' ? 'no' : 'ok';
+      $('orq-round').hidden = !(i === 4 && round);
+      $('orq-round').textContent = T.round + ' ' + round + '/3';
+      $('orq-loop').dataset.on = opts.loop ? 'true' : 'false';
+    }
+
+    function wait(ms) { return new Promise(function (r) { setTimeout(r, still ? 0 : ms); }); }
+    async function play() {
+      if (playing) return; playing = true; $('orq-play').disabled = true;
+      var changes = $('orq-changes').checked; round = 0;
+      for (var i = 0; i < N; i++) {
+        if (i === 4) round++;
+        render(i); await wait(1600);
+        if (i === 4 && changes && round === 1) {
+          render(4, { verdict: 'no' }); await wait(1600);
+          render(4, { verdict: 'no', loop: true }); await wait(900);
+          render(3, { loop: true }); await wait(1400);
+          round++; render(4); await wait(1600);
+        }
+      }
+      round = 0; playing = false; $('orq-play').disabled = false;
+    }
+
+    steps.forEach(function (b) {
+      b.addEventListener('click', function () { if (!playing) { round = 0; render(+b.dataset.i); } });
+      b.addEventListener('keydown', function (e) {
+        var d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+        if (!d || playing) return;
+        e.preventDefault(); var n = (+b.dataset.i + d + N) % N; render(n); steps[n].focus();
+      });
+    });
+    $('orq-prev').addEventListener('click', function () { if (!playing) render((cur - 1 + N) % N); });
+    $('orq-next').addEventListener('click', function () { if (!playing) render((cur + 1) % N); });
+    $('orq-play').addEventListener('click', play);
+    render(0);
+
+    // Pacing: allowed = min(100, elapsed / 240 * 100 + 10); hold above it or from 90% (pace() in ai-dispatch.py)
+    var mode = 'exec';
+    var links = root.querySelectorAll('.orq-link');
+    function decide() {
+      var used = +$('orq-used').value, el = +$('orq-el').value;
+      var allowed = Math.min(100, el / 240 * 100 + 10), hold = used > allowed || used >= 90;
+      $('orq-used-o').textContent = used + '%';
+      $('orq-el-o').textContent = el;
+      $('orq-allowed').textContent = Math.round(allowed) + '%';
+      $('orq-meter-used').style.width = used + '%';
+      $('orq-meter-line').style.left = allowed + '%';
+      root.querySelector('.orq-meter').dataset.hold = hold ? 'true' : 'false';
+      var oc = $('orq-ocout').checked, res = $('orq-resout').checked, sens = $('orq-sens').checked;
+      $('orq-resout').disabled = !oc;
+      var state = ['', '', '', '', ''], notes = ['', '', '', '', ''], msg;
+      if (!hold) { state[0] = 'on'; msg = T.out.claude; }
+      else if (mode === 'plan') { state[0] = 'hold'; notes[0] = T.waits; msg = T.out.waitPlan; }
+      else {
+        state[0] = 'hold';
+        if (!oc) { state[1] = 'on'; msg = T.out.oc; }
+        else if (!res) { state[1] = 'off'; state[2] = 'on'; msg = sens ? T.out.resPriv : T.out.res; }
+        else if (!sens) { state[1] = state[2] = 'off'; state[3] = 'on'; msg = T.out.free; }
+        else { state[1] = state[2] = 'off'; state[3] = 'skip'; notes[3] = T.skipped; state[4] = 'on'; msg = T.out.fail; }
+      }
+      links.forEach(function (l, i) { l.dataset.state = state[i]; l.querySelector('.orq-note').textContent = notes[i]; });
+      $('orq-out').textContent = msg;
+    }
+    ['orq-used', 'orq-el'].forEach(function (id) { $(id).addEventListener('input', decide); });
+    ['orq-ocout', 'orq-resout', 'orq-sens'].forEach(function (id) { $(id).addEventListener('change', decide); });
+    root.querySelectorAll('.orq-mode').forEach(function (b) {
+      b.addEventListener('click', function () {
+        mode = b.dataset.mode;
+        root.querySelectorAll('.orq-mode').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        decide();
+      });
+    });
+    decide();
+  })();
+</script>
+
+<style is:global>
+  .orq h4 { font-size: 1.0625rem; margin: 0 0 6px; }
+  .orq-flow { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 560px) { .orq-flow { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 860px) { .orq-flow { grid-template-columns: repeat(6, 1fr); } }
+  .orq-step { width: 100%; min-height: 56px; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); font: inherit; font-size: 0.875rem; text-align: left; cursor: pointer; transition: border-color 150ms, background 150ms; }
+  .orq-step:hover { border-color: var(--accent); }
+  .orq-n { font-size: 0.6875rem; color: var(--muted); }
+  .orq-step[data-state='done'] .orq-n { color: var(--accent); }
+  .orq-step[data-state='on'] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg)); box-shadow: 0 0 0 1px var(--accent); }
+  .orq-step[data-state='on'] .orq-n { color: var(--accent); }
+  .orq-loop { display: none; width: 100%; height: 22px; color: var(--muted); opacity: 0.35; transition: opacity 200ms, color 200ms; }
+  @media (min-width: 860px) { .orq-loop { display: block; } }
+  .orq-loop[data-on='true'] { color: var(--cta); opacity: 1; }
+
+  .orq-stage { display: grid; gap: 16px; margin-top: 12px; grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .orq-stage { grid-template-columns: 1.4fr 1fr; align-items: start; } }
+  .orq-detail { min-height: 9.5em; }
+  .orq-detail p:last-child { margin: 0; }
+  .orq-card { padding: 14px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; background: var(--bg); font-size: 0.875rem; }
+  .orq-card-top { display: flex; justify-content: space-between; font-size: 0.6875rem; color: var(--muted); }
+  .orq-who { padding: 1px 8px; border: 1px solid var(--line); border-radius: 999px; }
+  .orq-card-title { margin: 8px 0; font-weight: 500; }
+  .orq-tags { display: flex; flex-wrap: wrap; gap: 6px; min-height: 24px; }
+  .orq-tag { font-family: var(--mono); font-size: 0.75rem; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--accent); color: var(--accent); }
+  .orq-tag-run { border-color: var(--wip-text); color: var(--wip-text); }
+  .orq-tag-ok { border-color: #1a7d4a; color: #1a7d4a; }
+  .orq-branch, .orq-round { margin: 8px 0 0; font-size: 0.75rem; color: var(--muted); }
+  .orq-json { margin: 8px 0 0; padding: 8px; border: 1px solid var(--line); border-radius: 6px; font-size: 0.6875rem; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+  .orq-json[data-v='ok'] { border-color: #1a7d4a; }
+  .orq-json[data-v='no'] { border-color: var(--cta); }
+  .orq-ctrl { margin: 16px 0 0; }
+  .orq-check { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; }
+
+  .orq-pace { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .orq-pace-grid { display: grid; gap: 20px; grid-template-columns: 1fr; margin-top: 12px; }
+  @media (min-width: 760px) { .orq-pace-grid { grid-template-columns: 1fr 1fr; } }
+  .orq-sliders { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+  .orq-range { display: flex; flex-direction: column; gap: 4px; width: 100%; font-size: 0.875rem; }
+  .orq-range span { display: flex; justify-content: space-between; }
+  .orq-range input { width: 100%; min-height: 32px; accent-color: var(--accent); }
+  .orq-meter { position: relative; width: 100%; height: 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg); overflow: hidden; }
+  .orq-meter-used { position: absolute; inset: 0 auto 0 0; background: var(--accent); transition: width 150ms; }
+  .orq-meter[data-hold='true'] .orq-meter-used { background: var(--cta); }
+  .orq-meter-line { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--ink); transition: left 150ms; }
+  .orq-meter-hard { position: absolute; top: 0; bottom: 0; left: 90%; width: 0; border-left: 2px dotted var(--muted); }
+  .orq-allowed { margin: 0; font-size: 0.75rem; }
+  .orq-chain { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .orq-link { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); font-size: 0.875rem; transition: border-color 150ms, background 150ms, opacity 150ms; }
+  .orq-link + .orq-link { position: relative; }
+  .orq-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--muted); flex: none; }
+  .orq-note { margin-left: auto; font-size: 0.6875rem; color: var(--muted); }
+  .orq-link[data-state='on'] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
+  .orq-link[data-state='on'] .orq-dot { border-color: var(--accent); background: var(--accent); }
+  .orq-link[data-state='hold'] .orq-dot, .orq-link[data-state='off'] .orq-dot { border-color: var(--cta); }
+  .orq-link[data-state='off'] { opacity: 0.7; text-decoration: line-through; text-decoration-color: var(--cta); }
+  .orq-link[data-state='skip'] { opacity: 0.5; border-style: dashed; }
+  .orq-link:last-child[data-state='on'] { border-color: var(--cta); background: color-mix(in srgb, var(--cta) 12%, var(--bg)); }
+  .orq-link:last-child[data-state='on'] .orq-dot { border-color: var(--cta); background: var(--cta); }
+  .orq-out { margin: 12px 0 0; font-size: 0.9375rem; min-height: 3em; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme='light']) .orq-tag-ok, :root:not([data-theme='light']) .orq-json[data-v='ok'] { color: #4fd18b; border-color: #4fd18b; } }
+  :root[data-theme='dark'] .orq-tag-ok, :root[data-theme='dark'] .orq-json[data-v='ok'] { color: #4fd18b; border-color: #4fd18b; }
+  @media (prefers-reduced-motion: reduce) { .orq-step, .orq-link, .orq-meter-used, .orq-meter-line, .orq-loop { transition: none; } }
+</style>

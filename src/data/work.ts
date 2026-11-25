@@ -1,7 +1,7 @@
 import type { Lang } from '../i18n/ui';
 
 export type Status = 'case' | 'shipped' | 'wip';
-export type DemoKey = 'planner' | 'automation' | 'nonsleep' | 'beast' | 'hevy' | 'portal';
+export type DemoKey = 'planner' | 'automation' | 'nonsleep' | 'beast' | 'hevy' | 'portal' | 'orchestrator';
 type Text = Record<Lang, string>;
 
 export interface WorkItem {
@@ -157,6 +157,41 @@ export const work: WorkItem[] = [
 ];
 
 export const moreWork: WorkItem[] = [
+  {
+    slug: 'taskview-ai-orchestrator',
+    status: 'shipped',
+    demo: 'orchestrator',
+    github: 'https://github.com/juansuarezdev/taskview-ai-orchestrator',
+    title: { en: 'TaskView AI Orchestrator', es: 'TaskView AI Orchestrator' },
+    summary: {
+      en: 'Turns a self-hosted kanban board into a work queue for AI coding agents: tag a card and it is planned or implemented in its own branch, reviewed and merged.',
+      es: 'Convierte un tablero kanban autoalojado en una cola de trabajo para agentes de IA: etiquetas una tarjeta y se planifica o implementa en su propia rama, se revisa y se integra.',
+    },
+    stack: ['Python', 'launchd', 'Claude Code', 'OpenCode', 'git worktrees'],
+    body: [
+      {
+        h: { en: 'What it does', es: 'Qué hace' },
+        text: {
+          en: 'Small Python and shell scripts that sit next to a self-hosted TaskView instance and talk to it only through its HTTP API. The assignee of a card decides which agent runs it and one tag decides what it does: plan, implement, resume after a question or email the result.',
+          es: 'Scripts pequeños de Python y shell que viven junto a una instancia autoalojada de TaskView y solo hablan con ella por su API HTTP. El asignado de la tarjeta decide qué agente la ejecuta y una etiqueta decide qué hace: planificar, implementar, continuar tras una pregunta o enviar el resultado por correo.',
+        },
+      },
+      {
+        h: { en: 'Safe by design', es: 'Seguro por diseño' },
+        text: {
+          en: 'Every card runs in its own git worktree with an allow list and a deny list of commands, a separate review answers with a JSON verdict, and only the repos I list are merged to main, after tests and never with --force. A session that lacks information asks on the card instead of guessing.',
+          es: 'Cada tarjeta corre en su propio worktree de git con una lista de comandos permitidos y otra de prohibidos, una revisión aparte responde con un veredicto JSON y solo los repos que yo elijo se integran en main, tras los tests y nunca con --force. Si a la sesión le falta información, pregunta en la tarjeta en lugar de adivinar.',
+        },
+      },
+      {
+        h: { en: 'Usage and fallback', es: 'Uso y reserva' },
+        text: {
+          en: 'Claude’s usage window is paced along a straight line so the dispatcher never spends it ahead of time. When Claude is held, implementation work moves to OpenCode, then to a reserve model, with one alert when the chain degrades and one when it recovers.',
+          es: 'La ventana de uso de Claude se reparte sobre una línea recta para que el despachador no la gaste antes de tiempo. Cuando Claude queda en espera, el trabajo de implementación pasa a OpenCode y después a un modelo de reserva, con un aviso cuando la cadena se degrada y otro cuando se recupera.',
+        },
+      },
+    ],
+  },
   {
     slug: 'non-sleep',
     status: 'shipped',

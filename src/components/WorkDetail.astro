@@ -8,6 +8,7 @@ import NonSleep from './demos/NonSleep.astro';
 import Beast from './demos/Beast.astro';
 import Hevy from './demos/Hevy.astro';
 import Portal from './demos/Portal.astro';
+import Orchestrator from './demos/Orchestrator.astro';
 
 interface Props { w: WorkItem; lang: Lang; page?: boolean }
 const { w, lang, page = false } = Astro.props;
@@ -44,6 +45,7 @@ const Sec = page ? 'h2' : 'h3';
         {w.demo === 'beast' && <Beast lang={lang} />}
         {w.demo === 'hevy' && <Hevy lang={lang} />}
         {w.demo === 'portal' && <Portal lang={lang} />}
+        {w.demo === 'orchestrator' && <Orchestrator lang={lang} />}
       </div>
     </>
   )}
